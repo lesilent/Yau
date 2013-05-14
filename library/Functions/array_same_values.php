@@ -11,7 +11,7 @@
 namespace Yau\Functions;
 
 /**
-* Return whether array have the same values
+* Return whether arrays have the same values
 *
 * Example:
 * <code>

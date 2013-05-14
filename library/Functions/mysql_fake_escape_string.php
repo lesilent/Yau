@@ -31,7 +31,7 @@ namespace Yau\Functions;
 * @link    http://dev.mysql.com/doc/refman/5.6/en/string-literals.html
 * @link    http://dev.mysql.com/doc/refman/5.6/en/mysql-real-escape-string.html
 */
-function mysql_fake_escape_string($escapestr)
+function mysql_fake_escape_string($unescaped_string)
 {
 	return strtr($escapestr, array(
 		"\x00" => '\0',

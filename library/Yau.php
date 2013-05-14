@@ -23,7 +23,6 @@ const NAMESPACE_SEPARATOR = '\\';
 * @author   John Yau
 * @category Yau
 * @package  Yau
-* @version  2008-05-29
 */
 final class Yau
 {

@@ -5,7 +5,7 @@
 *
 * @author   John Yau
 * @category Yau
-* @version  2011-09-19
+* @package  Yau_Functions
 */
 
 namespace Yau\Functions;
@@ -41,7 +41,6 @@ namespace Yau\Functions;
 * @param   integer $num2
 * @return  integer returns < 0 if num1 is less than num2; > 0 if num1 is greater
 *                  num2, and 0 if they are equal
-* @version 2011-09-19
 */
 function numcmp($num1, $num2)
 {

@@ -19,6 +19,34 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
 
 /**
 */
+public function test_array_filter_key()
+{
+	$output = Functions::array_filter_key(array());
+	$this->assertSame($output, array());
+
+	$arr = array(
+		'1' => 'James',
+		'0' => 'John',
+		'2' => 'Joe',
+		''  => 'Jack',
+	);
+	$output = Functions::array_filter_key($arr);
+	$this->assertSame($output, array('1'=>'James', '2'=>'Joe'));
+
+	$arr = array(
+		'abc' => 'Jim',
+		1     => 'James',
+		0     => 'John',
+		2     => 'Joe',
+		false => 'Jack',
+		true  => 'Jake',
+	);
+	$output = Functions::array_filter_key($arr);
+	$this->assertSame($output, array('abc'=>'Jim', 1=>'James', 2=>'Joe', true=>'Jake'));
+}
+
+/**
+*/
 public function test_array_slice_key()
 {
 	$arr = array(
@@ -29,8 +57,6 @@ public function test_array_slice_key()
 	);
 	$output = Functions::array_slice_key($arr, array('age', 'hair'));
  	$this->assertSame($output, array('age'=>18, 'hair'=>'black'));
-
- 	$a = \Yau\Functions\array_slice_key(array(),array());
 }
 
 /**
