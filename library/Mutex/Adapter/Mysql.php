@@ -12,6 +12,7 @@ namespace Yau\Mutex\Adapter;
 
 use Yau\Mutex\AdapterInterface;
 use Yau\Mutex\Exception\InvalidArgumentException;
+use Yau\Mutex\Exception\RuntimeException;
 use Yau\Db\Adapter\Adapter;
 
 /**
@@ -82,8 +83,8 @@ use Yau\Db\Adapter\Adapter;
 * $dbh = new PDO('mysql:host=localhost;dbname=test', $user, $pass);
 * $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 *
-* $options = array('max_time_func'=>'notify_admin');
-* $mutex = new Mutex::factory('mysql', $dbh, 'myscript', $options);
+* $options = array('name'=>'myscript', 'max_time_func'=>'notify_admin');
+* $mutex = new Mutex::factory('mysql', $dbh, $options);
 * </code>
 *
 * ChangeLog
@@ -94,7 +95,7 @@ use Yau\Db\Adapter\Adapter;
 * @category Yau
 * @package  Yau_Mutex
 */
-class Mysql extends MutexInterface
+class Mysql implements AdapterInterface
 {
 /*=======================================================*/
 
@@ -232,26 +233,24 @@ private static $REQUIRED_OPTIONS = array(
 * </pre>
 *
 * @param  mixed  $dbh     a mysql database connection object or resource
-* @param  string $name    optional name for mutex; if omitted, then the script
-*                         name will be used
 * @param  array  $options optional associative array of options
 * @throws Exception if there's an error with the arguments
 */
-public function __construct($dbh, $name = NULL, array $options = array())
+public function __construct($dbh, array $options = array())
 {
-	// Store name
-	if (is_null($name))
-	{
-		$trace = debug_backtrace();
-		$name = $trace[0]['file'];
-	}
-	$this->name = $name;
-
 	// Store process options
 	if (!empty($options))
 	{
 		$this->options = array_merge($this->options, $options);
 	}
+
+	// Store name
+	if (empty($options['name']))
+	{
+		$trace = debug_backtrace();
+		$options['name'] = $trace[0]['file'];
+	}
+	$this->name = $options['name'];
 
 	// Check whether callback function is callable or not
 	if (!empty($this->options['max_time_func'])
@@ -283,10 +282,10 @@ public function __construct($dbh, $name = NULL, array $options = array())
 	}
 
 	// Check that database connection is MySQL
-	$driver = Adapter::getDriver(($dbh instanceof Yau\Db\Adapter\AbstractDriver) ? $dbh->getConnection() : $dbh);
+	$driver = Adapter::getDriver(($dbh instanceof \Yau\Db\Adapter\Driver\AbstractDriver) ? $dbh->getConnection() : $dbh);
 	if (empty($driver) || stripos($driver, 'mysql') === FALSE)
 	{
-		throw new Exception('Database connection is not MySQL');
+		throw new InvalidArgumentException('Database connection is not MySQL');
 	}
 
 	// Wrap database connection
@@ -302,7 +301,7 @@ public function __construct($dbh, $name = NULL, array $options = array())
 	$row = $this->dbh->getAssocRow('SELECT CONNECTION_ID() AS connid, USER() AS curuser');
 	if (empty($row))
 	{
-		throw new Exception('Unable to obtain current connection id and user');
+		throw new RuntimeException('Unable to obtain current connection id and user');
 	}
 	$this->connection_id = $row['connid'];
 	$this->current_user  = $row['curuser'];
@@ -325,7 +324,7 @@ private function checkMutexTable()
 	$table = $this->dbh->getOne($sql, array($this->options['table_name']));
 	if (empty($table))
 	{
-		throw new Exception('Unable to locate mutex table');
+		throw new InvalidArgumentException('Unable to locate mutex table');
 	}
 
 	// Form table name
@@ -352,7 +351,7 @@ private function checkMutexTable()
 	{
 		if (empty($columns[$this->options[$prefix . '_column']]))
 		{
-			throw new Exception('Unable to locate ' . $name. ' column in mutex table');
+			throw new InvalidArgumentException('Unable to locate ' . $name. ' column in mutex table');
 		}
 	}
 }

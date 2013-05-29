@@ -11,13 +11,13 @@
 namespace Yau\Mutex\Exception;
 
 /**
-* Invalid argument exception
+* Runtime exception
 *
 * @author     John Yau
 * @category   Yau
 * @package    Yau_Mutex
 * @subpackage Exception
 */
-class InvalidArgumentException extends \InvalidArgumentException
+class RuntimeException extends \RuntimeException
 {
 }

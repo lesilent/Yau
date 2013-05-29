@@ -10,6 +10,8 @@
 
 namespace Yau\Db\Adapter;
 
+use Yau\Db\Adapter\Exception\UnexpectedValueException;
+
 /**
 * A database wrapper object for interacting with databases
 *
@@ -134,7 +136,7 @@ public static function getDriver($dbh)
 public static function factory($dbh)
 {
 	// Return back object if already a Adapter object
-	if (is_object($dbh) && $dbh instanceof Yau\Db\Adapter\Driver\AbstractDriver)
+	if (is_object($dbh) && $dbh instanceof \Yau\Db\Adapter\Driver\AbstractDriver)
 	{
 		return $dbh;
 	}
@@ -144,7 +146,7 @@ public static function factory($dbh)
 	if (empty($driver))
 	{
 		$dbh_name = (is_object($dbh)) ? get_class($dbh) : gettype($dbh);
-		throw new Exception('Unable to find driver for ' . $dbh_name);
+		throw new UnexpectedValueException('Unable to find driver for ' . $dbh_name);
 	}
 	$driver_dir = (($spos = strpos($driver, '_')) === FALSE)
 		? $driver
