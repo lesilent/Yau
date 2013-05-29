@@ -8,7 +8,7 @@
 * @package  Yau_Mutex
 */
 
-/////////////////////////////////////////////////////////////////////
+namespace Yau\Mutex;
 
 /**
 * Interface classes used to ensure that only a single instance is running
