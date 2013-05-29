@@ -28,7 +28,7 @@ class Mutex
 * @param  array  $options  associative array of options
 * @return object
 */
-public static factory($type, $resource, $options = array())
+public static function factory($type, $resource, $options = array())
 {
 	$class_name = __NAMESPACE__ . '\\Adapter\\' . ucfirst($type);
 	return new $class_name($resource, $options);
