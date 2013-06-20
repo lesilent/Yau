@@ -130,8 +130,8 @@ public function getConnection()
 * </code>
 *
 * @param  string $stmt the SQL statement to prepare
-* @return object a Util_DB_Statement object
-* @see    Util_DB_Statement
+* @return object a Yau\Db\Statement object
+* @see    Yau\Db\Statement
 */
 public function prepare($stmt)
 {
@@ -148,9 +148,9 @@ public function prepare($stmt)
 *
 * @param  string $query  the SQL query to execute
 * @param  array  $params an array of parameters to bind to the statement
-* @return object a Util_DB_Statement object, or FALSE on failure
+* @return object a Yau\Db\Statement object, or FALSE on failure
 * @throws Exception if unable to prepare statement
-* @uses   Util_DB_Adapter::prepare()
+* @uses   Yau\Db\AbstractDriver::prepare()
 */
 public function query($query, array $params = array())
 {
@@ -310,7 +310,7 @@ public function insertInto($table, array $params)
 * @param  array   $params associative array of parameters
 * @param  array   $where  associative array of where parameters
 * @return integer integer the number of affected rows, or FALSE if error
-* @uses   Sql::buildUpdateStatement()
+* @uses   Yau\Db\Sql::buildUpdateStatement()
 */
 public function updateTable($table, array $params, array $where)
 {
@@ -324,7 +324,7 @@ public function updateTable($table, array $params, array $where)
 * @param  string  $table  the name of the table
 * @param  array   $where  associative array of where parameters
 * @return integer integer the number of affected rows, or FALSE if error
-* @uses   Util_DB_SQL::buildDeleteStatement()
+* @uses   Yau\Db\Sql::buildDeleteStatement()
 */
 public function deleteFrom($table, array $where)
 {
