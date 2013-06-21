@@ -10,10 +10,10 @@
 
 namespace Yau;
 
-// Define namespace separator
-const NAMESPACE_SEPARATOR = '\\';
+use Yau\ClassLoader\ClassLoader;
 
 /**
+* Main Yau class
 *
 * <code>
 * require 'Yau/Yau.php';
@@ -30,31 +30,26 @@ final class Yau
 /*=======================================================*/
 
 /**
-* The base directory from which all modules are relative to
+* The class loader object
 *
-* @var string
+* @var object
 */
-private static $basedir = null;
+private static $loader;
 
 /**
-* Set the base directory for framework files
+* Return an instance of the class loader
 *
-* @var string
+* @return object
 */
-public static function setBaseDir($path)
+private static function getLoader()
 {
-	self::$basedir = realpath($path);
-}
-
-/**
-* Return whether a class is part of Yau Tools
-*
-* @param  string  $class_name
-* @return boolean
-*/
-private function isYauClass($class_name)
-{
-	return (strcmp(array_shift(explode(NAMESPACE_SEPARATOR, $class_name)), __NAMESPACE__) == 0);
+	if (empty(self::$loader))
+	{
+		require __DIR__ . DIRECTORY_SEPARATOR . 'ClassLoader' . DIRECTORY_SEPARATOR . 'ClassLoader.php';
+		self::$loader = new ClassLoader();
+		self::$loader->registerNamespace(__NAMESPACE__, __DIR__);
+	}
+	return self::$loader;
 }
 
 /**
@@ -65,11 +60,10 @@ private function isYauClass($class_name)
 public static function loadClass($class_name)
 {
 	if (!class_exists($class_name, FALSE)
-		&& ($ns_pos = strpos($class_name, NAMESPACE_SEPARATOR)) !== FALSE
+		&& ($ns_pos = strpos($class_name, '\\')) !== FALSE
 		&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0)
 	{
-//		echo "loading $class_name\n";
-		$filename = __DIR__ . DIRECTORY_SEPARATOR . str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, substr($class_name, $ns_pos + 1)) . '.php';
+		$filename = self::getLoader()->getPath($class_name);
 		if (include($filename))
 		{
 			return TRUE;
@@ -80,94 +74,45 @@ public static function loadClass($class_name)
 }
 
 /**
-* Return whether a class or interface file exists to be loaded
-*
-* @param  string  $class_name
-* @return boolean
-*/
-public static function classExists($class_name)
-{
-	return (class_exists($class_name, FALSE)
-		|| (($ns_pos = strpos($class_name, NAMESPACE_SEPARATOR)) !== FALSE
-			&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0
-			&& ($filename = __DIR__ . DIRECTORY_SEPARATOR . str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, substr($class_name, $ns_pos + 1)) . '.php')
-			&& is_readable($filename)));
-}
-
-/**
-* Load a Utility interface
+* Load a Yau Tools interface
 *
 * @param string $interface_name the name of the interface to load
 */
 public static function loadInterface($interface_name)
 {
-	if (!interface_exists($interface_name, FALSE))
+	if (!interface_exists($interface_name, FALSE)
+		&& ($ns_pos = strpos($interface_name, '\\')) !== FALSE
+		&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0)
 	{
-		require self::$basedir . DIRECTORY_SEPARATOR
-			. str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $interface_name) . '.php';
+		$filename = self::getLoader()->getPath($interface_name);
+		if (include($filename))
+		{
+			return TRUE;
+		}
+		throw new \Exception('Unable to load ' . $filename);
 	}
 }
 
 /**
-* Load a Utility function
+* Register autoload function
 *
-* @param string $func the name of the function to load
-*/
-public static function loadFunction($func)
-{
-	if (!function_exists($func))
-	{
-		require self::$basedir . DIRECTORY_SEPARATOR
-			. __CLASS__ . DIRECTORY_SEPARATOR
-			. 'functions' . DIRECTORY_SEPARATOR . $func . '.php';
-	}
-}
-
-/**
-* Load a Utility file
-*
-* @param string $filename the name of the file to load
-*/
-public static function loadFile($filename)
-{
-	include self::$basedir . '/' . $filename;
-}
-
-/**
-* Read a Utility file
-*
-* @param string $filename the name of the file to load
-* @uses  readfile()
-*/
-public static function readFile($filename)
-{
-	readfile(self::$basedir . '/' . $filename);
-}
-
-/**
-* Register autoload function using spl_autoload_register
-*
-* @see spl_autoload_register()
+* @return boolean
 */
 public static function registerAutoloader()
 {
-	if (is_null(self::$basedir))
-	{
-		self::setBaseDir(dirname(__DIR__));
-		spl_autoload_register(__CLASS__ . '::loadClass');
-	}
+	return self::getLoader()->register();
 }
 
 /**
 * Unregister the autoload function using spl_autoload_unregister
 *
-* @see spl_autoload_unregister()
+* @return boolean
 */
 public static function unregisterAutoloader()
 {
-	if (!is_null(self::$basedir))
+	if (!empty(self::$loader))
 	{
-		spl_autoload_unregister(__CLASS__ . '::loadClass');
+		return self::getLoader()->unregister();
 	}
 }
 
