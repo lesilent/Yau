@@ -145,6 +145,7 @@ public function load($class_name)
 public function registerNamespace($namespace, $path)
 {
 	$this->namespaces[$namespace] = rtrim($path, '\\');
+	$this->register();
 }
 
 /**
@@ -158,6 +159,7 @@ public function registerNamespaces($namespaces)
 	{
 		$this->registerNamespace($ns, $path);
 	}
+	$this->register();
 }
 
 /**
@@ -169,6 +171,7 @@ public function registerNamespaces($namespaces)
 public function registerPrefix($prefix, $path)
 {
 	$this->prefixes[$prefix] = $path;
+	$this->register();
 }
 
 /**
@@ -182,10 +185,14 @@ public function registerPrefixes($prefixes)
 	{
 		$this->registerPrefix($prefix, $path);
 	}
+	$this->register();
 }
 
 /**
 * Register autoloader using spl_autoload_register
+*
+* Note: no need to call this method, since this is called automatically
+* when a namespace or prefix is registered
 *
 * @see    spl_autoload_register()
 * @return boolean
