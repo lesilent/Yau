@@ -53,15 +53,41 @@ private static function getLoader()
 }
 
 /**
-* Load a Utility class
+* Return whether a class belongs to the current namespace or not
+*
+* @param  string  $class_name
+* @return boolean
+*/
+private static function isYauClass($class_name)
+{
+	return (($ns_pos = strpos($class_name, '\\')) !== FALSE
+		&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0);
+}
+
+/**
+* Return whether a file for a class exists or not
+*
+* @param  string  $class_name the name of the class
+* @return boolean
+*/
+public static function classExists($class_name)
+{
+	if (self::isYauClass($class_name))
+	{
+		$filename = self::getLoader()->getPath($class_name);
+		return file_exists($filename);
+	}
+	return FALSE;
+}
+
+/**
+* Load a class
 *
 * @param string $class_name the name of the class to load
 */
 public static function loadClass($class_name)
 {
-	if (!class_exists($class_name, FALSE)
-		&& ($ns_pos = strpos($class_name, '\\')) !== FALSE
-		&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0)
+	if (!class_exists($class_name, FALSE) && self::isYauClass($class_name))
 	{
 		$filename = self::getLoader()->getPath($class_name);
 		if (include($filename))
@@ -74,15 +100,13 @@ public static function loadClass($class_name)
 }
 
 /**
-* Load a Yau Tools interface
+* Load an interface
 *
 * @param string $interface_name the name of the interface to load
 */
 public static function loadInterface($interface_name)
 {
-	if (!interface_exists($interface_name, FALSE)
-		&& ($ns_pos = strpos($interface_name, '\\')) !== FALSE
-		&& strcmp(substr($class_name, 0, $ns_pos), __NAMESPACE__) == 0)
+	if (!interface_exists($interface_name, FALSE) && self::isYauClass($class_name))
 	{
 		$filename = self::getLoader()->getPath($interface_name);
 		if (include($filename))
