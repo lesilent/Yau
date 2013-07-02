@@ -266,7 +266,7 @@ public function isValid($value)
 			{
 				$result = (bool) $this->$method($value) && $result;
 			}
-			catch (Exception $e)
+			catch (\Exception $e)
 			{
 				$this->addMessage($e->getMessage());
 			}

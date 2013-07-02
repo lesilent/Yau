@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<config>
+    <systems>
+        <system name="main_master" host="master.example.com" />
+        <system name="main_slave"  host="slave.example.com" />
+        <system name="old_db"      host="old.example.com" />
+        <system name="dev_db"      host="dev.example.com" />
+        <system name="localdb"     host="localhost" />
+    </systems>
+    <databases>
+        <database name="projectx" driver="mysql" dbname="projx">
+            <users>
+                <user username="webuser" password="websecret" default="default" />
+                <user username="admin" password="adminsecret" />
+            </users>
+            <connections>
+                <connection system="main_master" />
+                <connection system="main_slave" access="read" />
+            </connections>
+        </database>
+	<database name="yautest" driver="mysql" dbname="yautest">
+	   <users>
+		<user username="yau_user" password="yaupwd" default="default" />
+		<user username="yau_user2" password="yaupwd2" />
+	   </users>
+	   <connections>
+		<connection system="localdb" />
+	   </connections>
+	</database>
+	<database name="y2k" driver="db2" dbname="project2000">
+	   <users>
+		<user username="user123" password="pwd123" />
+	   </users>
+	   <connections>
+		<connection system="old_db" />
+	   </connections>
+	</database>
+    </databases>
+</config>

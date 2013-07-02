@@ -66,9 +66,11 @@ public static function connect($params)
 		: 0;
 
 	// Connect to database
+	$level = error_reporting(0);
 	$conn = (empty($params['persistent']))
 		? mysql_connect($server, $username, $password, $new_link, $client_flags)
 		: mysql_pconnect($server, $username, $password, $client_flags);
+	error_reporting($level);
 
 	// Throw exception if there was a connection error
 	if ($conn === FALSE)

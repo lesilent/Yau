@@ -107,7 +107,7 @@ public function freeResult()
 		{
 			$this->sth->fetchAll();
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
 		}
 //		$result = $this->sth->closeCursor();

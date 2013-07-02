@@ -4,19 +4,19 @@
 *
 * @author     John Yau
 * @category   Yau
-* @package    Yau_Db
+* @package    Yau_MDBAC
 */
 
-namespace Yau\Db\Connect\Exception;
+namespace Yau\MDBAC\Exception;
 
 /**
 * Connection exception
 *
 * @author     John Yau
 * @category   Yau
-* @package    Yau_Db
+* @package    Yau_MDBAC
 * @subpackage Exception
 */
-class ConnectException extends \Exception
+class ConnectException extends \RunTimeException
 {
 }
