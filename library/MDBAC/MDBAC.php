@@ -96,14 +96,27 @@ protected $config;
 protected $conns = array();
 
 /**
+* Associative array of options
+*
+* @var array
+*/
+protected $options = array();
+
+/**
 * Constructor
 *
-* @param  string    $xml path to or string of the database configuration info
+* <options>
+* - use_localhost boolean flag to use localhost if host name matches server's hostname
+* </code>
+*
+* @param  string    $xml     path to or string of the database configuration info
+* @param  array     $options optional associative array of options
 * @throws Exception
 */
-public function __construct($xml)
+public function __construct($xml, $options = array())
 {
-	$this->xml = $xml;
+	$this->xml     = $xml;
+	$this->options = $options;
 }
 
 /**
@@ -111,7 +124,7 @@ public function __construct($xml)
 *
 * Example
 * <code>
-* $config = DBM::getConfig();
+* $config = $mdbac->getConfig();
 *
 * $result = $config->query('mydb');
 * while ($db = $result->fetch())
@@ -138,8 +151,21 @@ public function getConfig()
 * @param  array  $options  associative array of connection options
 * @return array  array of associative arrays of connection information
 */
-protected function getDatabaseInfo($database, $options = array())
+public function getDatabaseInfo($database, $options = array())
 {
+	// Call database-specific method, if available
+	$method = 'get' . ucwords($database) . 'Info';
+	if (method_exists($this, $method))
+	{
+		if (($info = $this->$method($options))
+			&& is_array($info))
+		{
+			// If an array is returned, then info was successfully returned
+			return $info;
+		}
+	}
+
+	// Return info as fetched from config
 	return $this->getConfig()->fetchAll($database, $options);
 }
 
@@ -155,7 +181,6 @@ public function connect($driver, $database, array $options = array())
 	// Get database connection information
 	$info = $this->getDatabaseInfo($database, $options);
 
-
 	// Load class for driver
 	$driver_dir = (($upos = strpos($driver, '_')) === FALSE)
 		? $driver
@@ -168,12 +193,23 @@ public function connect($driver, $database, array $options = array())
 		throw new InvalidArgumentException('Unsupported driver ' . $driver);
 	}
 
+	// Get the current host
+	$host = self::getHostname();
+
 	// Connect to database
 	$e = NULL;
 	foreach ($info as $params)
 	{
 		// Store original parameters
 		$orig_info = $params;
+
+		// Use localhost if host matches
+		if (!empty($this->options['use_localhost'])
+			&& !empty($params['host'])
+			&& strcmp($params['host'], $host) == 0)
+		{
+			$params['host'] = 'localhost';
+		}
 
 		// Prompt for password if using CLI and password option is TRUE
 		if ($driver == 'CLI'
@@ -212,7 +248,7 @@ public function connect($driver, $database, array $options = array())
 	// Throw exception if unable to connect; if there was one, then make
 	// new one to strip off backtrace that may contain username or password
 	$e = (isset($e))
-		? new ConnectException($e->getMessage(), $e->getCode(), $e)
+		? new ConnectException($e->getMessage(), $e->getCode())
 		: new ConnectException('Unable to connect to ' . $database);
 	throw $e;
 }
@@ -254,8 +290,8 @@ public function connectOnce($driver, $database, $options = array())
 *
 * Example
 * <code>
-* $dbh = MDBAC::connect('PDO', 'mydb');
-* $info = MDBAC::getConnectionInfo();
+* $dbh = $mdbac->connect('PDO', 'mydb');
+* $info = $mdbac->getConnectionInfo();
 * print_r($info);
 * </code>
 *
@@ -276,6 +312,18 @@ public function getConnectionInfo($param = NULL)
 	}
 
 	return $this->info;
+}
+
+/**
+* Return the current host name
+*
+* @return string the name of the current host
+*/
+protected static function getHostname()
+{
+	return (isset($_SERVER['HOSTNAME']))
+		? $_SERVER['HOSTNAME']
+		: php_uname('n');
 }
 
 /*=================================================================*/
