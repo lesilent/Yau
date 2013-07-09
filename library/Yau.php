@@ -24,7 +24,7 @@ use Yau\ClassLoader\ClassLoader;
 * @category Yau
 * @package  Yau
 */
-final class Yau
+class Yau
 {
 // Begin Yau
 /*=======================================================*/

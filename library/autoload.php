@@ -19,4 +19,9 @@ if (!class_exists('Yau\\Yau', FALSE))
 {
 	require __DIR__ . DIRECTORY_SEPARATOR . 'Yau.php';
 }
-\Yau\Yau::registerAutoloader();
+if (!class_exists('Yau', FALSE))
+{
+	final class Yau extends Yau\Yau { }
+}
+Yau::registerAutoloader();
+
