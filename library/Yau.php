@@ -41,7 +41,7 @@ private static $loader;
 *
 * @return object
 */
-private static function getLoader()
+public static function getLoader()
 {
 	if (empty(self::$loader))
 	{
