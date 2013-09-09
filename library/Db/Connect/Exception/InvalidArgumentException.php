@@ -10,7 +10,7 @@
 namespace Yau\Db\Connect\Exception;
 
 /**
-* Connection exception
+* Invalid argument exception
 *
 * @author     John Yau
 * @category   Yau
