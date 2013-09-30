@@ -116,7 +116,7 @@ public function debug($message, array $context = array())
 * @param string $message
 * @param array  $context
 */
-public function log($level, $message, array $context = array());
+//abstract public function log($level, $message, array $context = array());
 
 /*=================================================================*/
 }
