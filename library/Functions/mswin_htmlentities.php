@@ -15,15 +15,16 @@ namespace Yau\Functions;
 *
 * @param  string  $str
 * @param  integer $flags
+* @param  string  $encoding
 * @return string
 * @uses   htmlentities()
 * @link   http://utopia.knoware.nl/users/eprebel/Communication/CharacterSets/Windows.html
 * @link   http://en.wikipedia.org/wiki/Windows-1252
 * @link   http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/bestfit1252.txt
 */
-function mswin_htmlentities($str, $flags = NULL)
+function mswin_htmlentities($str, $flags = NULL, $encode = NULL)
 {
-	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags) + array(
+	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags, $encoding) + array(
 		"\x85" => '&hellip;', // 133
 		"\x88" => '&circ;',   // 136
 		"\x89" => '&permil;', // 137

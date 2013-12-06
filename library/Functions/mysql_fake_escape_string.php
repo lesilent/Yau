@@ -26,14 +26,14 @@ namespace Yau\Functions;
 *          Functions::mysql_fake_escape_string($password));
 * </code>
 *
-* @param   string $unescaped_string
-* @return  string
-* @link    http://dev.mysql.com/doc/refman/5.6/en/string-literals.html
-* @link    http://dev.mysql.com/doc/refman/5.6/en/mysql-real-escape-string.html
+* @param  string $unescaped_string
+* @return string
+* @link   http://dev.mysql.com/doc/refman/5.6/en/string-literals.html
+* @link   http://dev.mysql.com/doc/refman/5.6/en/mysql-real-escape-string.html
 */
 function mysql_fake_escape_string($unescaped_string)
 {
-	return strtr($escapestr, array(
+	return strtr($unescaped_string, array(
 		"\x00" => '\0',
 		"\n"   => '\n',
 		"\r"   => '\r',

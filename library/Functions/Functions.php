@@ -17,7 +17,7 @@ use Yau\Functions\Exception\InvalidArgumentException;
 *
 * Example:
 * <code>
-* use Yau\Functions\array_slice_key;
+* use Yau\Functions\Functions;
 *
 * $arr = array(
 *     'fnmae' => 'John',
@@ -25,7 +25,7 @@ use Yau\Functions\Exception\InvalidArgumentException;
 *     'age'   => 18,
 *     'hair'  => 'black'
 * );
-* $input = SliceKey($arr, array('age', 'hair'));
+* $input = Functions::array_slice_key($arr, array('age', 'hair'));
 * // $input is now array('age'=>18, 'hair'=>'black');
 * </code>
 *
