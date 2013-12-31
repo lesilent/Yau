@@ -47,6 +47,45 @@ public function test_array_filter_key()
 
 /**
 */
+public function test_array_rowsort()
+{
+	$arr = array();
+	$arr[] = array('age' => 22, 'fname' => 'John', 'lname' => 'Doe');
+	$arr[] = array('age' => 20, 'fname' => 'Sam',  'lname' => 'Smith');
+	$arr[] = array('age' => 38, 'fname' => 'Phil', 'lname' => 'Jones');
+	$arr[] = array('age' => 31, 'fname' => 'Ted',  'lname' => 'Smith');
+	$arr[] = array('age' => 22, 'fname' => 'Gary', 'lname' => 'Klein');
+	$arr[] = array('age' => 43, 'fname' => 'John', 'lname' => 'Jones');
+	$arr[] = array('age' => 29, 'fname' => 'Bob',  'lname' => 'Davis');
+	$arr[] = array('age' => 37, 'fname' => 'Lee',  'lname' => 'Hall');
+
+	// Expected output
+	$expected = array(
+		array('age' => 29, 'fname' => 'Bob',  'lname' => 'Davis'),
+		array('age' => 22, 'fname' => 'John', 'lname' => 'Doe'),
+ 		array('age' => 37, 'fname' => 'Lee',  'lname' => 'Hall'),
+		array('age' => 38, 'fname' => 'Phil', 'lname' => 'Jones'),
+		array('age' => 43, 'fname' => 'John', 'lname' => 'Jones'),
+		array('age' => 22, 'fname' => 'Gary', 'lname' => 'Klein'),
+		array('age' => 20, 'fname' => 'Sam',  'lname' => 'Smith'),
+		array('age' => 31, 'fname' => 'Ted',  'lname' => 'Smith'),
+	);
+
+	// Sort by last name in ascending order, then by age
+	$sort_by = array(
+		'lname', SORT_ASC,
+		'age', SORT_ASC, SORT_NUMERIC
+	);
+	$output = Functions::array_rowsort($arr, $sort_by);
+	$this->assertSame($output, $expected);
+
+	// Sort by passing multiple arguments instead of a single array
+	$output = Functions::array_rowsort($arr, 'lname', SORT_ASC, 'age', SORT_ASC, SORT_NUMERIC);
+	$this->assertSame($output, $expected);
+}
+
+/**
+*/
 public function test_array_slice_key()
 {
 	$arr = array(
