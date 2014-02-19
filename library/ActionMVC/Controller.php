@@ -10,6 +10,7 @@
 namespace Yau\ActionMVC;
 
 use Yau\ActionMVC\Exception\InvalidArgumentException;
+use Yau\ActionMVC\Exception\RuntimeException;
 
 /**
 * A simple all-on-one controller class
@@ -293,7 +294,10 @@ public function get($type, $name = 'default')
 		// Load file
 		$filename = $this->getFileName($type, $name);
 		extract($this->objects, EXTR_SKIP);
-		require $filename;
+		if (!include($filename))
+		{
+			throw new RuntimeException("Unable to load $name $type");
+		}
 
 		// Instantiate object
 		$this->objects[$class_name] = TRUE;
