@@ -483,7 +483,7 @@ public function doAction($action)
 	// Check action
 	if (empty($action) || !is_scalar($action) || !preg_match('/^\w+$/', $action))
 	{
-		throw new Exception('Invalid action');
+		throw new \Exception('Invalid action');
 	}
 
 	// Execute action
