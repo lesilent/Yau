@@ -22,7 +22,7 @@ namespace Yau\Functions;
 * @link   http://en.wikipedia.org/wiki/Windows-1252
 * @link   http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/bestfit1252.txt
 */
-function mswin_htmlentities($str, $flags = NULL, $encoding = NULL)
+function mswin_htmlentities($str, $flags = NULL, $encoding = 'ISO-8859-1')
 {
 	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags, $encoding) + array(
 		"\x85" => '&hellip;', // 133
