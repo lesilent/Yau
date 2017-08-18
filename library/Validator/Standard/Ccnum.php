@@ -87,12 +87,12 @@ public function isValid($value)
 	{
 		if (preg_match($regex, $value))
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	// Else return FALSE
-	return FALSE;
+	// Else return false
+	return false;
 }
 
 /*=======================================================*/
