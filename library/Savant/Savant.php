@@ -157,7 +157,7 @@ private $funcs = array();
 * @throws Exception if an invalid option is passed
 * @link   http://www.php.net/manual/en/function.extract.php
 */
-public function __construct($template = NULL)
+public function __construct($template = null)
 {
 	// Store template
 	if (!empty($template))
@@ -185,7 +185,7 @@ public function getTemplate()
 {
 	return (isset($this->template))
 		? $this->template
-		: FALSE;
+		: false;
 }
 
 /**
@@ -223,14 +223,14 @@ public function setTemplate($template)
 * @return string  the output from the compiled template, or FALSE if no
 *                 template is defined
 */
-private function parse($template = NULL)
+private function parse($template = null)
 {
 	// If no template is passed, then use assigned one
 	if (is_null($template))
 	{
 		if (empty($this->template))
 		{
-			return FALSE;
+			return false;
 		}
 		$template = $this->template;
 	}
@@ -269,17 +269,20 @@ private function parse($template = NULL)
 * @return string the output from the compiled template, or NULL if no
 *                template is defined
 */
-public function fetch($template = NULL)
+public function fetch($template = null)
 {
 	ob_start();
-	if ($this->parse($template) === FALSE)
+	if ($this->parse($template) === false)
 	{
-		ob_end_clean();
-		return FALSE;
+		if (ob_get_level() > 0)
+		{
+			ob_end_clean();
+		}
+		return false;
 	}
 	else
 	{
-		return ob_get_clean();
+		return (ob_get_level() > 0) ? ob_get_clean() : false;
 	}
 }
 
@@ -309,7 +312,7 @@ public function fetch($template = NULL)
 * @param string $template  the template to include if other than one assigned
 *                          in the constructor
 */
-public function display($template = NULL)
+public function display($template = null)
 {
 	return $this->parse($template);
 }
@@ -321,7 +324,7 @@ public function display($template = NULL)
 * @param  string $name     option name for function
 * @throws Exception if function isn't callable
 */
-public function registerFunction($callback, $name = NULL)
+public function registerFunction($callback, $name = null)
 {
 	// Check function
 	if (!is_callable($callback))
