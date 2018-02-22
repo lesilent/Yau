@@ -439,7 +439,7 @@ public function getAction()
 *                        the for url
 * @return string
 */
-public function getActionUrl($action = NULL, array $params = array())
+public function getActionUrl($action = null, array $params = array())
 {
 	// If action is NULL, then use current action
 	if (is_null($action))
@@ -448,8 +448,8 @@ public function getActionUrl($action = NULL, array $params = array())
 	}
 
 	// Build and return url
-	$params = array($this->getActionName()=>$action) + $params;
-	return $_SERVER['SCRIPT_NAME'] . '?' . http_build_query($params);
+	$params = (isset($action) ? array($this->getActionName()=>$action) : array()) + $params;
+	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params));
 }
 
 /**
@@ -459,7 +459,7 @@ public function getActionUrl($action = NULL, array $params = array())
 * $param  array  $params
 * @return string
 */
-public function getActionTag($action = NULL, $params = array())
+public function getActionTag($action = null, $params = array())
 {
 	// If action is NULL, then use current action
 	if (is_null($action))
@@ -469,7 +469,7 @@ public function getActionTag($action = NULL, $params = array())
 
 	// Build and return HTML
 	$html = '';
-	foreach ((array($this->getActionName()=>$action) + $params) as $name => $value)
+	foreach (((isset($action) ? array($this->getActionName()=>$action) : array()) + $params) as $name => $value)
 	{
 		$html .= sprintf('<input type="hidden" name="%s" value="%s" />', htmlentities($name), htmlentities($value));
 	}
