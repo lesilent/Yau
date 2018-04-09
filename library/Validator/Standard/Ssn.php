@@ -43,9 +43,7 @@ public function isValid($value)
 	return (preg_match(self::REGEX, $value, $match)
 		&& $match[1] > 0 && $match[2] > 0 && $match[3] > 0   // No all zeros in digit group
 		&& $match[1] != 666                                  // No Number of the Beast
-		&& $match[1] <= 772                                  // Highest area number
-		&& !($match[1] >= 734 && $match[1] <= 749)
-		);
+		&& $match[1] <= 899);                                 // Highest area number
 }
 
 /*=======================================================*/
