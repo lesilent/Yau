@@ -81,12 +81,16 @@ public function __construct()
 		// Strip slashes if magic quotes are on
 		if (get_magic_quotes_gpc())
 		{
-			$strip_func = create_function('&$item, $key', '$item = stripslashes($item);');
+			$strip_func = function (&$item, $key) {
+				$item = stripslashes($item);
+			};
 			array_walk_recursive($values, $strip_func);
 		}
 
 		// Trim values
-		$trim_func = create_function('&$item, $key', '$item = trim($item);');
+		$trim_func = function (&$item, $key) {
+			$item = trim($item);
+		};
 		array_walk_recursive($values, $trim_func);
 
 		// Store values
