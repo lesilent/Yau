@@ -38,11 +38,13 @@ class Dblib extends Pdo
 public static function connect($params)
 {
 	// Process parameters
-	$pairs = array();
-	foreach (array(
+	$pairs = [];
+	foreach ([
+		'version' => 'version',
+		'charset' => 'charset',
 		'host'    => 'host',
 		'dbname'  => 'dbname',
-		) as $field => $name)
+		] as $field => $name)
 	{
 		if (isset($params[$field]))
 		{
@@ -50,8 +52,8 @@ public static function connect($params)
 		}
 	}
 	$dsn = 'dblib:' . implode(';', $pairs);
-	$username = (isset($params['username'])) ? $params['username'] : NULL;
-	$password = (isset($params['password'])) ? $params['password'] : NULL;
+	$username = (isset($params['username'])) ? $params['username'] : null;
+	$password = (isset($params['password'])) ? $params['password'] : null;
 	$driver_options = self::getDriverOptions($params);
 
 	// Connect to database
