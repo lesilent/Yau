@@ -50,14 +50,13 @@ public static function connect($params)
 		}
 	}
 	$dsn = 'sqlsrv:' . implode(';', $pairs);
-	$username = (isset($params['username'])) ? $params['username'] : NULL;
-	$password = (isset($params['password'])) ? $params['password'] : NULL;
+	$username = (isset($params['username'])) ? $params['username'] : null;
+	$password = (isset($params['password'])) ? $params['password'] : null;
 	$driver_options = self::getDriverOptions($params);
 
 	// Connect to database
 	$dbh = new \PDO($dsn, $username, $password, $driver_options);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-	$dbh->setAttribute(\PDO::ATTR_CASE, \PDO::CASE_LOWER);
 
 	// Return PDO object
 	return $dbh;
