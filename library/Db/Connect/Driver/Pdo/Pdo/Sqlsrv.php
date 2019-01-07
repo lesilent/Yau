@@ -37,12 +37,12 @@ class Sqlsrv extends Pdo
 public static function connect($params)
 {
 	// Process parameters
-	$pairs = array();
-	foreach (array(
+	$pairs = [];
+	foreach ([
 		'host'    => 'Server',
 		'dbname'  => 'Database',
 		'timeout' => 'LoginTimeout',
-		) as $field => $keyword)
+		] as $field => $keyword)
 	{
 		if (isset($params[$field]))
 		{
@@ -57,6 +57,7 @@ public static function connect($params)
 	// Connect to database
 	$dbh = new \PDO($dsn, $username, $password, $driver_options);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+	$dbh->setAttribute(\PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
 
 	// Return PDO object
 	return $dbh;
