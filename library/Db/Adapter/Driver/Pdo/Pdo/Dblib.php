@@ -31,7 +31,7 @@ class Dblib extends Pdo
 * @param  array   $params optional array of values to bind to query
 * @return integer the number of rows affected, or FALSE on error
 */
-public function exec($stmt, array $params = array())
+public function exec($stmt, array $params = [])
 {
 	return (($rowcount = parent::exec($stmt, $params)) < 0
 		&& ($sth = $this->dbh->query('SELECT @@ROWCOUNT')))
@@ -46,7 +46,7 @@ public function exec($stmt, array $params = array())
 */
 public function beginTransaction()
 {
-	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = TRUE);
+	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = true);
 }
 
 /**
@@ -56,7 +56,7 @@ public function beginTransaction()
 */
 public function commit()
 {
-	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = FALSE) || TRUE);
+	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = false) || true);
 }
 
 /**
@@ -66,7 +66,19 @@ public function commit()
 */
 public function rollBack()
 {
-	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = FALSE) || TRUE);
+	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = false) || true);
+}
+
+/**
+* Return the id of the last inserted row
+*
+* @return string the id of the last inserted row
+* @uses   PDO::lastInsertId()
+*/
+public function lastInsertId()
+{
+	return (($sth = $this->dbh->query('SELECT SCOPE_IDENTITY() AS id')) && ($id = $sth->fetchColumn()))
+		? $id : parent::lastInsertId();
 }
 
 /*=======================================================*/

@@ -69,5 +69,17 @@ public function rollBack()
 	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = FALSE) || TRUE);
 }
 
+/**
+* Return the id of the last inserted row
+*
+* @return string the id of the last inserted row
+* @uses   PDO::lastInsertId()
+*/
+public function lastInsertId()
+{
+	return (($sth = $this->dbh->query('SELECT SCOPE_IDENTITY() AS id')) && ($id = $sth->fetchColumn()))
+		? $id : parent::lastInsertId();
+}
+
 /*=======================================================*/
 }
