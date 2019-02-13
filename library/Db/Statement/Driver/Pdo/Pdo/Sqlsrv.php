@@ -32,6 +32,19 @@ class Sqlsrv extends Pdo
 private $next_rowset = false;
 
 /**
+* Prepare statement and store it
+*
+* @param string $stmt the SQL statement to prepare
+*/
+protected function prepare($stmt)
+{
+	// Emulate prepares to deal with this issue:
+	// https://aoeex.com/phile/working-around-scope-identity-not-working-with-pdo
+	$options = (stripos($stmt, 'INSERT') === false) ? [] : [\PDO::ATTR_EMULATE_PREPARES=>true];
+	$this->sth = $this->dbh->prepare($stmt, $options);
+}
+
+/**
 * Fetch a single row from result set as an associative array
 *
 * @return mixed a row from the result set, or false if there are no more
