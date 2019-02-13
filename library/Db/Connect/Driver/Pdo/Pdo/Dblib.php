@@ -59,6 +59,7 @@ public static function connect($params)
 	// Connect to database
 	$dbh = new \PDO($dsn, $username, $password, $driver_options);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+	$dbh->exec('SET NOCOUNT ON');
 
 	// Return PDO object
 	return $dbh;

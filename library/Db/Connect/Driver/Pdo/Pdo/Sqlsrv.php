@@ -58,7 +58,7 @@ public static function connect($params)
 	$dbh = new \PDO($dsn, $username, $password, $driver_options);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 	$dbh->setAttribute(\PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
-	$dbh->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, true);
+	$dbh->exec('SET NOCOUNT ON');
 
 	// Return PDO object
 	return $dbh;
