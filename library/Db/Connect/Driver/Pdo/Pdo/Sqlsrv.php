@@ -59,6 +59,8 @@ public static function connect($params)
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 	$dbh->setAttribute(\PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
 	$dbh->setAttribute(\PDO::SQLSRV_ATTR_DIRECT_QUERY, true);
+	$dbh->setAttribute(\PDO::SQLSRV_ATTR_FORMAT_DECIMALS, true);
+	$dbh->setAttribute(\PDO::SQLSRV_ATTR_DECIMAL_PLACES, 2);
 	$dbh->exec('SET NOCOUNT ON');
 
 	// Return PDO object

@@ -99,7 +99,7 @@ public function fetchNumAll()
 public function freeResult()
 {
 	// Free result
-	$result = TRUE;
+	$result = true;
 	if (!empty($this->sth))
 	{
 /*
@@ -116,6 +116,18 @@ public function freeResult()
 
 	// Return result
 	return $result;
+}
+
+/**
+* Magic method to route all methods to object
+*
+* @param  string $func the object method to call
+* @param  array  $args array of arguments for method
+* @return mixed
+*/
+public function __call($func, array $args = [])
+{
+	return call_user_func_array([$this->sth, $func], $args);
 }
 
 /*=======================================================*/

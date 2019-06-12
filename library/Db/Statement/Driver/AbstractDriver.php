@@ -19,7 +19,7 @@ use Yau\Db\Statement\Exception\BadMethodCallException;
 * <code>
 * $sth = Statement::factory($dbh, 'SELECT fname, lname FROM people WHERE fname = ?');
 *
-* $params = array('John');
+* $params = ['John'];
 * $sth->execute($params);
 *
 * while ($row = $sth->fetchRow())
@@ -110,7 +110,7 @@ abstract protected function prepare($stmt);
 * @param  array $params array of values to bind to prepared statement
 * @throws Exception if error executing statement
 */
-abstract public function execute(array $params = array());
+abstract public function execute(array $params = []);
 
 //-------------------------------------
 // Fetch methods
@@ -187,7 +187,7 @@ public function fetch()
 */
 public function fetchAssocAll()
 {
-	$results = array();
+	$results = [];
 	while ($row = $this->fetchAssocRow())
 	{
 		$results[] = $row;
@@ -204,7 +204,7 @@ public function fetchAssocAll()
 */
 public function fetchNumAll()
 {
-	$results = array();
+	$results = [];
 	while ($row = $this->fetchNumRow())
 	{
 		$results[] = $row;
