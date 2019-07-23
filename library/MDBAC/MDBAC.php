@@ -93,14 +93,14 @@ protected $config;
 *
 * @var array
 */
-protected $conns = array();
+protected $conns = [];
 
 /**
 * Associative array of options
 *
 * @var array
 */
-protected $options = array();
+protected $options = [];
 
 /**
 * Constructor
@@ -113,7 +113,7 @@ protected $options = array();
 * @param  array     $options optional associative array of options
 * @throws Exception
 */
-public function __construct($xml, $options = array())
+public function __construct($xml, $options = [])
 {
 	$this->xml     = $xml;
 	$this->options = $options;
@@ -151,7 +151,7 @@ public function getConfig()
 * @param  array  $options  associative array of connection options
 * @return array  array of associative arrays of connection information
 */
-public function getDatabaseInfo($database, $options = array())
+public function getDatabaseInfo($database, $options = [])
 {
 	// Call database-specific method, if available
 	$method = 'get' . ucwords($database) . 'Info';
@@ -176,13 +176,13 @@ public function getDatabaseInfo($database, $options = array())
 * @param string $database the name of the database to connect to
 * @param array  $options optional array of connection options
 */
-public function connect($driver, $database, array $options = array())
+public function connect($driver, $database, array $options = [])
 {
 	// Get database connection information
 	$info = $this->getDatabaseInfo($database, $options);
 
 	// Load class for driver
-	$driver_dir = (($upos = strpos($driver, '_')) === FALSE)
+	$driver_dir = (($upos = strpos($driver, '_')) === false)
 		? $driver
 		: substr($driver, 0, $upos);
 	$driver_dir = ucwords(strtolower($driver_dir));
@@ -211,12 +211,12 @@ public function connect($driver, $database, array $options = array())
 			$params['host'] = 'localhost';
 		}
 
-		// Prompt for password if using CLI and password option is TRUE
+		// Prompt for password if using CLI and password option is true
 		if ($driver == 'CLI'
 			&& isset($options['password'])
-			&& $options['password'] === TRUE)
+			&& $options['password'] === true)
 		{
-			$params['password'] = TRUE;
+			$params['password'] = true;
 		}
 
 		// Convert parameters for connection
@@ -227,7 +227,7 @@ public function connect($driver, $database, array $options = array())
 
 		try
 		{
-			$dbh = call_user_func(array($class_name, 'connect'), $params);
+			$dbh = call_user_func([$class_name, 'connect'], $params);
 
 			// Return database object/resource
 			if (!empty($dbh))
@@ -243,11 +243,11 @@ public function connect($driver, $database, array $options = array())
 	}
 
 	// No connection, so no connection info
-	$this->info = NULL;
+	$this->info = null;
 
 	// Throw exception if unable to connect; if there was one, then make
 	// new one to strip off backtrace that may contain username or password
-	$e = (isset($e))
+	$e = (!empty($e) && $e instanceof \Exception)
 		? new ConnectException($e->getMessage(), $e->getCode())
 		: new ConnectException('Unable to connect to ' . $database);
 	throw $e;
@@ -272,7 +272,7 @@ public function connect($driver, $database, array $options = array())
 * @param  array  $options  associative array of connection options
 * @return mixed
 */
-public function connectOnce($driver, $database, $options = array())
+public function connectOnce($driver, $database, $options = [])
 {
 	// Check for instance
 	$conn_key = serialize(func_get_args());
