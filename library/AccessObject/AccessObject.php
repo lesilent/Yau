@@ -78,22 +78,24 @@ public function __construct($params = array())
 }
 
 /**
-* Set the value for a key
-*
-* @param string $key   the name of the registry key
-* @param mixed  $value the value of the parameter
-*/
+ * Set the value for a key
+ *
+ * @param  string $key   the name of the registry key
+ * @param  mixed  $value the value of the parameter
+ * @return object the current object
+ */
 public function set($key, $value)
 {
 	$this->registry[$key] = $value;
+	return $this;
 }
 
 /**
-* Return a registry value
-*
-* @param  string $key the name of the registry key
-* @return mixed  the value of the registry key
-*/
+ * Return a registry value
+ *
+ * @param  string $key the name of the registry key
+ * @return mixed  the value of the registry key
+ */
 public function get($key)
 {
 	return (!empty($this->undefValue) || array_key_exists($key, $this->registry))
@@ -102,11 +104,12 @@ public function get($key)
 }
 
 /**
-* Assign one or more values to registry
-*
-* @param mixed $params either an associative of values, or an AccessObject
-*              object
-*/
+ * Assign one or more values to registry
+ *
+ * @param  mixed  $params either an associative of values, or an AccessObject
+ *                object
+ * @return object the current object
+ */
 public function assign($params)
 {
 	// Convert objects to an array
@@ -131,13 +134,17 @@ public function assign($params)
 	{
 		throw new InvalidArgumentException('Cannot assign values of type ' . gettype($params));
 	}
+
+	// Return this object
+	return $this;
 }
 
 /**
-* Unset or clear one or all values in registry
-*
-* @param string $name the name of template variable to unset
-*/
+ * Unset or clear one or all values in registry
+ *
+ * @param string $name the name of template variable to unset
+ * @return object the current object
+ */
 public function clear($key = NULL)
 {
 	if (is_null($key))
@@ -155,6 +162,7 @@ public function clear($key = NULL)
 	{
 		unset($this->registry[$key]);
 	}
+	return $this;
 }
 
 //-------------------------------------
