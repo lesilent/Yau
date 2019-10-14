@@ -37,15 +37,15 @@ protected function prepare($stmt)
 * Execute prepared statement with some values
 *
 * @param  array   $params array of values to bind to statement
-* @return boolean TRUE if successfull, or FALSE on failure
+* @return boolean true if successful, or false on failure
 */
-public function execute(array $params = array())
+public function execute(array $params = [])
 {
 	// Free previous result, if any
 	$this->freeResult();
 
 	// Execute statement
-	return $this->sth->execute(array_values($params));
+	return $this->sth->execute((empty($params) || (($key = key($params)) && $key[0] == ':')) ? $params : array_values($params));
 }
 
 /**
