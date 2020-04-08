@@ -291,16 +291,19 @@ public function get($type, $name = 'default')
 	$class_name = $this->getClassName($type, $name);
 	if (empty($this->objects[$class_name]))
 	{
-		// Load file
-		$filename = $this->getFileName($type, $name);
-		extract($this->objects, EXTR_SKIP);
-		if (!include($filename))
+		// Load file if there's no class for it
+		if (!class_exists($class_name))
 		{
-			throw new RuntimeException("Unable to load $name $type");
+			$filename = $this->getFileName($type, $name);
+			extract($this->objects, EXTR_SKIP);
+			if (!include($filename))
+			{
+				throw new RuntimeException("Unable to load $name $type");
+			}
 		}
 
 		// Instantiate object
-		$this->objects[$class_name] = TRUE;
+		$this->objects[$class_name] = true;
 		if (class_exists($class_name))
 		{
 			$reflect = new \ReflectionClass($class_name);
