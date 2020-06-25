@@ -78,15 +78,6 @@ public function __construct()
 		// GET POST and GET values
 		$values = array_merge($_POST, $_GET);
 
-		// Strip slashes if magic quotes are on
-		if (get_magic_quotes_gpc())
-		{
-			$strip_func = function (&$item, $key) {
-				$item = stripslashes($item);
-			};
-			array_walk_recursive($values, $strip_func);
-		}
-
 		// Trim values
 		$trim_func = function (&$item, $key) {
 			$item = trim($item);
@@ -113,7 +104,7 @@ public function __construct()
 	}
 
 	// Set NULL to be returned for undefined values
-	$this->setUndefinedValue(NULL);
+	$this->setUndefinedValue(null);
 }
 
 //-------------------------------------
@@ -127,7 +118,7 @@ public function __construct()
 */
 private function getGLOBAL($variable, $name)
 {
-	if (!empty($this->_undefValue) || (isset($GLOBALS[$variable])
+	if (!empty($this->undefValue) || (isset($GLOBALS[$variable])
 		&& is_array($GLOBALS[$variable])
 		&& array_key_exists($name, $GLOBALS[$variable])))
 	{
@@ -135,7 +126,7 @@ private function getGLOBAL($variable, $name)
 	}
 	else
 	{
-		return $undefValue;
+		return $this->undefValue;
 	}
 }
 
