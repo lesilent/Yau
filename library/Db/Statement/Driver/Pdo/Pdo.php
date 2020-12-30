@@ -45,7 +45,7 @@ public function execute(array $params = [])
 	$this->freeResult();
 
 	// Execute statement
-	return $this->sth->execute((empty($params) || (($key = key($params)) && $key[0] == ':')) ? $params : array_values($params));
+	return $this->sth->execute((empty($params) || (($key = key($params)) && is_string($key) && $key[0] == ':')) ? $params : array_values($params));
 }
 
 /**
