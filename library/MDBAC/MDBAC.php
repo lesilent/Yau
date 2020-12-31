@@ -248,7 +248,7 @@ public function connect($driver, $database, array $options = [])
 	// Throw exception if unable to connect; if there was one, then make
 	// new one to strip off backtrace that may contain username or password
 	$e = (!empty($e) && $e instanceof \Exception)
-		? new ConnectException($e->getMessage(), $e->getCode())
+		? new ConnectException($e->getMessage(), (int) $e->getCode())
 		: new ConnectException('Unable to connect to ' . $database);
 	throw $e;
 }
