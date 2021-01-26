@@ -31,12 +31,36 @@ class Sqlsrv extends Pdo
 * @param  array   $params optional array of values to bind to query
 * @return integer the number of rows affected, or FALSE on error
 */
-public function exec($stmt, array $params = array())
+public function exec($stmt, array $params = [])
 {
-	return (($rowcount = parent::exec($stmt, $params)) < 0
-		&& ($sth = $this->dbh->query('SELECT @@ROWCOUNT')))
-		? $sth->fetchColumn()
-		: $rowcount;
+	$SQLSRV_ATTR_DIRECT_QUERY = constant('PDO::SQLSRV_ATTR_DIRECT_QUERY');
+	if (isset($SQLSRV_ATTR_DIRECT_QUERY))
+	{
+		// If not direct query, then we need to enable to properly get rowcount
+		// https://blogs.iis.net/bswan/how-to-change-database-settings-with-the-pdo-sqlsrv-driver
+		$direct_query = $this->dbh->getAttribute($SQLSRV_ATTR_DIRECT_QUERY);
+		if (empty($direct_query))
+		{
+			$this->dbh->setAttribute($SQLSRV_ATTR_DIRECT_QUERY, true);
+		}
+	}
+	try
+	{
+		if (($rowcount = parent::exec($stmt, $params)) < 0
+			&& ($sth = $this->dbh->query('SELECT @@ROWCOUNT')))
+		{
+			$rowcount = $sth->fetchColumn();
+		}
+	}
+	finally
+	{
+		// Revert back to previous direct query setting
+		if (isset($SQLSRV_ATTR_DIRECT_QUERY) && empty($direct_query))
+		{
+			$this->dbh->setAttribute($SQLSRV_ATTR_DIRECT_QUERY, false);
+		}
+	}
+	return $rowcount;
 }
 
 /**
@@ -46,7 +70,7 @@ public function exec($stmt, array $params = array())
 */
 public function beginTransaction()
 {
-	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = TRUE);
+	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = true);
 }
 
 /**
@@ -56,7 +80,7 @@ public function beginTransaction()
 */
 public function commit()
 {
-	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = FALSE) || TRUE);
+	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = false) || true);
 }
 
 /**
@@ -66,7 +90,7 @@ public function commit()
 */
 public function rollBack()
 {
-	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = FALSE) || TRUE);
+	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = false) || true);
 }
 
 /**
