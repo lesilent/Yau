@@ -13,15 +13,15 @@ namespace Yau\Db\Connect\Driver\Pdo\Pdo;
 use Yau\Db\Connect\Driver\Pdo\Pdo;
 
 /**
-* Class for connecting to a Microsoft SQL/Sybase database using PDO
+* Class for connecting to a PostgreSQL database using PDO
 *
 * @author   John Yau
 * @category Yau
 * @package  Yau_Db
 * @see      PDO
-* @link     http://www.php.net/manual/en/ref.pdo-dblib.php
+* @link     https://www.php.net/manual/en/ref.pdo-pgsql.connection.php
 */
-class Dblib extends Pdo
+class Pgsql extends Pdo
 {
 /*=======================================================*/
 
@@ -39,8 +39,6 @@ public static function connect($params)
 	// Process parameters
 	$pairs = [];
 	foreach ([
-		'version' => 'version',
-		'charset' => 'charset',
 		'host'    => 'host',
 		'dbname'  => 'dbname',
 		] as $field => $name)
@@ -50,7 +48,7 @@ public static function connect($params)
 			$pairs[] = $name . '=' . $params[$field];
 		}
 	}
-	$dsn = 'dblib:' . implode(';', $pairs);
+	$dsn = 'pgsql:' . implode(';', $pairs);
 	$username = (isset($params['username'])) ? $params['username'] : null;
 	$password = (isset($params['password'])) ? $params['password'] : null;
 	$driver_options = self::getDriverOptions($params);
@@ -58,7 +56,6 @@ public static function connect($params)
 	// Connect to database
 	$dbh = new \PDO($dsn, $username, $password, $driver_options);
 	$dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-	$dbh->exec('SET NOCOUNT ON');
 
 	// Return PDO object
 	return $dbh;
