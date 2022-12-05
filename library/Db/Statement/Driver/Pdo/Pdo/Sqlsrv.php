@@ -40,7 +40,8 @@ protected function prepare($stmt)
 {
 	// Emulate prepares to deal with this issue:
 	// https://aoeex.com/phile/working-around-scope-identity-not-working-with-pdo
-	$options = (stripos($stmt, 'INSERT') === false) ? [] : [\PDO::ATTR_EMULATE_PREPARES=>true];
+	//$options = (stripos($stmt, 'INSERT') === false) ? [] : [\PDO::ATTR_EMULATE_PREPARES=>true];
+	$options = [];
 	$this->sth = $this->dbh->prepare($stmt, $options);
 }
 
