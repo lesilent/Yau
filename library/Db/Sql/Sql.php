@@ -157,7 +157,7 @@ public static function buildWhereInClause($column, array $values)
 * @return string  the SELECT statement with placeholders
 * @uses   Sql::buildWhereClause()
 */
-public static function buildSelectStatement($columns = '*', $table, $where)
+public static function buildSelectStatement($columns, $table, $where)
 {
 	// Determine which columns to select
 	if (empty($columns))
