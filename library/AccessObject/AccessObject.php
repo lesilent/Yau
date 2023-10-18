@@ -252,7 +252,7 @@ public function offsetExists($offset):bool
 * @return mixed  the value of the registry value
 * @link   http://www.php.net/manual/en/class.arrayaccess.php
 */
-public function offsetGet($offset):mixed
+public function offsetGet($offset)
 {
 	return (!empty($this->undefValue) || array_key_exists($offset, $this->registry))
 		? $this->registry[$offset]
@@ -318,9 +318,9 @@ public function key()
 * @see    next()
 * @link   http://www.php.net/manual/en/class.iterator.php
 */
-public function next()
+public function next():void
 {
-	return next($this->registry);
+	next($this->registry);
 }
 
 /**
@@ -331,9 +331,9 @@ public function next()
 * @see    reset()
 * @link   http://www.php.net/manual/en/class.iterator.php
 */
-public function rewind()
+public function rewind():void
 {
-	return reset($this->registry);
+	reset($this->registry);
 }
 
 /**
@@ -342,7 +342,7 @@ public function rewind()
 * @return boolean TRUE if there is a current element, or FALSE if there isn't
 * @link   http://www.php.net/manual/en/class.iterator.php
 */
-public function valid()
+public function valid():bool
 {
 	return (current($this->registry) !== FALSE);
 }
