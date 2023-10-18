@@ -225,7 +225,7 @@ public function __unset($param)
 *
 * @return integer the number of registry values
 */
-public function count()
+public function count():int
 {
 	return count($this->registry);
 }
@@ -240,7 +240,7 @@ public function count()
 * @return boolean TRUE if offset exists, or FALSE otherwise
 * @link   http://www.php.net/manual/en/class.arrayaccess.php
 */
-public function offsetExists($offset)
+public function offsetExists($offset):bool
 {
 	return isset($this->registry[$offset]);
 }
@@ -252,7 +252,7 @@ public function offsetExists($offset)
 * @return mixed  the value of the registry value
 * @link   http://www.php.net/manual/en/class.arrayaccess.php
 */
-public function offsetGet($offset)
+public function offsetGet($offset):mixed
 {
 	return (!empty($this->undefValue) || array_key_exists($offset, $this->registry))
 		? $this->registry[$offset]
@@ -266,7 +266,7 @@ public function offsetGet($offset)
 * @param mixed  $value  the value associated with offset
 * @link  http://www.php.net/manual/en/class.arrayaccess.php
 */
-public function offsetSet($offset, $value)
+public function offsetSet($offset, $value):void
 {
 	$this->registry[$offset] = $value;
 }
@@ -277,7 +277,7 @@ public function offsetSet($offset, $value)
 * @param string $offset the name of offset
 * @link  http://www.php.net/manual/en/class.arrayaccess.php
 */
-public function offsetUnset($offset)
+public function offsetUnset($offset):void
 {
 	unset($this->registry[$offset]);
 }

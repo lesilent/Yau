@@ -252,7 +252,7 @@ public function numRows()
 * @return integer the number of rows in result set, or FALSE on failure
 * @uses   AbstractDriver::numRows()
 */
-public function count()
+public function count(): int
 {
 	return $this->numRows();
 }
