@@ -1,0 +1,14 @@
+{
+	"name": "yau/yau",
+	"type": "library",
+	"description": "Yau Tools",
+	"require": {
+		"php": ">=5.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"Yau\\": "library/"
+		}
+	},
+	"license": "MIT"
+}
