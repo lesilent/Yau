@@ -1,154 +1,120 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Mutex\Adapter;
 
 use Yau\Mutex\AdapterInterface;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
-* A class used to ensure that only a single process of a script is running
-*
-* This class uses a process id file and file locking to ensure that only a
-* single instance is running. If a process id file does not exist, then one
-* will be automatically created.
-*
-* Example
-* <code>
-* // Load class
-* use Yau\Mutex\Mutex;
-*
-* // Instantiate object
-* $pid_file = '/tmp/myscript.pid';
-* $mutex = Mutex::factory('file', $pid_file);
-*
-* if ($mutex->acquire())
-* {
-*     // Acquired right to process, so begin processing here
-*
-*     // Release right to process
-*     $mutex->release();
-* }
-* </code>
-*
-* Code that uses this module should call release() method when they exit in
-* order to free up the process file.
-*
-* Example of using max_time_func option
-* <code>
-* // Define callback function
-* function notify_admin($seconds)
-* {
-*     $message = 'Processing time was exceeded by ' . $seconds . ' seconds';
-*     mail('admin@mydomain.net', 'Process Error', $message);
-* }
-*
-* // Instantiate object
-* use Yau\Mutex\Mutex;
-* $pid_file = '/tmp/myscript.pid';
-* $options = array('max_time_func'=>'notify_admin');
-* $mutex = Mutex::factory('file', $pid_file, $options);
-* </code>
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
-class File extends AdapterInterface
+ * A class used to ensure that only a single process of a script is running
+ *
+ * This class uses a process id file and file locking to ensure that only a
+ * single instance is running. If a process id file does not exist, then one
+ * will be automatically created.
+ *
+ * Example
+ * <code>
+ * // Load class
+ * use Yau\Mutex\Mutex;
+ *
+ * // Instantiate object
+ * $pid_file = '/tmp/myscript.pid';
+ * $mutex = Mutex::factory('file', $pid_file);
+ *
+ * if ($mutex->acquire())
+ * {
+ *     // Acquired right to process, so begin processing here
+ *
+ *     // Release right to process
+ *     $mutex->release();
+ * }
+ * </code>
+ *
+ * Code that uses this module should call release() method when they exit in
+ * order to free up the process file.
+ *
+ * Example of using max_time_func option
+ * <code>
+ * // Define callback function
+ * function notify_admin($seconds)
+ * {
+ *     $message = 'Processing time was exceeded by ' . $seconds . ' seconds';
+ *     mail('admin@mydomain.net', 'Process Error', $message);
+ * }
+ *
+ * // Instantiate object
+ * use Yau\Mutex\Mutex;
+ * $pid_file = '/tmp/myscript.pid';
+ * $options = ['max_time_func'=>'notify_admin'];
+ * $mutex = Mutex::factory('file', $pid_file, $options);
+ * </code>
+ *
+ * @author John Yau
+ */
+class File implements AdapterInterface
 {
 /*=======================================================*/
 
 /**
-* The process id file
-*
-* @var string
-*/
+ * The process id file
+ *
+ * @var string
+ */
 private $pidfile;
 
 /**
-* The current process id
-*
-* @var string
-*/
-private $mypid;
-
-/**
-* Associative array of options for process
-*
-* Defaults:
-* <pre>
-* - chmod            integer the permission of the internal pid file for the
-*                            class when it's initially created. The default is
-*                            0664.
-* - max_process_time integer the maximum time for a process in seconds. The
-*                            default is 3600, or one hour.
-* - max_time_func    mixed   the callback function to call when a process
-*                            exceeds the maximum process time. The number of
-*                            seconds that was exceeded will be passed to the
-*                            function.
-* </pre>
-*
-* @var options
-*/
-private $options = array(
+ * Associative array of options for process
+ *
+ * @var array
+ */
+private $options = [
 	'chmod'            => 0664,
 	'max_process_time' => 3600,
-	'max_time_func'    => NULL,
-);
+	'max_time_func'    => null,
+	'include_hostname' => true,
+];
 
 /**
-* Constructor
-*
-* Example
-* <code>
-* require_once 'Util.php';
-* Util::loadClass('Util_Mutex_File');
-*
-* // Instantiate object with max process time of one day
-* $options = array('max_process_time'=>86400);
-* $mutex = new Util_Mutex_File('/tmp/myscript.pid', $options);
-*
-* if ($mutex->acquire())
-* {
-*     // Acquired right to process, so begin processing here
-*
-*     // Release right to process
-*     $mutex->release();
-* }
-* </code>
-*
-* Options:
-* <pre>
-* - chmod            integer the permission of the process id file to set to;
-*                            default is 0664
-* - max_process_time integer the maximum time for a process in seconds. If a
-*                            process exceeds this time, then it will be killed.
-*                            The default is one hour.
-* - max_time_func    mixed   the callback function to call when a process
-*                            exceeds the maximum time
-* </pre>
-*
-* @param  string $filename the path to the process id file
-* @param  array  $options  optional associative array of options
-* @throws Exception if there's an error with the arguments
-*/
-public function __construct($filename, array $options = array())
+ * Constructor
+ *
+ * Example
+ * <code>
+ * use Yau\Mutex\Mutex;
+ *
+ * // Instantiate object with max process time of one day
+ * $options = ['max_process_time'=>86400];
+ * $mutex = Mutex::factory('file', '/tmp/myscript.pid', $options);
+ *
+ * if ($mutex->acquire())
+ * {
+ *     // Acquired right to process, so begin processing here
+ *
+ *     // Release right to process
+ *     $mutex->release();
+ * }
+ * </code>
+ *
+ * @param string $filename the path to the process id file
+ * @param array  $options {
+ *     @var integer $chmod the permission of the process id file to set to;
+ *                            default is 0664
+ *     @var integer $max_process_time the maximum time for a process in seconds. If a
+ *                            process exceeds this time, then it will be killed.
+ *                            The default is one hour.
+ *     @var mixed  $max_time_func the callback function to call when a process
+ *                            exceeds the maximum time
+ *     @var bool   $include_hostname include host name in pid file
+ * } optional associative array of options
+ * @throws Exception if there's an error with the arguments
+ */
+public function __construct($filename, array $options = [])
 {
-	// Store the current process id
-	$this->mypid = getmypid();
-
-	// Store process id file
+	// Check filename
 	if (empty($filename))
 	{
-		throw new Exception('Empty process id file');
+		throw new InvalidArgumentException('Empty process id file');
 	}
-	$this->pidfile = $filename;
 
 	// Check that file or directory is writable
 	if (file_exists($filename))
@@ -156,8 +122,7 @@ public function __construct($filename, array $options = array())
 		// Check that file id writable
 		if (!is_writable($filename))
 		{
-			throw new Exception('Process file ' . $this->pidfile
-				. ' is not writable');
+			throw new RuntimeException('Process file ' . $filename . ' is not writable');
 		}
 	}
 	else
@@ -166,10 +131,19 @@ public function __construct($filename, array $options = array())
 		$filedir = dirname($filename);
 		if (!is_writable($filedir))
 		{
-			throw new Exception('Directory ' . $filedir
-				. ' is not writable');
+			throw new RuntimeException('Directory ' . $filedir . ' is not writable');
 		}
 	}
+
+	// Check whether callback function is callable or not
+	if (!empty($options['max_time_func'])
+		&& !is_callable($options['max_time_func']))
+	{
+		throw new InvalidArgumentException('Callback function is not callable');
+	}
+
+	// Store the current process id and filename
+	$this->pidfile = $filename;
 
 	// Store process options
 	if (!empty($options))
@@ -177,24 +151,42 @@ public function __construct($filename, array $options = array())
 		$this->options = array_merge($this->options, $options);
 	}
 
-	// Check whether callback function is callable or not
-	if (!empty($this->options['max_time_func'])
-		&& !is_callable($this->options['max_time_func']))
-	{
-		throw new Exception('Callback function is not callable');
-	}
 }
 
 /**
-* Acquire the right to begin processing
-*
-* This acquires the right to process by writing the current process id to
-* a process file that was defined in the constructor.
-*
-* @return boolean TRUE if acquisition was successful, otherwise FALSE
-* @throws Exception if process id file cannot be created
-*/
-public function acquire()
+ * Return the file key for the current process to store
+ *
+ * @return string
+ */
+private function getMyKey():string
+{
+	return strval(getmypid()) . ($this->options['include_hostname'] ? '|' . gethostname() : '');
+}
+
+/**
+ * Check whether file key matches current process and host
+ *
+ * @param string $value
+ * @param array  $matches reference to variable to hold matches
+ * @return bool
+ */
+private function isMyKey($value, &$matches = []):bool
+{
+	return (preg_match('/^(\d{1,20})(?:\|(.+))?$/', $value, $matches)
+		&& $matches[1] == getmypid()
+		&& (!isset($matches[2]) || strcmp($matches[2], gethostname()) == 0));
+}
+
+/**
+ * Acquire the right to begin processing
+ *
+ * This acquires the right to process by writing the current process id to
+ * a process file that was defined in the constructor.
+ *
+ * @return bool true if acquisition was successful, otherwise false
+ * @throws Exception if process id file cannot be created
+ */
+public function acquire():bool
 {
 	clearstatcache();
 
@@ -202,7 +194,7 @@ public function acquire()
 	if (!file_exists($this->pidfile))
 	{
 		// Varible to store result
-		$result = FALSE;
+		$result = false;
 
 		// Open process file
 		if ($handle = fopen($this->pidfile, 'x'))
@@ -210,9 +202,9 @@ public function acquire()
 			// Write out pid to file
 			if (flock($handle, LOCK_EX + LOCK_NB, $wouldblock))
 			{
-				fwrite($handle, $this->mypid);
+				fwrite($handle, $this->getMyKey());
 				flock($handle, LOCK_UN);
-				$result = TRUE;
+				$result = true;
 			}
 			fclose($handle);
 
@@ -233,56 +225,68 @@ public function acquire()
 		// Try to obtain lock file without blocking
 		if (flock($handle, LOCK_EX + LOCK_NB, $wouldblock))
 		{
-			// Read pid in file
-			$pid = intval(fread($handle, 1014));
+			// Read file
+			$contents = fread($handle, 1014);
 
-			// If pid is the current process, then return TRUE
-			if ($pid == $this->mypid)
+			// If key is for the current process, then return true
+			if ($this->isMyKey($contents, $matches))
 			{
 				flock($handle, LOCK_UN);
 				fclose($handle);
-				return TRUE;
+				return true;
 			}
+			$file_pid = intval($matches[1] ?? 0);
+			$file_host = $matches[2] ?? gethostname();
 
-			// Store the number of seconds process exceeded the maximum
-			$max_process_time = $this->options['max_process_time'];
-			$exceeded_time = (empty($max_process_time))
-				? 0
-				: time() - filemtime($this->pidfile) - $max_process_time;
-
-			// Define value for SIGTERM
-			if (!defined('SIGTERM'))
+			// Check whether file can be overwritten
+			$overwrite = false;
+			$exceeded_time = false;
+			if (empty($contents))
 			{
-				define('SIGTERM', 15);
+				// Blank file
+				$overwrite = true;
+			}
+			elseif (!empty($file_pid)
+				&& ($hostname = gethostname())
+				&& strcmp($file_host, $hostname) == 0)
+			{
+				// Host matches
+				if (posix_getsid($file_pid) === false)
+				{
+					// Process id no longer exists
+					$overwrite = true;
+				}
+				elseif (($max_process_time = $this->options['max_process_time']) > 0
+					&& time() - filemtime($this->pidfile) > $max_process_time
+					&& posix_kill($file_pid, 0)
+					&& posix_kill($file_pid, SIGTERM))
+				{
+					// Process exceeds max process time and killed
+					$overwrite = true;
+					$exceeded_time = true;
+				}
 			}
 
-			// Write out pid to file if any of the following are true
-			// 1. no pid in file (usually because file is blank)
-			// 2. process is not currently running
-			// 3. file exceeds max_process_time and process has been killed
-			if (empty($pid)
-				|| (($sid = posix_getsid($pid)) === FALSE)
-				|| ($exceeded_time > 0 && posix_kill($pid, 0) && posix_kill($pid, SIGTERM))
-			)
+			// Overwrite file
+			if ($overwrite)
 			{
 				// Truncate file
 				ftruncate($handle, 0);
 				fseek($handle, 0);
 
-				// Write new pid to file
-				fwrite($handle, $this->mypid);
+				// Write new key to file
+				fwrite($handle, $this->getMyKey());
 				flock($handle, LOCK_UN);
 				fclose($handle);
 
 				// Call function if exceeded maximum process time
-				if ($exceeded_time > 0
-					&& !empty($this->options['max_time_func']))
+				if ($exceeded_time && !empty($this->options['max_time_func']))
 				{
 					call_user_func($this->options['max_time_func'], $exceeded_time);
 				}
 
-				// Return TRUE
-				return TRUE;
+				// Return true
+				return true;
 			}
 
 			// Remove file lock
@@ -293,39 +297,38 @@ public function acquire()
 		fclose($handle);
 	}
 
-	// Return FALSE to indicate acquisition failed
-	return FALSE;
+	// Return false to indicate acquisition failed
+	return false;
 }
 
 /**
 * Truncate process file to indicate that processing is done
 *
-* @return boolean TRUE if process file was successfully released, or FALSE if
-*                 not
+* @return bool true if process file was successfully released, or false if not
 */
-public function release()
+public function release():bool
 {
-	// Return TRUE if process file does not exist
+	// Return true if process file does not exist
 	if (!file_exists($this->pidfile))
 	{
-		return TRUE;
+		return true;
 	}
 
 	// Variable to store release result
-	$result = FALSE;
+	$result = false;
 
 	// Truncate pid file
 	if ($handle = fopen($this->pidfile, 'r+'))
 	{
 		if (flock($handle, LOCK_EX + LOCK_NB, $wouldblock))
 		{
-			$pid = intval(fread($handle, 1014));
+			$pid = fread($handle, 1014);
 
 			// Truncate file if pid matches current pid
-			if ($pid == $this->mypid)
+			if ($this->isMyKey($pid))
 			{
 				ftruncate($handle, 0);
-				$result = TRUE;
+				$result = true;
 			}
 
 			// Unlock file and remove file
@@ -342,24 +345,24 @@ public function release()
 }
 
 /**
-* Update the access and modification time for the current process file
-*
-* @return boolean TRUE if update was successful, or FALSE if not
-*/
-public function keepAlive()
+ * Update the access and modification time for the current process file
+ *
+ * @return bool true if update was successful, or false if not
+ */
+public function keepAlive():bool
 {
 	// Variable to store result
-	$result = FALSE;
+	$result = false;
 
 	// Open file and check that it has the current pid
 	if ($handle = fopen($this->pidfile, 'r'))
 	{
 		if (flock($handle, LOCK_EX + LOCK_NB, $wouldblock))
 		{
-			$pid = intval(fread($handle, 1014));
+			$pid = fread($handle, 1014);
 
 			// If pid matches current pid, then touch it
-			if ($pid == $this->mypid)
+			if ($this->isMyKey($pid))
 			{
 				$result = touch($this->pidfile, time());
 			}

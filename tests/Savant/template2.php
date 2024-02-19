@@ -1,0 +1,1 @@
+Hash for user # <?= $user_id ?> is <?= $this->myhash($user_id) ?>

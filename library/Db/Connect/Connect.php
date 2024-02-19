@@ -1,57 +1,45 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect;
 
-use Yau\Db\Connect\Exception\InvalidArgumentException;
+use FilesystemIterator;
+use CallbackFilterIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use InvalidArgumentException;
 
 /**
-* Class for connecting to a database from the command line
-*
-* @category Yau
-* @package  Yau_Db
-*/
+ * Class for connecting to a database from the command line
+ *
+ * @author John Yau
+ */
 class Connect
 {
 /*=======================================================*/
 
 /**
-* Return a list of available drivers
-*
-* @return array
-*/
-public static function getAvailableDrivers()
+ * Return a list of available drivers
+ *
+ * @return array
+ */
+public static function getAvailableDrivers():array
 {
 	// Create iterator for main driver directories
-	$callback = function ($current, $key, $iterator)
-	{
-		return $current->isDir();
-	};
-	$driver_iterator = new \FilesystemIterator(__DIR__ . DIRECTORY_SEPARATOR . 'Driver');
-	$driver_iterator = new \CallbackFilterIterator($driver_iterator, $callback);
+	$driver_iterator = new FilesystemIterator(__DIR__ . DIRECTORY_SEPARATOR . 'Driver');
+	$driver_iterator = new CallbackFilterIterator($driver_iterator, fn($current) => $current->isDir());
 
 	// Iteratate over directories to find just files
-	$callback = function ($current, $key, $iterator)
-	{
-		return $current->isFile();
-	};
-	$drivers = array();
+	$drivers = [];
 	foreach ($driver_iterator as $driver_dir)
 	{
-		$pathlen = strlen($driver_dir);
-		$iterator = new \RecursiveDirectoryIterator($driver_dir);
-		$iterator = new \RecursiveIteratorIterator($iterator);
-		$iterator = new \CallbackFilterIterator($iterator, $callback);
+		$pathname = $driver_dir->getPathname();
+		$pathlen = strlen($pathname);
+		$iterator = new RecursiveDirectoryIterator($pathname);
+		$iterator = new RecursiveIteratorIterator($iterator);
+		$iterator = new CallbackFilterIterator($iterator, fn($current) => $current->isFile() && $current->getExtension() == 'php');
 		foreach ($iterator as $filename)
 		{
-			$drivers[] = strtolower(basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($filename, $pathlen + 1)), '.php'));
+			$drivers[] = strtolower(basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($filename->getPathname(), $pathlen + 1)), '.php'));
 		}
 	}
 
@@ -60,11 +48,11 @@ public static function getAvailableDrivers()
 }
 
 /**
-* Connect to database
-*
-* @param string $driver
-* @param array  $params
-*/
+ * Connect to database
+ *
+ * @param string $driver
+ * @param array  $params
+ */
 public static function factory($driver, array $params)
 {
 	// Check driver name

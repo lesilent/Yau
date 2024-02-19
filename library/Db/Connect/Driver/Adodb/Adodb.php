@@ -1,26 +1,15 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Adodb;
 
 use Yau\Db\Connect\Driver\DriverInterface;
-use Yau\Db\Connect\Exception\InvalidArgumentException;
-use Yau\Db\Connect\Exception\ConnectException;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
 * Class for connecting to a database using ADOdb
 *
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://adodb.sourceforge.net/
+* @author John Yau
 */
 class Adodb implements DriverInterface
 {
@@ -45,38 +34,38 @@ protected static function buildDSN($params)
 	if (isset($params['username']))
 	{
 		$dsn .= rawurlencode($params['username'])
-		     . (isset($params['password'])
-		     	? ':' . rawurlencode($params['password']) . '@'
-		     	: '');
+			. (isset($params['password'])
+			? ':' . rawurlencode($params['password']) . '@'
+			: '');
 	}
 	$dsn .= $params['host']
-	     . (isset($params['database']) ? '/' . rawurlencode($params['database']) : '')
-	     . (!empty($params['persistent'])  ? '?persistent=1' : '');
+		. (isset($params['database']) ? '/' . rawurlencode($params['database']) : '')
+		. (!empty($params['persistent'])  ? '?persistent=1' : '');
 
 	// Return DSN string
 	return $dsn;
 }
 
 /**
-* Connect to a database using values passed as a DSN array
-*
-* Connection parameters:
-* <code>
-* - driver   string database driver (eg. mysql, pdo_mysql)
-* - hostname string the host for the database
-* - username string the username used to connect to the database
-* - password string the password for the username
-* - database string name of the database
-* - options  string URI query string separated by ampersands of options
-* </code>
-*
-* @param  array  $params associative array containing the information for
-*                        connecting to the database
-* @return object an ADOdb object
-* @throws Exception if unable to connect to database successfully
-* @see    NewADOConnection()
-* @link   http://phplens.com/adodb/code.initialization.html
-*/
+ * Connect to a database using values passed as a DSN array
+ *
+ * Connection parameters:
+ * <code>
+ * - driver   string database driver (eg. mysql, pdo_mysql)
+ * - hostname string the host for the database
+ * - username string the username used to connect to the database
+ * - password string the password for the username
+ * - database string name of the database
+ * - options  string URI query string separated by ampersands of options
+ * </code>
+ *
+ * @param array $params associative array containing the information for
+ *                      connecting to the database
+ * @return object an ADOdb object
+ * @throws RuntimeException if unable to connect to database successfully
+ * @see NewADOConnection()
+ * @link https://adodb.org
+ */
 public static function connect($params)
 {
 	// Load ADOdb class
@@ -91,9 +80,9 @@ public static function connect($params)
 
 	// Form ADOdb object
 	$dbh = NewADOConnection($dsn);
-	if ($dbh === FALSE)
+	if ($dbh === false)
 	{
-		throw new ConnectException('Unable to connect to ' . $hostname);
+		throw new RuntimeException('Unable to connect to ' . $hostname);
 	}
 
 	// Return ADOdb object

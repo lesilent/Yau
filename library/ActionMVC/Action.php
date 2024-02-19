@@ -1,31 +1,22 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_ActionMVC
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\ActionMVC;
 
-use Yau\ActionMVC\AbstractObject;
+use Yau\ActionMVC\ObjectTrait;
 
 /**
-* Abstract parent
+* Abstract action object
 *
-* @author   John Yau
-* @category Yau
-* @package  Yau_ActionMVC
+* @author John Yau
 */
-abstract class Action extends AbstractObject
+abstract class Action
 {
+use ObjectTrait;
 /*=======================================================*/
 
 /**
-* The main execute function that all actions must implement
-*/
+ * The main execute function that all actions must implement
+ */
 abstract public function execute();
 
 /*=======================================================*/

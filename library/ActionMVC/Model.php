@@ -1,24 +1,15 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_ActionMVC
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\ActionMVC;
 
-use Yau\ActionMVC\AbstractObject;
+use Yau\ActionMVC\ObjectTrait;;
 
 /**
-*
-* @category Yau
-* @package  Yau_ActionMVC
-*/
-class Model extends AbstractObject
+ * Abstract model object
+ */
+class Model
 {
+use ObjectTrait;
 /*=================================================================*/
 
 

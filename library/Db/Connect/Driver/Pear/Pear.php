@@ -1,44 +1,32 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Pear;
 
 use Yau\Db\Connect\Driver\DriverInterface;
-use Yau\Db\Connect\Driver\Pear\Pear;
-use Yau\Db\Connect\Exception\ConnectException;
 
 /**
-* Parent class for connecting to a database using PEAR classes
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://pear.php.net/manual/en/core.pear.pear.php
-*/
+ * Parent class for connecting to a database using PEAR classes
+ *
+ * @authorJohn Yau
+ * @link http://pear.php.net/manual/en/core.pear.pear.php
+ */
 class Pear implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* The cached path to PEAR classes
-*
-* @var string
-*/
+ * The cached path to PEAR classes
+ *
+ * @var string
+ */
 private static $path;
 
 /**
-* Return the path to PEAR libraries
-*
-* @return string the path to the PEAR libraries, or FALSE if unable to
-*                locate them
-*/
+ * Return the path to PEAR libraries
+ *
+ * @return string the path to the PEAR libraries, or FALSE if unable to
+ *                locate them
+ */
 public static function getPath()
 {
 	if (empty(self::$path))
@@ -52,14 +40,14 @@ public static function getPath()
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 /**
-*
-* @param  array $params
-* @return mixed
-*/
+ *
+ * @param  array $params
+ * @return mixed
+ */
 public static function connect($params)
 {
 	$class_name = __CLASS__ . '\\' . ucwords($params['driver']);

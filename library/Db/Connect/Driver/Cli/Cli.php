@@ -1,36 +1,27 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Cli;
 
 use Yau\Db\Connect\Driver\DriverInterface;
-use Yau\Db\Connect\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 /**
 * Class for connecting to a database from the command line
 *
-* @category Yau
-* @package  Yau_Db
+* @author John Yau
 */
 class Cli implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* Connect to a database using parameters
-*
-* @param  array  $params associative array containing the information for
-*                        connecting to the database
-* @return string the command line for connecting to the database
-* @throws Exception if unable to connect to database successfully
-*/
+ * Connect to a database using parameters
+ *
+ * @param array $params associative array containing the information for
+ *                      connecting to the database
+ * @return string the command line for connecting to the database
+ * @throws Exception if unable to connect to database successfully
+ */
 public static function connect($params)
 {
 	// Look for driver-specific subclass

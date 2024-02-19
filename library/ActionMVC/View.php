@@ -1,46 +1,40 @@
-<?php
+<?php declare(strict_types = 1);
 
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_ActionMVC
-*/
 namespace Yau\ActionMVC;
 
 use Yau\Savant\Savant;
+use Yau\ActionMVC\ObjectTrait;
+use Yau\Singleton\SingletonTrait;
 
 /**
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_ActionMVC
-*/
+ * Default view object for ActionMVC
+ *
+ * @author John Yau
+ */
 class View extends Savant
 {
+use ObjectTrait, SingletonTrait;
 /*=================================================================*/
 
 /**
-* Base path to templates
-*
-* @var string
-*/
-protected $path;
+ * Base path to templates
+ *
+ * @var string
+ */
+private $path;
 
 /**
-* Return the path to the templates
-*
-* @return string
-*/
-public function getBasePath()
+ * Return the path to the templates
+ *
+ * @return string
+ */
+public function getBasePath():string
 {
 	// Initialize path if not set
 	if (!isset($this->path))
 	{
-		$this->path = (isset($_SERVER['SCRIPT_FILENAME']))
-			? dirname($_SERVER['SCRIPT_FILENAME'])
-			: '.';
+		$this->path = (empty($_SERVER['SCRIPT_FILENAME']))
+			? '.' : dirname($_SERVER['SCRIPT_FILENAME']);
 	}
 
 	// Return path
@@ -48,22 +42,22 @@ public function getBasePath()
 }
 
 /**
-* Set the path to templates
-*
-* @param string $path
-*/
-public function setBasePath($path)
+ * Set the path to templates
+ *
+ * @param string $path
+ */
+public function setBasePath($path):void
 {
 	$this->path = realpath($path);
 }
 
 /**
-* Render and return template as a string
-*
-* @param  $template string
-* @return string
-*/
-public function render($template)
+ * Render and return template as a string
+ *
+ * @param string $template
+ * @return string
+ */
+public function render(?string $template):string
 {
 	$filename = $this->getBasePath() . DIRECTORY_SEPARATOR . $template . '.php';
 	return $this->fetch($filename);

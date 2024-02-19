@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Mutex\Adapter;
 
@@ -15,64 +7,58 @@ use Yau\Mutex\AdapterInterface;
 /**
 * A class used to ensure that only a single process of a script is running
 *
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
+* @author John Yau
 */
-class Semaphore extends MutexInterface
+class Semaphore implements AdapterInterface
 {
 /*=======================================================*/
 
 /**
-* The semaphore identifier
-*
-* @var resource
-*/
-private $sem;
+ * The semaphore identifier
+ *
+ * @var resource|object
+ */
+private $semaphore;
 
 /**
-* Constructor
-*
-* @param  mixed  $sem_identifier a semaphore id
-*/
-public function __construct($sem_identifier)
+ * Constructor
+ *
+ * @param $semaphore|object $semaphore a semaphore resource or object
+ */
+public function __construct($semaphore)
 {
-	$this->sem = $sem_identifier;
+	$this->semaphore = $semaphore;
 }
 
 /**
-* Acquire the right to begin processing
-*
-* This acquires the right to process by writing the current process id to
-* a process file that was defined in the constructor.
-*
-* @return boolean TRUE if acquisition was successful, otherwise FALSE
-* @throws Exception
-*/
-public function acquire()
+ * Acquire the right to begin processing
+ *
+ * @return bool true if acquisition was successful, otherwise false
+ * @throws Exception
+ */
+public function acquire():bool
 {
-	return sem_acquire($this->sem);
+	return sem_acquire($this->semaphore, true);
 }
 
 /**
-* Truncate process file to indicate that processing is done
-*
-* @return boolean TRUE if process file was successfully released, or FALSE if
-*                 not
-*/
-public function release()
+ * Truncate process file to indicate that processing is done
+ *
+ * @return bool true if process file was successfully released, or false if not
+ */
+public function release():bool
 {
-	return sem_release($this->sem);
+	return sem_release($this->semaphore);
 }
 
 /**
-* Update timestamp in record to indicate script is still running properly
-*
-* @return boolean this always returns TRUE since this isn't implemented
-*/
-public function keepAlive()
+ * Update timestamp in record to indicate script is still running properly
+ *
+ * @return bool this always returns true since this isn't implemented
+ */
+public function keepAlive():bool
 {
-	return TRUE;
+	return true;
 }
 
 /*=======================================================*/

@@ -1,60 +1,39 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Mysqli;
 
 use Yau\Db\Connect\Driver\DriverInterface;
-use Yau\Db\Connect\Exception\ConnectException;
+use RuntimeException;
 
 /**
-* Class for connecting to a database using mysqli extension
-*
-* @category Yau
-* @package  Yau_Db
-* @see      mysqli
-* @link     http://www.php.net/manual/en/ref.mysqli.php
-*/
+ * Class for connecting to a database using mysqli extension
+ *
+ * @author John Yau
+ * @see mysqli
+ * @link https://www.php.net/manual/en/book.mysqli.php
+ */
 class Mysqli implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* Connect to a database using parameters
-*
-* @param  array  $params associative array containing the information for
-*                        connecting to the database
-* @return object a mysqli object
-* @throws Exception if unable to connect to database successfully
-* @link   http://www.php.net/manual/en/function.mysqli-connect.php
-*/
+ * Connect to a database using parameters
+ *
+ * @param array $params associative array containing the information for
+ *                      connecting to the database
+ * @return object a mysqli object
+ * @throws RuntimeException if unable to connect to database successfully
+ * @link http://www.php.net/manual/en/function.mysqli-connect.php
+ */
 public static function connect($params)
 {
 	// Process parameters
-	$host = (isset($params['host']))
-		? $params['host']
-		: ini_get('mysqli.default_host');
-	$username = (isset($params['username']))
-		? $params['username']
-		: ini_get('mysqli.default_user');
-	$password = (isset($params['password']))
-		? $params['password']
-		: ini_get('mysqli.default_pw');
-	$dbname = (isset($params['dbname']))
-		? $params['dbname']
-		: '';
-	$port = (!empty($params['port']))
-		? $params['port']
-		: ini_get('mysqli.default_port');
-	$socket = (isset($params['socket']))
-		? $params['socket']
-		: ini_get('mysqli.default_socket');
+	$host = $params['host'] ?? ini_get('mysqli.default_host');
+	$username = $params['username'] ?? ini_get('mysqli.default_user');
+	$password = $params['password'] ?? ini_get('mysqli.default_pw');
+	$dbname = $params['dbname'] ?? '';
+	$port = (empty($params['port'])) ? ini_get('mysqli.default_port') : $params['port'];
+	$socket = $params['socket'] ?? ini_get('mysqli.default_socket');
 
 	// Handle persistent connection request
 	if (!empty($params['persistent']))
@@ -63,12 +42,12 @@ public static function connect($params)
 	}
 
 	// Connect to database
-	$mysqli = mysqli_connect($host, $username, $passwd, $dbname, $port, $socket);
+	$mysqli = mysqli_connect($host, $username, $password, $dbname, $port, $socket);
 
 	// Throw exception if there's an error
 	if ($errno = $mysqli->connect_errno)
 	{
-		throw new ConnectException($mysqli->connect_error, $errno);
+		throw new RuntimeException($mysqli->connect_error, $errno);
 	}
 
 	// Return mysqli object

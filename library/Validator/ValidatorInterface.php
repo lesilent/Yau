@@ -1,32 +1,23 @@
 <?php
 
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
-
 namespace Yau\Validator;
 
 /**
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
+ * Interface for validators
+ *
+ * @author John Yau
+ */
 interface ValidatorInterface
 {
 /*=======================================================*/
 
 /**
-* The main validation method
-*
-* @param  mixed   $value
-* @return boolean
-*/
-public function isValid($value);
+ * The main validation method
+ *
+ * @param mixed $value
+ * @return bool
+ */
+public function isValid($value):bool;
 
 /*=======================================================*/
 }

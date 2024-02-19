@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Validator\Standard;
 
@@ -14,39 +6,38 @@ use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
-* Class to check that a value is a valid email address
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
+ * Class to check that a value is a valid email address
+ *
+ * @author John Yau
+ */
 class Email extends Singleton implements ValidatorInterface
 {
 /*=======================================================*/
 
 /**
-* Regular expression for validating an email address format
-*
-* @var  string
-* @link http://gmailblog.blogspot.com/2008/03/2-hidden-ways-to-get-more-from-your.html
-* @link http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
-*/
-const REGEX = '/^\w[\w\.\-\+]*@(?:[a-z0-9][a-z0-9\-]*\.)+((?:xn\-\-)?[a-z0-9]{2,18})$/i';
+ * Regular expression for validating an email address format
+ *
+ * @var string
+ * @link http://gmailblog.blogspot.com/2008/03/2-hidden-ways-to-get-more-from-your.html
+ * @link http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
+ */
+const PATTERN = '/^\w[\w\.\-\+]*@(?:[a-z0-9][a-z0-9\-]*\.)+((?:xn\-\-)?[a-z0-9]{2,18})$/i';
 
 /**
-* Array of TLDs
-*
-* @link http://data.iana.org/TLD/tlds-alpha-by-domain.txt
-*/
-protected static $TLDS = array();
+ * Array of TLDs
+ *
+ * @var array
+ * @link http://data.iana.org/TLD/tlds-alpha-by-domain.txt
+ */
+private static $TLDS = [];
 
 /**
-* Return the path to data file containing TLDs
-*
-* @link   http://data.iana.org/TLD/tlds-alpha-by-domain.txt
-* @return string
-*/
-public static function getTldDataFile()
+ * Return the path to data file containing TLDs
+ *
+ * @return string
+ * @link http://data.iana.org/TLD/tlds-alpha-by-domain.txt
+ */
+private function getTldDataFile():string
 {
 	return __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tlds-alpha-by-domain.txt';
 }
@@ -54,17 +45,17 @@ public static function getTldDataFile()
 /**
 * Return an associative array of array TLDs
 *
-* @param  string $assoc
+* @param string $assoc
 * @return array
 */
-public static function getTlds($assoc = FALSE)
+public function getTlds(bool $assoc = false):array
 {
 	if (empty(self::$TLDS))
 	{
-		$filename = self::getTldDataFile();
-		if (preg_match_all('/^[A-Z]+(?:\-\-[0-9A-Z]+)?/m', file_get_contents($filename), $match))
+		$filename = $this->getTldDataFile();
+		if (preg_match_all('/^[A-Z]+(?:\-\-[0-9A-Z]+)?/m', file_get_contents($filename), $matches))
 		{
-			foreach ($match[0] as $tld)
+			foreach ($matches[0] as $tld)
 			{
 				$lc_tld = strtolower($tld);
 				self::$TLDS[$lc_tld] = $lc_tld;
@@ -75,17 +66,17 @@ public static function getTlds($assoc = FALSE)
 }
 
 /**
-* Check that a value is a valid email address
-*
-* @param  mixed   $value the value to check
-* @return boolean TRUE if check passes, or FALSE if not
-*/
-public function isValid($value)
+ * Check that a value is a valid email address
+ *
+ * @param mixed $value the value to check
+ * @return bool true if check passes, or false if not
+ */
+public function isValid($value):bool
 {
 	return (filter_var($value, FILTER_VALIDATE_EMAIL)
-		&& preg_match(self::REGEX, $value, $match)
-		&& ($tlds = self::getTlds(TRUE))
-		&& isset($tlds[strtolower($match[1])]));
+		&& preg_match(self::PATTERN, $value, $matches)
+		&& ($tlds = $this->getTlds(true))
+		&& isset($tlds[strtolower($matches[1])]));
 }
 
 /*=======================================================*/

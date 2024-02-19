@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Cli\Cli;
 
@@ -14,14 +6,12 @@ use Yau\Db\Connect\Driver\DriverInterface;
 use Yau\Db\Connect\Driver\Cli\Cli\Db2;
 
 /**
-* Class for returning a command for connecting to an ODBC database
-*
-* Note: currently only DB2 is supported
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+ * Class for returning a command for connecting to an ODBC database
+ *
+ * Note: currently only DB2 is supported
+ *
+ * @author John Yau
+ */
 class Odbc implements DriverInterface
 {
 /*=======================================================*/

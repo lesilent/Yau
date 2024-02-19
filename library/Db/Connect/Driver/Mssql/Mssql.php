@@ -1,41 +1,32 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Mssql;
 
 use Yau\Db\Connect\Driver\DriverInterface;
-use Yau\Db\Exception\ConnectException;
+use RuntimeException;
 
 /**
-* Class for connecting to a MS SQL database and returning the link resource
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://www.php.net/manual/en/book.mssql.php
-*/
+ * Class for connecting to a MS SQL database and returning the link resource
+ *
+ * @author  John Yau
+ * @link http://www.php.net/manual/en/book.mssql.php
+ * @deprecated
+ */
 class Mssql implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* Connect to a database using parameters
-*
-* @param  array  $params associative array containing the information for
-*                        connecting to the database
-* @return resource a MSSQL link identifier resource
-* @throws Exception if unable to connect to database successfully
-* @see    mssql_connect()
-* @link   http://www.php.net/manual/en/function.mssql-connect.php
-* @link   http://www.php.net/manual/en/function.mssql-pconnect.php
-*/
+ * Connect to a database using parameters
+ *
+ * @param array $params associative array containing the information for
+ *                      connecting to the database
+ * @return resource a MSSQL link identifier resource
+ * @throws RuntimeException if unable to connect to database successfully
+ * @see mssql_connect()
+ * @link http://www.php.net/manual/en/function.mssql-connect.php
+ * @link http://www.php.net/manual/en/function.mssql-pconnect.php
+ */
 public static function connect($params)
 {
 	// Process parameters
@@ -43,13 +34,9 @@ public static function connect($params)
 		? $params['host'] . (!empty($params['port'])
 			? (preg_match('/^Win/i', PHP_OS) ? ',' : ':') . $params['port']
 			: '')
-		: NULL;
-	$username = (isset($params['username']))
-		? $params['username']
-		: NULL;
-	$password = (isset($params['password']))
-		? $params['password']
-		: NULL;
+		: null;
+	$username = $params['username'] ?? null;
+	$password = $params['password'] ?? null;
 	$new_link = !empty($params['new_link']);
 
 	// Connect to database
@@ -58,9 +45,9 @@ public static function connect($params)
 		: mssql_pconnect($servername, $username, $password, $new_link);
 
 	// Throw exception if there was a connection error
-	if ($conn === FALSE)
+	if ($conn === false)
 	{
-		throw new ConnectException('Could not connect to database');
+		throw new RuntimeException('Could not connect to database');
 	}
 
 	// Select database

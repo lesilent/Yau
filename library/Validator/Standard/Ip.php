@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Validator\Standard;
 
@@ -14,36 +6,34 @@ use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
-* Class to check that a value is a valid ip address
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Validator
-*/
+ * Class to check that a value is a valid ip address
+ *
+ * @author John Yau
+ */
 class Ip extends Singleton implements ValidatorInterface
 {
 /*=======================================================*/
 
 /**
-* Regular expression for validating a ipv4 address
-*
-* @var string
-*/
-const REGEX = '/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/';
+ * Regular expression for validating a ipv4 address
+ *
+ * @var string
+ */
+const PATTERN = '/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/';
 
 /**
-* Check that a value is a valid ip address
-*
-* @param  mixed   $value the value to check
-* @return boolean TRUE if check passes, or FALSE if not
-*/
-public function isValid($value)
+ * Check that a value is a valid ip address
+ *
+ * @param mixed $value the value to check
+ * @return bool true if check passes, or false if not
+ */
+public function isValid($value):bool
 {
-	return (preg_match(self::REGEX, $value, $match)
-		&& $match[1] <= 255
-		&& $match[2] <= 255
-		&& $match[3] <= 255
-		&& $match[4] <= 255);
+	return (preg_match(self::PATTERN, $value, $match)
+		&& strcmp($match[1], '256') < 0
+		&& strcmp($match[2], '256') < 0
+		&& strcmp($match[3], '256') < 0
+		&& strcmp($match[4], '256') < 0);
 }
 
 /*=======================================================*/

@@ -1,49 +1,40 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Mutex;
 
 /**
-* Interface classes used to ensure that only a single instance is running
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
+ * Interface class for mutex adapters
+ *
+ * @author John Yau
+ */
 interface AdapterInterface
 {
 /*=======================================================*/
 
 /**
-* Acquire the right to begin processing
-*
-* @return boolean TRUE if acquisition was successful, otherwise FALSE
-* @throws Exception if process id file cannot be created
-*/
-public function acquire();
+ * Acquire the right to begin processing
+ *
+ * @return bool true if acquisition was successful, otherwise false
+ */
+public function acquire():bool;
 
 /**
-* Truncate process file to indicate that processing is done
-*
-* @return boolean TRUE if process was successfully released, or FALSE if not
-*/
-public function release();
+ * Truncate process file to indicate that processing is done
+ *
+ * @return bool true if process was successfully released, or false if not
+ */
+public function release():bool;
 
 /**
-* Update mutex with keep alive signal to indicate that script is still running
-*
-* This is used to inform other processes that script is still running properly
-* and to not terminate/kill it if it exceeds the maximum allowed execution
-* time.
-*/
-public function keepAlive();
+ * Update mutex with keep alive signal to indicate that script is still running
+ *
+ * This is used to inform other processes that script is still running properly
+ * and to not terminate/kill it if it exceeds the maximum allowed execution
+ * time.
+ *
+ * @return bool
+ */
+public function keepAlive():bool;
 
 /*=======================================================*/
 }

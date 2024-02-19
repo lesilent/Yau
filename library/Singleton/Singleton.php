@@ -1,80 +1,64 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Singleton
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Singleton;
 
+use InvalidArgumentException;
+
 /**
-* A class to help singleton design pattern implementation
+ * A class to help singleton design pattern implementation
+ *
+ * Implementing a singleton:
+ * <code>
+ * use Yau\Singleton\Singleton;
 *
-* With the introduction of late static binding in PHP version 5.3.0, a class
-* can implement the singleton design pattern by simply extending this class.
-*
-* Implementing a singleton:
-* <code>
-* use Yau\Singleton\Singleton;
-*
-* // PHP 5.3.0+ implementation:
-* class MySingleton extends Singleton
-* {
-* }
-* </code>
-*
-* PHP does not supporting multiple inheritance. So, if a class is already
-* extending some other class, then it's not possible to also extend this
-* class. To get around this
-* .
-* Work around for multiple inheritance:
-* <code>
-* class MyChildSingleton extends SomeParentClass
-* {
-*     // PHP 5.3.0+ implementation
-*     public static function getInstance()
-*     {
-*         return Singleton::getInstance(get_called_class());
-*     }
-* }
-* </code>
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Singleton
-*/
+ * // Implementation:
+ * class MySingleton extends Singleton
+ * {
+ * }
+ * </code>
+ *
+ * Work around for multiple inheritance:
+ * <code>
+ * class MyChildSingleton extends SomeParentClass
+ * {
+ *     public static function getInstance()
+ *     {
+ *         return Singleton::getInstance(get_called_class());
+ *     }
+ * }
+ * </code>
+ *
+ * @author John Yau
+ */
 class Singleton
 {
 /*=======================================================*/
 
 /**
-* Instances of objects
-*
-* @var array
-*/
-private static $instances = array();
+ * Instances of objects
+ *
+ * @var array
+ */
+private static $instances = [];
 
 /**
-* Return an instance of object
-*
-* @param  string $name the name of the class to return an instance of;
-*                      required for PHP versions older than 5.3.0
-* @return object
-* @throws Exception if name is not a valid class
-*/
-public static function getInstance($name = NULL)
+ * Return an instance of object
+ *
+ * @param string $name the name of the class to return an instance of;
+ *                      required for PHP versions older than 5.3.0
+ * @return object
+ * @throws Exception if name is not a valid class
+ */
+public static function getInstance(string $name = null)
 {
 	// Get name of class to instantiate
 	if (empty($name))
 	{
 		$name = get_called_class();
 	}
-	elseif (!class_exists($name, FALSE))
+	elseif (!class_exists($name, false))
 	{
-		throw new Exception('Unknown class ' . $name);
+		throw new InvalidArgumentException('Unknown class ' . $name);
 	}
 
 	// Instantiate object

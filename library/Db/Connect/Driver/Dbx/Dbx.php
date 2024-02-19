@@ -1,39 +1,31 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Dbx;
 
 use Yau\Db\Connect\Driver\DriverInterface;
+use RuntimeException;
 
 /**
-* Class for connecting to a database and returning the link resource
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://www.php.net/manual/en/ref.dbx.php
-*/
+ * Class for connecting to a database and returning the link resource
+ *
+ * @author   John Yau
+ * @link http://www.php.net/manual/en/ref.dbx.php
+ * @deprecated
+ */
 class Dbx implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* Connect to a database using parameters
-*
-* @param  array    $params     associative array containing the information
-*                              for connecting to the database
-* @return resource a dbx connection object
-* @throws Exception if unable to connect to database successfully
-* @see    dbx_connect()
-* @link   http://www.php.net/manual/en/function.dbx-connect.php
-*/
+ * Connect to a database using parameters
+ *
+ * @param array $params associative array containing the information
+ *                      for connecting to the database
+ * @return resource a dbx connection object
+ * @throws Exception if unable to connect to database successfully
+ * @see dbx_connect()
+ * @link http://www.php.net/manual/en/function.dbx-connect.php
+ */
 public static function connect($params)
 {
 	// Process parameters
@@ -57,7 +49,7 @@ public static function connect($params)
 	// Throw exception if there was a connection error
 	if ($conn === FALSE)
 	{
-		throw new ConnectException('Could not connect to ' . $database);
+		throw new RuntimeException('Could not connect to ' . $database);
 	}
 
 	// Return connection object

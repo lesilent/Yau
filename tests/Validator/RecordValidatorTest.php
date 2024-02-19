@@ -1,93 +1,51 @@
 <?php
 
-/**
-* Yau Tools Tests
-*
-* @author  John Yau
-*/
-namespace YauTest\Validator;
-
+use PHPUnit\Framework\TestCase;
 use Yau\Validator\RecordValidator;
 
 /**
-*
-*/
-class TestRecordValidator extends RecordValidator
+ * Tests for Yau\Validator\RecordValidator
+ */
+class RecordValidatorTest extends TestCase
 {
 /*=======================================================*/
 
 /**
-*
-*/
-public function isValidFirstName($value)
+ * @return array
+ */
+public function recordProvider():array
 {
-	if (!empty($value) && strlen($value) > 32)
-	{
-		return $this->falseMessage('First name is too long');
-	}
-	return TRUE;
+	return [
+		[true, ['Age'=>18, 'Email'=>'test@example.com', 'Name'=>'John']],
+		[false, ['Age'=>17, 'Email'=>'test@example.com', 'Name'=>'']],
+		[false, ['Age'=>18, 'Email'=>'bademail.com', 'Name'=>'John']],
+	];
 }
 
 /**
-*/
-public function isValidAge($value)
+ * @param bool $expected
+ * @param array $record
+ * @dataProvider recordProvider
+ */
+public function testValidator($expected, $record):void
 {
-	if ($value < 18)
-	{
-		return $this->falseMessage('Too young to vote');
-	}
-	return TRUE;
-}
+	$validator = new class extends RecordValidator {
+		public function isValidAge($value)
+		{
+			return ($value >= 18);
+		}
+		public function isValidEmail($value)
+		{
+			return (filter_var($value, FILTER_VALIDATE_EMAIL) !== false);
+		}
+		public function isValidName($value)
+		{
+			$length = strlen($value);
+			return ($length > 0 && $length < 20);
+		}
+	};
 
-/*=======================================================*/
-}
-
-/**
-*
-*/
-class RecordValidatorTest extends \PHPUnit_Framework_TestCase
-{
-/*=======================================================*/
-
-/**
-* Test record validator object
-*
-* @var object
-*/
-private $validator;
-
-/**
-*/
-public function setUp()
-{
-	$this->validator = new TestRecordValidator();
-}
-
-/**
-*/
-public function testValidator()
-{
-	$record = array('firstname'=>str_repeat('X', 33), 'lastname'=>'Doe', 'age'=>12);
-	$is_valid = $this->validator->isValid($record);
-	$messages = $this->validator->getMessages();
-	$this->assertFalse($is_valid);
-	$this->assertTrue(is_array($messages));
-	$this->assertCount(2, $messages);
-	$this->assertArrayHasKey('firstname', $messages);
-	$this->assertArrayHasKey('age', $messages);
-
-	$record['age'] = 18;
-	$is_valid = $this->validator->isValid($record);
-	$messages = $this->validator->getMessages();
-	$this->assertFalse($is_valid);
-	$this->assertCount(1, $messages);
-	$this->assertArrayHasKey('firstname', $messages);
-
-	$record['firstname'] = 'John';
-	$is_valid = $this->validator->isValid($record);
-	$messages = $this->validator->getMessages();
-	$this->assertTrue($is_valid);
-	$this->assertEmpty($messages);
+	$this->assertSame($expected, $validator->isValid($record));
 }
 
 /*=======================================================*/

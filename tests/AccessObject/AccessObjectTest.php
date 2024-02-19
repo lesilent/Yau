@@ -1,142 +1,132 @@
 <?php
 
-/**
-*
-* @category Yau
-* @package  Yau_AccessObject
-*/
-
-namespace YauTest\AccessObject;
-
+use PHPUnit\Framework\TestCase;
 use Yau\AccessObject\AccessObject;
+use InvalidArgumentException;
 
 /**
-*
-* @category Yau
-* @package  Yau_MDBAC
+* Tests for Yau\AccessObject\AccessObject
 */
-class AccessObjectTest extends \PHPUnit_Framework_TestCase
+class AccessObjectTest extends TestCase
 {
 /*=======================================================*/
 
-private $obj;
-
-public function __construct()
+/**
+ */
+public function testGetterSetter():void
 {
-	$this->obj = new AccessObject();
+	$obj = new AccessObject();
+
+	$obj->test1 = 12345;
+	$this->assertSame(12345, $obj->test1);
+	$this->assertSame(12345, $obj['test1']);
+
+	$obj['test2'] = 12345;
+	$this->assertSame(12345, $obj['test2']);
+	$this->assertSame(12345, $obj->test2);
+
+	$obj->assign(['test3'=>12345]);
+	$this->assertSame(12345, $obj->test3);
+	$this->assertSame(12345, $obj['test3']);
 }
 
 /**
-*/
-public function testGetterSetter()
+ */
+public function testAssign():void
 {
-	$this->obj->test1 = 12345;
-	$this->assertSame(12345, $this->obj->test1);
-	$this->assertSame(12345, $this->obj['test1']);
-
-	$this->obj['test2'] = 12345;
-	$this->assertSame(12345, $this->obj['test2']);
-	$this->assertSame(12345, $this->obj->test2);
-
-	$this->obj->assign(array('test3'=>12345));
-	$this->assertSame(12345, $this->obj->test3);
-	$this->assertSame(12345, $this->obj['test3']);
+	$obj1 = new AccessObject();
+	$obj1->test1 = 12345;
+	$obj2 = new AccessObject();
+	$obj2->assign($obj1);
+	$obj2->test2 = 12345;
+	$this->assertEquals(12345, $obj2->test1);
+	$this->assertEquals(12345, $obj2->test2);
 }
 
 /**
-*/
-public function testAssign()
+ */
+public function testUndefinedValueException():void
+{
+	$this->expectException(InvalidArgumentException::class);
+	$obj = new AccessObject();
+	$obj->setUndefinedValue(true);
+}
+
+/**
+ */
+public function testUndefinedValue():void
+{
+	$obj = new AccessObject();
+	$obj->setUndefinedValue(false);
+	$this->assertSame(false, $obj->undefkey);
+}
+
+/**
+ */
+public function testInternalRegistry():void
 {
 	$obj = new AccessObject();
 	$obj->test1 = 12345;
-	$this->obj->clear();
-	$this->obj->assign($obj);
-	$this->obj->test2 = 12345;
-	$this->assertEquals(12345, $this->obj->test1);
-	$this->assertEquals(12345, $this->obj->test2);
+	$obj->registry = [];
+	$obj->_registry = [];
+	$this->assertEquals(12345, $obj->test1);
 }
 
 /**
-* @expectedException Yau\AccessObject\Exception\InvalidArgumentException
-*/
-public function testUndefinedValueException()
+ */
+public function testSorters():void
 {
-	$this->obj->setUndefinedValue(TRUE);
-}
+	$obj = new AccessObject();
 
-/**
-*/
-public function testUndefinedValue()
-{
-	$this->obj->setUndefinedValue(FALSE);
-	$this->assertSame(FALSE, $this->obj->undefkey);
-}
-
-/**
-*/
-public function testInternalRegistry()
-{
-	$this->obj->test1 = 12345;
-	$this->obj->registry = array();
-	$this->obj->_registry = array();
-	$this->assertEquals(12345, $this->obj->test1);
-}
-
-/**
-*/
-public function testSorters()
-{
-	$this->obj->clear();
-	$this->obj->assign(array(
+	$obj->assign([
 		'file1' => 'img12.png',
 		'file2' => 'img10.png',
 		'file3' => 'img2.png',
 		'file4' => 'img1.png',
-	));
+	]);
+	$obj->natsort();
+	$this->assertEquals('img1.png img2.png img10.png img12.png', implode(' ', $obj->toArray()));
 
-	$this->obj->natsort();
-	$this->assertEquals('img1.png img2.png img10.png img12.png', implode(' ', $this->obj->toArray()));
-
-	$this->obj->assign(array(
+	$obj->assign([
 		'file1' => 'IMG0.png',
 		'file2' => 'img12.png',
 		'file3' => 'img10.png',
 		'file4' => 'img2.png',
 		'file5' => 'img1.png',
 		'file6' => 'IMG3.png',
-	));
-	$this->obj->natcasesort();
-	$this->assertEquals('IMG0.png img1.png img2.png IMG3.png img10.png img12.png', implode(' ', $this->obj->toArray()));
+	]);
+	$obj->natcasesort();
+	$this->assertEquals('IMG0.png img1.png img2.png IMG3.png img10.png img12.png', implode(' ', $obj->toArray()));
 
-	$this->obj->ksort();
-	$this->assertEquals('file1file2file3file4file5file6', implode('', array_keys($this->obj->toArray())));
-
+	$obj->ksort();
+	$this->assertEquals('file1file2file3file4file5file6', implode('', array_keys($obj->toArray())));
 }
 
 /**
 */
-public function testCountable()
+public function testCountable():void
 {
-	$this->obj->test = 12345;
-	$this->obj->clear();
-	$this->assertCount(0, $this->obj);
-	$this->obj->test1 = 12345;
-	$this->obj->test2 = 12345;
-	$this->obj->test3 = 12345;
-	$this->assertCount(3, $this->obj);
+	$obj = new AccessObject();
+	$obj->test = 12345;
+	$obj->clear();
+	$this->assertCount(0, $obj);
+	$obj->test1 = 12345;
+	$obj->test2 = 12345;
+	$obj->test3 = 12345;
+	$this->assertCount(3, $obj);
 }
 
 /**
 */
-public function testIterator()
+public function testIterator():void
 {
-	$this->obj->clear();
-	$this->obj->test1 = 1;
-	$this->obj->test2 = 2;
-	$this->obj->test3 = 3;
+	$obj = new AccessObject();
+	$obj->test1 = 1;
+	$obj->test2 = 2;
+	$obj->test3 = 3;
 	$names = '';
 	$total = 0;
-	foreach ($this->obj as $name => $value)
+	foreach ($obj as $name => $value)
 	{
 		$names .= $name;
 		$total += $value;
@@ -146,8 +136,8 @@ public function testIterator()
 }
 
 /**
-*/
-public function testSerializable()
+ */
+public function testSerializable():void
 {
 	$obj = new AccessObject();
 	$obj->fname = 'John';

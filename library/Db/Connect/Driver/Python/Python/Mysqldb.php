@@ -1,25 +1,15 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Connect\Driver\Python\Python;
 
 use Yau\Db\Connect\Driver\Python\Python\Mysql;
 
 /**
-* Class for connecting to a database using Python's MySQLdb module
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://mysql-python.sourceforge.net/MySQLdb.html
-*/
+ * Class for connecting to a database using Python's MySQLdb module
+ *
+ * @author John Yau
+ * @link http://mysql-python.sourceforge.net/MySQLdb.html
+ */
 class Mysqldb extends Mysql
 {
 /*=======================================================*/
