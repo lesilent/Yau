@@ -284,6 +284,7 @@ public function offsetUnset($offset):void
  * @see current()
  * @link http://www.php.net/manual/en/class.iterator.php
  */
+#[\ReturnTypeWillChange]
 public function current()
 {
 	return current($this->registry);
@@ -296,6 +297,7 @@ public function current()
  * @see key()
  * @link http://www.php.net/manual/en/class.iterator.php
  */
+#[\ReturnTypeWillChange]
 public function key()
 {
 	return key($this->registry);
