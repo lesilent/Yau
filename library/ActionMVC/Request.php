@@ -122,5 +122,16 @@ public function getREQUEST($name) { return $this->getGLOBAL('_REQUEST', $name); 
 public function getSERVER($name) { return $this->getGLOBAL('_SERVER', $name); }
 public function getSESSION($name) { return $this->getGLOBAL('_SESSION', $name); }
 
+/**
+ * Override method from trait with that of parent
+ *
+ * @param string $key
+ * @return mixed
+ */
+public function get($key)
+{
+	return parent::get($key);
+}
+
 /*=======================================================*/
 }
