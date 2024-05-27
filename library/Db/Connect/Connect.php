@@ -65,7 +65,7 @@ public static function factory($driver, array $params)
 	$driver = str_replace(' ', '_', ucwords(str_replace('_', ' ', strtolower($driver))));
 
 	// Check whether driver exists
-	$driver_dir = (($spos = strpos($driver, '_')) === FALSE)
+	$driver_dir = (($spos = strpos($driver, '_')) === false)
 		? $driver
 		: substr($driver, 0, $spos);
 	$filename = __DIR__ . DIRECTORY_SEPARATOR . 'Driver'

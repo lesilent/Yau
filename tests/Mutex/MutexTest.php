@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Yau\Mutex\Mutex;
 use Yau\Mutex\Adapter\File;
-use InvalidArgumentException;
 
 /**
  * Tests for Yau\Mutex\Mutex
@@ -32,7 +31,7 @@ public function testGetAvailableAdapters():void
  */
 public function testFactoryException():void
 {
-	$this->expectException(InvalidArgumentException::class, '');
+	$this->expectException(InvalidArgumentException::class);
 	Mutex::factory('!Invalid!');
 }
 

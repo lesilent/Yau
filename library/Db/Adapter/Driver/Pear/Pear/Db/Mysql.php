@@ -1,34 +1,26 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Adapter\Driver\Pear\Pear\Db;
 
 use Yau\Db\Adapter\Driver\Pear\Pear\Db;
+use Yau\Db\Sql\Sql;
+use Exception;
 
 /**
-* Database adapter for PEAR DB objects with MySQL backend
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://pear.php.net/manual/en/package.database.db.php
-*/
+ * Database adapter for PEAR DB objects with MySQL backend
+ *
+ * @author John Yau
+ * @link http://pear.php.net/manual/en/package.database.db.php
+ */
 class Mysql extends Db
 {
 /*=======================================================*/
 
 /**
-* Return the id of the last row inserted
-*
-* @return integer the id of the last row inserted, or FALSE
-*/
+ * Return the id of the last row inserted
+ *
+ * @return integer the id of the last row inserted, or false
+ */
 public function lastInsertId()
 {
 	$id = $this->dbh->getOne('SELECT LAST_INSERT_ID()');
@@ -43,31 +35,31 @@ public function lastInsertId()
 // Wrapper methods
 
 /**
-* Wrapper method that allows for easy INSERT IGNORE INTO a table
-*
-* @param  string  $table the name of the table
-* @param  array   $params associative array of parameters
-* @return integer the number of rows affected, or FALSE on error
-* @uses   Util_DB_Adapter_MYSQL::insertIgnoreIntoExec()
-*/
+ * Wrapper method that allows for easy INSERT IGNORE INTO a table
+ *
+ * @param string $table the name of the table
+ * @param array  $params associative array of parameters
+ * @return integer the number of rows affected, or FALSE on error
+ */
 public function insertIgnoreInto($table, array $params)
 {
-	Util::loadClass('Util_DB_Adapter_MYSQL');
-	return Util_DB_Adapter_MYSQL::insertIgnoreIntoExec($this, $table, $params);
+	$sql = Sql::buildInsertStatement($table, $params);
+	$sql = preg_replace('/^INSERT\b/i', 'INSERT IGNORE', $sql);
+	return $this->exec($sql, $params);
 }
 
 /**
-* Wrapper method that allows for easy REPLACE INTO a table
-*
-* @param  string  $table the name of the table
-* @param  array   $params associative array of parameters
-* @return integer the number of rows affected, or FALSE on error
-* @uses   Util_DB_Adapter_MYSQL::replaceIntoExec()
-*/
+ * Wrapper method that allows for easy REPLACE INTO a table
+ *
+ * @param string $table the name of the table
+ * @param array  $params associative array of parameters
+ * @return integer the number of rows affected, or FALSE on error
+ */
 public function replaceInto($table, array $params)
 {
-	Util::loadClass('Util_DB_Adapter_MYSQL');
-	return Util_DB_Adapter_MYSQL::replaceIntoExec($this, $table, $params);
+	$sql = Sql::buildInsertStatement($table, $params);
+	$sql = preg_replace('/^INSERT\b/i', 'REPLACE', $sql);
+	return $this->exec($sql, $params);
 }
 
 /*=======================================================*/

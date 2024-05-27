@@ -1,37 +1,27 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Adapter\Driver\Db2;
 
 use Yau\Db\Adapter\Driver\AbstractDriver;
 
 /**
-* Database adapter class for use with DB2 connection objects
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-* @link     http://www.php.net/manual/en/ref.ibm-db2.php
-*/
+ * Database adapter class for use with DB2 connection objects
+ *
+ * @author John Yau
+ * @link http://www.php.net/manual/en/ref.ibm-db2.php
+ */
 class Db2 extends AbstractDriver
 {
 /*=======================================================*/
 
 /**
-* Execute a statement and return the number of affected rows
-*
-* @param  string  $stmt   the SQL statement to execute
-* @param  array   $params optional array of values to bind to placeholders
-* @return integer the number of affected rows, or FALSE if error
-*/
-public function exec($stmt, array $params = array())
+ * Execute a statement and return the number of affected rows
+ *
+ * @param string $stmt   the SQL statement to execute
+ * @param array  $params optional array of values to bind to placeholders
+ * @return integer the number of affected rows, or false if error
+ */
+public function exec($stmt, array $params = [])
 {
 	$sth = db2_prepare($this->dbh, $stmt);
 	$res = db2_execute($sth, $params);
@@ -39,63 +29,63 @@ public function exec($stmt, array $params = array())
 }
 
 /**
-* Return the last insert id
-*
-* @return integer
-*/
+ * Return the last insert id
+ *
+ * @return integer
+ */
 public function lastInsertId()
 {
-	$stmt = 'SELECT IDENTITY_VAL_LOCAL() AS LASTID FROM SYSIBM.SYSDUMMY1';
-	$sth = db2_prepare($this->dbh, $stmt);
+	$sql = 'SELECT IDENTITY_VAL_LOCAL() AS LASTID FROM SYSIBM.SYSDUMMY1';
+	$sth = db2_prepare($this->dbh, $sql);
 	db2_execute($sth);
-	return (db2_fetch_row($sth)) ? db2_result($sth, 0) : FALSE;
+	return (db2_fetch_row($sth)) ? db2_result($sth, 0) : false;
 }
 
 //-------------------------------------
 // Transaction methods
 
 /**
-* Begin a transaction
-*
-* @return boolean TRUE on success or FALSE on failure
-* @uses   db2_autocommit()
-*/
+ * Begin a transaction
+ *
+ * @return bool true on success or false on failure
+ * @uses db2_autocommit()
+ */
 public function beginTransaction()
 {
-	return db2_autocommit($this->dbh, DB2_AUTOCOMMIT_OFF) && ($this->transaction = TRUE);
+	return db2_autocommit($this->dbh, DB2_AUTOCOMMIT_OFF) && ($this->transaction = true);
 }
 
 /**
-* Commit current transaction
-*
-* @return boolean TRUE on success or FALSE on failure
-* @uses   db2_commit()
-*/
+ * Commit current transaction
+ *
+ * @return bool true on success or false on failure
+ * @uses db2_commit()
+ */
 public function commit()
 {
-	return db2_commit($this->dbh) && (($this->transaction = FALSE) || TRUE);
+	return db2_commit($this->dbh) && (($this->transaction = false) || true);
 }
 
 /**
-* Rollback the current transaction
-*
-* @return boolean TRUE on success or FALSE on failure
-* @uses   db2_rollback()
-*/
+ * Rollback the current transaction
+ *
+ * @return bool true on success or false on failure
+ * @uses db2_rollback()
+ */
 public function rollBack()
 {
-	return db2_rollback($this->dbh) && (($this->transaction = FALSE) || TRUE);
+	return db2_rollback($this->dbh) && (($this->transaction = false) || true);
 }
 
 //-------------------------------------
 // Miscellaneous methods
 
 /**
-* Disconnect from database
-*
-* @return boolean TRUE upon success, or FALSE on failure
-* @uses   db2_close()
-*/
+ * Disconnect from database
+ *
+ * @return bool true upon success, or false on failure
+ * @uses db2_close()
+ */
 public function disconnect()
 {
 	return db2_close($this->dbh);

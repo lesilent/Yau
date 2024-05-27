@@ -1,0 +1,50 @@
+{
+	"system": {
+		"primary": { "host": "primary.example.com" },
+		"replica1": { "host": "replica1.example.com", "disabled": true },
+		"replica2": { "host": "replica2.example.com" },
+		"replica3": { "host": "replica3.example.com" },
+		"replica4": { "host": "replica4.example.com" },
+		"localdb": { "host": "localhost" },
+		"myhost": { "host": "my.localhost" }
+	},
+	"database": {
+		"projectx": {
+			"driver": "mysql",
+			"dbname": "projx",
+			"user": [
+				{ "username": "webuser", "password": "websecret", "default": true },
+				{ "username": "report", "password": "rptsecret", "access": "read" },
+				{ "username": "admin", "password": "adminsecret" }
+			],
+			"connection": [
+				{ "system": "primary" },
+				{ "system": "replica1", "access": "read" },
+				{ "system": "replica2", "access": "read" }
+			]
+		},
+		"warehouse": {
+			"driver": "mysql",
+			"dbname": "reportdata",
+			"user": [
+				{ "username": "reportuser", "password": "reportpwd", "access": "read" }
+			],
+			"connection": [
+				{ "system": "replica1", "access": "read", "weight": 4 },
+				{ "system": "replica2", "access": "read", "weight": 4 },
+				{ "system": "replica3", "access": "read", "weight": 1 },
+				{ "system": "replica4", "access": "read", "weight": 1 }
+			]
+		},
+		"mydb": {
+			"driver": "mysql",
+			"dbname": "mydb",
+			"user": [
+				{ "username": "myuser", "password": "mypass" }
+			],
+			"connection": [
+				{ "system": "myhost" }
+			]
+		}
+	}
+}

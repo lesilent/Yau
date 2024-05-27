@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Yau\Savant\Savant;
@@ -60,7 +60,7 @@ public function testRegisterFunction()
 
 	$key = random_bytes(32);
 	$values = ['user_id'=>mt_rand(1000, 9999)];
-	$funcs = ['myhash'=>fn($data) => hash_hmac('sha256', $data, $key)];
+	$funcs = ['myhash'=>fn($data) => hash_hmac('sha256', strval($data), $key)];
 	$expected = preg_replace_callback('/<\?=\s*\$(\w+)(?:\->(\w+)\(\s*\$(\w+)\s*\))?[^>]+?>/', function ($matches) use($values, $funcs) {
 		if (strcmp($matches[1], 'this') == 0)
 		{

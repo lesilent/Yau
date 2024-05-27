@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Yau\AccessObject\AccessObject;
-use InvalidArgumentException;
 
 /**
 * Tests for Yau\AccessObject\AccessObject
@@ -147,7 +146,7 @@ public function testSerializable():void
 	unset($obj);
 	$this->assertTrue(!isset($obj));
 	$obj = unserialize($s);
-	$this->assertInstanceOf('Yau\AccessObject\AccessObject', $obj);
+	$this->assertInstanceOf(AccessObject::class, $obj);
 	$this->assertEquals('John', $obj->fname);
 	$this->assertEquals('Doe', $obj->lname);
 }

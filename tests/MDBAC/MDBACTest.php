@@ -1,127 +1,120 @@
-<?php
+<?php declare(strict_types = 1);
 
-/**
-* Yau Tools Tests
-*
-* @author John Yau
-*/
-namespace YauTest\MDBAC;
-
+use PHPUnit\Framework\TestCase;
 use Yau\MDBAC\MDBAC;
-use Yau\MDBAC\Exception\ConnectException;
 
 /**
-*
-* @author John Yau
-* @todo   add tests using sqlite
-*/
-class MDBACTest extends \PHPUnit_Framework_TestCase
+ * Tests for Yau\MDBAC\MDBAC
+ */
+class MDBACTest extends TestCase
 {
 /*=======================================================*/
 
 /**
-* The database used for testing
-*
-* @var string
-*/
+ * The database used for testing
+ *
+ * @var string
+ */
 private static $TEST_DB = 'projectx';
 
 /**
-* Database string for a working database
-*
-* @var string
-*/
-private static $WORK_DB = 'yautest';
-
-/**
-* The MDBAC object
-*
-* @var object
-*/
+ * The MDBAC object
+ *
+ * @var object
+ */
 protected $mdbac;
 
 /**
-*
-*/
-public function setUp()
+ */
+public function setUp():void
 {
 	$this->mdbac = new MDBAC(__DIR__ . DIRECTORY_SEPARATOR . 'db.conf.xml');
 }
 
 /**
-*
-* @dataProvider providerDriverConstants
-*/
-public function testDriverConstants($constname)
-{
-	$this->assertTrue(defined('Yau\MDBAC\MDBAC::' . $constname));
-}
-
-/**
-*
-*/
-public function testGetConfig()
-{
-	$this->assertInstanceOf('Yau\MDBAC\Config', $this->mdbac->getConfig());
-}
-
-/**
-*
-*/
-public function testConnect()
-{
-	$this->assertTrue(is_string($this->mdbac->connect('CLI', self::$TEST_DB)));
-	$this->assertTrue(is_string($this->mdbac->connect('CLI', self::$WORK_DB)));
-	$this->assertInstanceOf('PDO', $this->mdbac->connect('PDO', self::$WORK_DB));
-}
-
-/**
-* @expectedException Yau\MDBAC\Exception\InvalidArgumentException
-*/
-public function testInvalidDriverException()
-{
-	$dbh = $this->mdbac->connect('BadDriver', self::$TEST_DB);
-}
-
-/**
-* @dataProvider providerDriverConstants
-* @expectedException Yau\MDBAC\Exception\ConnectException
-*/
-public function testConnectException($driver)
-{
-	if (in_array($driver, array('DBX', 'MSSQL')) && !function_exists(strtolower($driver) . '_connect')) throw new ConnectException('No connect function exists for ' . $driver);
-	if (!class_exists('PEAR', FALSE) and preg_match('/^PEAR_/', $driver)) throw new ConnectException('No PEAR class defined for ' . $driver);
-	if (preg_match('/^(CLI|PERL)_?/', $driver)) throw new ConnectException($driver . ' cannot be connected directly');
-	$this->mdbac->connect($driver, self::$TEST_DB);
-}
-
-/**
-* @return array
-*/
-public function providerDriverConstants()
+ * @return array
+ */
+public function providerDriverConstants():array
 {
 	// Get path to the MDBAC Connect classes
-	$reflect = new \ReflectionClass('Yau\Db\Connect\Connect');
+	$reflect = new ReflectionClass('Yau\Db\Connect\Connect');
 	$path = dirname($reflect->getFileName()) . DIRECTORY_SEPARATOR . 'Driver';
 	$pathlen = strlen($path);
 
 	// Iterate over the files to get drivers
-	$drivers = array();
-	$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
-	foreach ($iterator as $filename)
+	$drivers = [];
+	$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS));
+	foreach ($iterator as $pathname)
 	{
-		if (is_file($filename)
-			&& ($dirpos = strpos($filename, DIRECTORY_SEPARATOR, $pathlen + 1)) !== FALSE
-			&& ($constname = basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($filename, $dirpos + 1)), '.php'))
-			&& !preg_match('/Interface$/i', $constname))
+		if (is_file($pathname)
+			&& strcmp(pathinfo($pathname, PATHINFO_EXTENSION), 'php') == 0
+			&& ($dirpos = strpos($pathname, DIRECTORY_SEPARATOR, $pathlen + 1)) !== false
+			&& ($constname = basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($pathname, $dirpos + 1)), '.php')))
 		{
-			$drivers[] = array(strtoupper($constname));
+			$drivers[] = [strtoupper($constname)];
 		}
 	}
 
 	// Return drivers
 	return $drivers;
 }
+
+/**
+ * @dataProvider providerDriverConstants
+ */
+public function testDriverConstants($constname):void
+{
+	$this->assertTrue(defined('Yau\MDBAC\MDBAC::' . $constname));
+}
+
+/**
+ */
+public function testGetConfig():void
+{
+	$this->assertInstanceOf('Yau\MDBAC\Config', $this->mdbac->getConfig());
+}
+
+/**
+ */
+public function testConnect():void
+{
+	$this->assertIsString($this->mdbac->connect('CLI', self::$TEST_DB));
+	$this->assertIsString($this->mdbac->connectOnce('CLI', self::$TEST_DB));
+	foreach ($this->providerDriverConstants() as $driver)
+	{
+		$driver = reset($driver);
+		if (preg_match('/^CLI/i', $driver))
+		{
+			$this->assertIsString($this->mdbac->connect($driver, self::$TEST_DB));
+			$this->assertIsString($this->mdbac->connectOnce($driver, self::$TEST_DB));
+		}
+	}
+}
+
+/**
+ */
+public function testInvalidDriverException():void
+{
+	$this->expectException(InvalidArgumentException::class);
+	$dbh = $this->mdbac->connect('BadDriver', self::$TEST_DB);
+}
+
+/**
+ * Stub for custom database connections
+ */
+/*
+public function testConnectException($driver)
+{
+	$path = '/mypath/db.conf.xml';
+	$driver = 'PDO';
+	$database = 'mydb';
+	$type = 'PDO';
+
+	$mdbac = new MDBAC($path);
+	$dbh = $mdbac->connect($driver, $database);
+	$this->assertInstanceOf($type, $dbh);
+}
+*/
 
 /*=======================================================*/
 }

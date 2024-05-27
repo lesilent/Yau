@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Yau\Singleton\Singleton;
 use Yau\Singleton\SingletonTrait;
-use InvalidArgumentException;
 
 /**
  * Tests for Yau\Singleton\Singleton

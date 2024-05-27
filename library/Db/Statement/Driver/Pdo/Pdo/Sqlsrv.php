@@ -1,34 +1,24 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Statement\Driver\Pdo\Pdo;
 
 use Yau\Db\Statement\Driver\Pdo\Pdo;
 
 /**
-* Statement object for use with a PDO SQLSRV connection
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+ * Statement object for use with a PDO SQLSRV connection
+ *
+ * @author John Yau
+ */
 class Sqlsrv extends Pdo
 {
 /*=======================================================*/
 
 /**
-* Flag for whether we've already cleared first row set
-*
-* @var  boolean
-* @link https://bugs.php.net/bug.php?id=69592
-*/
+ * Flag for whether we've already cleared first row set
+ *
+ * @var bool
+ * @link https://bugs.php.net/bug.php?id=69592
+ */
 private $next_rowset = false;
 
 /**

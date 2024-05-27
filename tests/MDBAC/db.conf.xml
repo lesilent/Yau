@@ -1,39 +1,53 @@
 <?xml version="1.0" standalone="yes"?>
 <config>
-    <systems>
-        <system name="main_master" host="master.example.com" />
-        <system name="main_slave"  host="slave.example.com" />
-        <system name="old_db"      host="old.example.com" />
-        <system name="dev_db"      host="dev.example.com" />
-        <system name="localdb"     host="localhost" />
-    </systems>
-    <databases>
-        <database name="projectx" driver="mysql" dbname="projx">
-            <users>
-                <user username="webuser" password="websecret" default="default" />
-                <user username="admin" password="adminsecret" />
-            </users>
-            <connections>
-                <connection system="main_master" />
-                <connection system="main_slave" access="read" />
-            </connections>
-        </database>
-	<database name="yautest" driver="mysql" dbname="yautest">
-	   <users>
-		<user username="yau_user" password="yaupwd" default="default" />
-		<user username="yau_user2" password="yaupwd2" />
-	   </users>
-	   <connections>
-		<connection system="localdb" />
-	   </connections>
+<systems>
+	<system name="primary"  host="primary.example.com" />
+	<system name="replica1" host="secondary.example.com" disabled="disabled" />
+	<system name="replica2" host="tertiary.example.com" />
+	<system name="replica3" host="quaternary.example.com" />
+	<system name="replica4" host="quinary.example.com" />
+	<system name="localdb"  host="localhost" />
+	<system name="mysystem" host="my.localhost" />
+</systems>
+<databases>
+	<database name="projectx" driver="mysql" dbname="projx">
+		<users>
+			<user username="webuser" password="websecret" default="default" />
+			<user username="report" password="rptsecret" access="read" />
+			<user username="admin" password="adminsecret" />
+		</users>
+		<connections>
+			<connection system="primary" />
+			<connection system="replica1" access="read" />
+			<connection system="replica2" access="read" />
+		</connections>
 	</database>
-	<database name="y2k" driver="db2" dbname="project2000">
-	   <users>
-		<user username="user123" password="pwd123" />
-	   </users>
-	   <connections>
-		<connection system="old_db" />
-	   </connections>
+	<database name="warehouse" driver="mysql" dbname="reportdata">
+		<users>
+			<user username="reportuser" password="reportpwd" access="read" />
+		</users>
+		<connections>
+			<connection system="replica1" access="read" weight="4" />
+			<connection system="replica2" access="read" weight="4" />
+			<connection system="replica3" access="read" weight="1" />
+			<connection system="replica4" access="read" weight="1" />
+		</connections>
 	</database>
-    </databases>
+	<database name="mytest" driver="mysql" dbname="mydb">
+		<users>
+			<user username="myuser" password="mypass" />
+		</users>
+		<connections>
+			<connection system="mysystem" />
+		</connections>
+	</database>
+	<database name="old_gosahc" driver="mysql" dbname="old_gosahc">
+		<users>
+			<user username="gosahc" password="dbpwd2018!A" />
+		</users>
+		<connections>
+			<connection system="localdb" />
+		</connections>
+	</database>
+</databases>
 </config>

@@ -1,19 +1,12 @@
 <?php
 
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
-*/
-
 namespace Yau\Mutex\Adapter;
 
 use Yau\Mutex\AdapterInterface;
-use Yau\Mutex\Exception\InvalidArgumentException;
-use Yau\Mutex\Exception\RuntimeException;
+use Yau\Db\Adapter\Driver\AbstractDriver;
 use Yau\Db\Adapter\Adapter;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
 * A class used to ensure that only a single process of a script is running
@@ -32,7 +25,7 @@ use Yau\Db\Adapter\Adapter;
 * $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 *
 * // Instantiate object with max process time of one day
-* $options = array('max_process_time'=>86400);
+* $options = ['max_process_time'=>86400];
 * $mutex = Mutex::factory('mysql', $dbh, 'myscript', $options);
 *
 * if ($mutex->acquire())
@@ -91,9 +84,7 @@ use Yau\Db\Adapter\Adapter;
 * <ul>
 * </ul>
 *
-* @author   John Yau
-* @category Yau
-* @package  Yau_Mutex
+* @author John Yau
 */
 class Mysql implements AdapterInterface
 {
@@ -149,7 +140,7 @@ private $delete_sql;
 *
 * @var array
 */
-private $sql_values = array();
+private $sql_values = [];
 
 /**
 * Associative array of options for process
@@ -189,13 +180,13 @@ private $sql_values = array();
 *                             default is 255
 * </pre>
 *
-* @var options
+* @var array
 */
-private $options = array(
+private $options = [
 	'max_process_time'  => 3600,
-	'max_time_func'     => NULL,
-	'skip_table_check'  => FALSE,
-	'db_name'           => NULL,
+	'max_time_func'     => null,
+	'skip_table_check'  => false,
+	'db_name'           => null,
 	'table_name'        => 'yau_mutex',
 	'name_column'       => 'name',
 	'connid_column'     => 'connection_id',
@@ -203,26 +194,25 @@ private $options = array(
 	'timestamp_alias'   => '_timestamp',
 	'updatestamp_alias' => '_updatestamp',
 	'max_name_length'   => 255,
-);
+	'include_hostname'  => true,
+];
 
 /**
-* Array of required options that cannot be empty
-*
-* @var array
-*/
-private static $REQUIRED_OPTIONS = array(
+ * Array of required options that cannot be empty
+ *
+ * @var array
+ */
+private static $REQUIRED_OPTIONS = [
 	'table_name',
 	'name_column',
 	'connid_column',
 	'timestamp_column',
 	'timestamp_alias',
 	'updatestamp_alias',
-);
+];
 
 /**
 * Constructor
-*
-*
 * Options:
 * <pre>
 * - max_process_time integer the maximum time for a process in seconds. If a
@@ -232,11 +222,11 @@ private static $REQUIRED_OPTIONS = array(
 *                            exceeds the maximum time
 * </pre>
 *
-* @param  mixed  $dbh     a mysql database connection object or resource
-* @param  array  $options optional associative array of options
+* @param mixed $dbh     a mysql database connection object or resource
+* @param array $options optional associative array of options
 * @throws Exception if there's an error with the arguments
 */
-public function __construct($dbh, array $options = array())
+public function __construct($dbh, array $options = [])
 {
 	// Store process options
 	if (!empty($options))
@@ -282,8 +272,8 @@ public function __construct($dbh, array $options = array())
 	}
 
 	// Check that database connection is MySQL
-	$driver = Adapter::getDriver(($dbh instanceof \Yau\Db\Adapter\Driver\AbstractDriver) ? $dbh->getConnection() : $dbh);
-	if (empty($driver) || stripos($driver, 'mysql') === FALSE)
+	$driver = Adapter::getDriver(($dbh instanceof AbstractDriver) ? $dbh->getConnection() : $dbh);
+	if (empty($driver) || stripos($driver, 'mysql') === false)
 	{
 		throw new InvalidArgumentException('Database connection is not MySQL');
 	}
@@ -364,24 +354,24 @@ private function prepareQueries()
 	// Prepare main queries
 	$columns = array($this->options['name_column'], $this->options['connid_column'], $this->options['timestamp_column']);
 	$this->insert_sql = 'INSERT IGNORE INTO ' . $this->table
-	                  . ' (' . implode(', ', $columns) . ')'
-	                  . ' VALUES (' . str_repeat('?, ', count($columns) - 1) . 'NOW())';
+		. ' (' . implode(', ', $columns) . ')'
+		. ' VALUES (' . str_repeat('?, ', count($columns) - 1) . 'NOW())';
 
 	$this->select_sql = 'SELECT *, UNIX_TIMESTAMP() AS ' . $this->options['timestamp_alias']
-	                  . ' , UNIX_TIMESTAMP(' . $this->options['timestamp_column'] . ') AS ' . $this->options['updatestamp_alias']
-	                  . ' FROM ' . $this->table
-	                  . ' WHERE ' . $this->options['name_column'] . ' = ?'
-	                  . ' LIMIT 1';
+		. ' , UNIX_TIMESTAMP(' . $this->options['timestamp_column'] . ') AS ' . $this->options['updatestamp_alias']
+		. ' FROM ' . $this->table
+		. ' WHERE ' . $this->options['name_column'] . ' = ?'
+		. ' LIMIT 1';
 
 	$this->delete_sql = 'DELETE FROM ' . $this->table
 	                  . ' WHERE ' . $this->options['name_column'] . ' = ?'
 	                  . ' AND ' . $this->options['connid_column'] . ' = ?';
 
 	$this->update_sql = 'UPDATE ' . $this->table
-	                  . ' SET ' . $this->options['connid_column'] . ' = ?'
-	                  . ' , ' . $this->options['timestamp_column'] . ' = NOW()'
-	                  . ' WHERE ' . $this->options['name_column'] . ' = ?'
-	                  . ' AND ' . $this->options['connid_column'] . ' = ?';
+		. ' SET ' . $this->options['connid_column'] . ' = ?'
+		. ' , ' . $this->options['timestamp_column'] . ' = NOW()'
+		. ' WHERE ' . $this->options['name_column'] . ' = ?'
+		. ' AND ' . $this->options['connid_column'] . ' = ?';
 
 	// Prepare values
 	$this->sql_values = array($this->name, $this->connection_id);
@@ -425,25 +415,25 @@ protected function connectionExists($connection_id)
 * This acquires the right to process by writing the current process id to
 * a process file that was defined in the constructor.
 *
-* @return boolean TRUE if acquisition was successful, otherwise FALSE
+* @return boolean true if acquisition was successful, otherwise false
 * @throws Exception
 */
-public function acquire()
+public function acquire():bool
 {
 	// Attempt to make acquisition
-	if ($this->dbh->exec($this->insert_sql, $this->sql_values) > 0)
+	if ($this->dbh->exec($this->insert_sql, $this->sql_values))
 	{
-		return TRUE;
+		return true;
 	}
 
 	// If unable to make acquisition, read existing record
-	$row = $this->dbh->getRow($this->select_sql, array($this->name));
+	$row = $this->dbh->getRow($this->select_sql, [$this->name]);
 	if (empty($row))
 	{
 		// If no record exists, then possibly don't have INSERT privileges
 		trigger_error('Possibly missing privileges to INSERT into '
 			. $this->table . ' by ' . $this->current_user);
-		return FALSE;
+		return false;
 	}
 
 	// If connection id is the current one, then it's ok
@@ -487,7 +477,7 @@ public function acquire()
 	{
 		// Unable to kill other connection
 		trigger_error('Unable to kill connection id ' . $connid);
-		return FALSE;
+		return false;
 	}
 
 	// Insert or update record to current connection
@@ -499,20 +489,19 @@ public function acquire()
 		{
 			call_user_func($this->options['max_time_func'], $exceeded_time);
 		}
-		return TRUE;
+		return true;
 	}
 
-	// Return FALSE to indicate acquisition failed
-	return FALSE;
+	// Return false to indicate acquisition failed
+	return false;
 }
 
 /**
 * Truncate process file to indicate that processing is done
 *
-* @return boolean TRUE if process file was successfully released, or FALSE if
-*                 not
+* @return bool true if process file was successfully released, or false if not
 */
-public function release()
+public function release():bool
 {
 	// Prepare values
 	$values = array($this->name, $this->connection_id);
@@ -520,23 +509,23 @@ public function release()
 	// Delete record from mutex table
 	if ($this->dbh->exec($this->delete_sql, $this->sql_values) > 0)
 	{
-		return TRUE;
+		return true;
 	}
 
 	// If no rows were deleted, then check whether record is still there
 	// or has a different connection id
-	return (($row = $this->dbh->getRow($this->select_sql, array($this->name))) === FALSE
+	return (($row = $this->dbh->getRow($this->select_sql, array($this->name))) === false
 		|| $row[$this->options['connid_column']] != $this->connection_id);
 }
 
 /**
 * Update timestamp in record to indicate script is still running properly
 *
-* @return boolean TRUE if update was sucessful, or FALSE if not
+* @return bool true if update was sucessful, or false if not
 */
-public function keepAlive()
+public function keepAlive():bool
 {
-	$values = array($this->connection_id, $this->name, $this->connection_id);
+	$values = [$this->connection_id, $this->name, $this->connection_id];
 	return ($this->dbh->exec($this->update_sql, $values) > 0);
 }
 

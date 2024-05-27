@@ -39,7 +39,7 @@ private static $TLDS = [];
  */
 private function getTldDataFile():string
 {
-	return __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tlds-alpha-by-domain.txt';
+	return dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tlds-alpha-by-domain.txt';
 }
 
 /**

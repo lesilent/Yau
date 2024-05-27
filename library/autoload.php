@@ -1,27 +1,22 @@
-<?php
+<?php declare(strict_types = 1);
+
+namespace Yau;
 
 /**
-* Yau Tools
-*
-* Note: this file is used to register the auto loader
-*
-* Load the file to register autoloader
-* <code>
-* require 'Yau/autoload.php';
-* </code>
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau
-*/
-
-if (!class_exists('Yau\\Yau', FALSE))
+ * Yau Tools
+ *
+ * Note: this file is used to register the auto loader
+ *
+ * Load the file to register autoloader
+ * <code>
+ * require 'Yau/autoload.php';
+ * </code>
+ *
+ * @author John Yau
+ */
+if (!class_exists('Yau', false))
 {
-	require __DIR__ . DIRECTORY_SEPARATOR . 'Yau.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'Yau.php';
+	Yau::registerAutoloader();
 }
-if (!class_exists('Yau', FALSE))
-{
-	final class Yau extends Yau\Yau { }
-}
-Yau::registerAutoloader();
 

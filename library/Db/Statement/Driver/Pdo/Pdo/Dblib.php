@@ -1,24 +1,14 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Statement\Driver\Pdo\Pdo;
 
 use Yau\Db\Statement\Driver\Pdo\Pdo;
 
 /**
-* Statement object for use with a PDO DBLIB connection
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+ * Statement object for use with a PDO DBLIB connection
+ *
+ * @author John Yau
+ */
 class Dblib extends Pdo
 {
 /*=======================================================*/
@@ -26,16 +16,16 @@ class Dblib extends Pdo
 /**
 * Flag for whether we've already cleared first row set
 *
-* @var  boolean
+* @var bool
 * @link https://bugs.php.net/bug.php?id=69592
 */
-private $next_rowset = FALSE;
+private $next_rowset = false;
 
 /**
-* Return the number of rows affected by the last SQL statement
-*
-* @return integer
-*/
+ * Return the number of rows affected by the last SQL statement
+ *
+ * @return integer
+ */
 public function rowCount()
 {
 	$sth = $this->dbh->query('SELECT @@ROWCOUNT');
@@ -43,65 +33,65 @@ public function rowCount()
 }
 
 /**
-* Fetch a single row from result set as an associative array
-*
-* @return mixed a row from the result set, or FALSE if there are no more
-*/
+ * Fetch a single row from result set as an associative array
+ *
+ * @return mixed a row from the result set, or FALSE if there are no more
+ */
 public function fetchAssocRow()
 {
 	$row = $this->sth->fetch(\PDO::FETCH_ASSOC);
-	if ($row === FALSE && !$this->next_rowset && $this->sth->nextRowset())
+	if ($row === false && !$this->next_rowset && $this->sth->nextRowset())
 	{
-		$this->next_rowset = TRUE;
+		$this->next_rowset = true;
 		$row = $this->sth->fetch(\PDO::FETCH_ASSOC);
 	}
 	return $row;
 }
 
 /**
-* Fetch a single row from result set as a numeric array
-*
-* @return mixed a row from the result set, or FALSE if there are no more
-*/
+ * Fetch a single row from result set as a numeric array
+ *
+ * @return mixed a row from the result set, or false if there are no more
+ */
 public function fetchNumRow()
 {
 	$row = $this->sth->fetch(\PDO::FETCH_NUM);
-	if ($row === FALSE && !$this->next_rowset && $this->sth->nextRowset())
+	if ($row === false && !$this->next_rowset && $this->sth->nextRowset())
 	{
-		$this->next_rowset = TRUE;
+		$this->next_rowset = true;
 		$row = $this->sth->fetch(\PDO::FETCH_NUM);
 	}
 	return $row;
 }
 
 /**
-* Fetch all results from result set as an array of associative arrays
-*
-* @return array
-*/
+ * Fetch all results from result set as an array of associative arrays
+ *
+ * @return array
+ */
 public function fetchAssocAll()
 {
 	$rows = $this->sth->fetchAll(\PDO::FETCH_ASSOC);
 	if (empty($rows) && !$this->next_rowset && $this->sth->nextRowset())
 	{
-		$this->next_rowset = TRUE;
+		$this->next_rowset = true;
 		$rows = $this->sth->fetchAll(\PDO::FETCH_ASSOC);
 	}
 	return $rows;
 }
 
 /**
-* Fetch all results from result set as an array of numeric arrays
-*
-* @return array
-*/
+ * Fetch all results from result set as an array of numeric arrays
+ *
+ * @return array
+ */
 public function fetchNumAll()
 {
 	$rows = $this->sth->fetchAll(\PDO::FETCH_NUM);
 	if (empty($rows) && !$this->next_rowset && $this->sth->nextRowset())
 	{
-		$this->next_rowset = TRUE;
-		$rows = $this->seth->fetchAll(\PDO::FETCH_NUM);
+		$this->next_rowset = true;
+		$rows = $this->sth->fetchAll(\PDO::FETCH_NUM);
 	}
 	return $rows;
 }

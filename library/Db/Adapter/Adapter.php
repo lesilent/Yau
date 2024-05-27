@@ -1,60 +1,55 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Db\Adapter;
 
-use Yau\Db\Adapter\Exception\UnexpectedValueException;
+use PDO;
+use CallbackFilterIterator;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use UnexpectedValueException;
 
 /**
-* A database wrapper object for interacting with databases
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Db
-*/
+ * A database wrapper object for interacting with databases
+ *
+ * @author John Yau
+ */
 abstract class Adapter
 {
 /*=======================================================*/
 
 /**
-* Return the database driver for a database handler object or resource
-*
-* Note: this function isn't designed for general public usage, and used
-* by Yau\Db classes
-*
-* Current drivers:
-* <ul>
-* <li>MYSQL
-* <li>MYSQLI
-* <li>PDO_MYSQL
-* <li>PDO_ODBC
-* <li>PEAR_DB_MYSQL
-* </ul>
-*
-* @param  mixed  $dbh either a database object or resource
-* @return string the database driver name, or FALSE if unable to determine
-*                driver
-*/
+ * Return the database driver for a database handler object or resource
+ *
+ * Note: this function isn't designed for general public usage, and used
+ * by Yau\Db classes
+ *
+ * Current drivers:
+ * <ul>
+ * <li>MYSQL
+ * <li>MYSQLI
+ * <li>PDO_MYSQL
+ * <li>PDO_ODBC
+ * <li>PEAR_DB_MYSQL
+ * </ul>
+ *
+ * @param  mixed  $dbh either a database object or resource
+ * @return string the database driver name, or false if unable to determine
+ *                driver
+ */
 public static function getDriver($dbh)
 {
 	if (is_object($dbh))
 	{
 		$class_name = get_class($dbh);
-		if ($class_name == 'PDO')
+		if (strcmp($class_name, 'PDO') == 0)
 		{
 			/**
 			* PDO driver
 			*
 			* @link http://www.php.net/manual/en/ref.pdo.php
 			*/
-			return 'pdo_' . strtolower($dbh->getAttribute(\PDO::ATTR_DRIVER_NAME));
+			return 'pdo_' . strtolower($dbh->getAttribute(PDO::ATTR_DRIVER_NAME));
 		}
 		elseif (preg_match('/^DB_(\w+)$/', $class_name, $match))
 		{
@@ -65,7 +60,7 @@ public static function getDriver($dbh)
 			*/
 			return 'pear_db_' . strtolower($match[1]);
 		}
-		elseif ($class_name == 'mysqli')
+		elseif (strcmp($class_name, 'mysqli') == 0)
 		{
 			/**
 			* MySQL Improved Extension
@@ -87,7 +82,7 @@ public static function getDriver($dbh)
 	elseif (is_resource($dbh))
 	{
 		$type = get_resource_type($dbh);
-		preg_match('/^(\w+)\slink/', $type, $match);
+		preg_match('/^(\w+)\slink/', $type, $matches);
 
 		switch ($type)
 		{
@@ -98,7 +93,7 @@ public static function getDriver($dbh)
 			*
 			* @link http://www.php.net/manual/en/ref.mysql.php
 			*/
-			return strtolower($match[1]);
+			return strtolower($matches[1]);
 			break;
 		case 'odbc link':
 		case 'odbc link persistent':
@@ -107,7 +102,7 @@ public static function getDriver($dbh)
 			*
 			* @link http://www.php.net/manual/en/ref.uodbc.php
 			*/
-			return strtolower($match[1]);
+			return strtolower($matches[1]);
 			break;
 		case 'pgsql link':
 		case 'pgsql link persistent':
@@ -116,13 +111,13 @@ public static function getDriver($dbh)
 			*
 			* @link http://www.php.net/manual/en/ref.pgsql.php
 			*/
-			return strtolower($match[1]);
+			return strtolower($matches[1]);
 			break;
 		}
 	}
 
-	// Return FALSE if unable to determine driver
-	return FALSE;
+	// Return false if unable to determine driver
+	return false;
 }
 
 /**
@@ -166,28 +161,19 @@ public static function factory($dbh)
 public static function getAvailableDrivers()
 {
 	// Create iterator for main driver directories
-	$callback = function ($current, $key, $iterator)
-	{
-		return $current->isDir();
-	};
-	$driver_iterator = new \FilesystemIterator(__DIR__ . DIRECTORY_SEPARATOR . 'Driver');
-	$driver_iterator = new \CallbackFilterIterator($driver_iterator, $callback);
+	$driver_iterator = new CallbackFilterIterator(new FilesystemIterator(__DIR__ . DIRECTORY_SEPARATOR . 'Driver'), fn($current) => $current->isDir());
 
 	// Iteratate over directories to find just files
-	$callback = function ($current, $key, $iterator)
-	{
-		return $current->isFile();
-	};
-	$drivers = array();
+	$drivers = [];
 	foreach ($driver_iterator as $driver_dir)
 	{
-		$pathlen = strlen($driver_dir);
-		$iterator = new \RecursiveDirectoryIterator($driver_dir);
-		$iterator = new \RecursiveIteratorIterator($iterator);
-		$iterator = new \CallbackFilterIterator($iterator, $callback);
-		foreach ($iterator as $filename)
+		$path = $driver_dir->getPathname();
+		$pathlen = strlen($path);
+		$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+		$iterator = new CallbackFilterIterator($iterator, fn($current) => $current->isFile());
+		foreach ($iterator as $finfo)
 		{
-			$drivers[] = strtolower(basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($filename, $pathlen + 1)), '.php'));
+			$drivers[] = strtolower(basename(str_replace(DIRECTORY_SEPARATOR, '_', substr($finfo->getPathname(), $pathlen + 1)), '.php'));
 		}
 	}
 

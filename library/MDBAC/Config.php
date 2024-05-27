@@ -1,238 +1,282 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_MDBAC
-* @version  2007-12-12
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\MDBAC;
 
 use Yau\MDBAC\Result;
-use Yau\MDBAC\Exception\InvalidArgumentException;
+use SimpleXMLElement;
+use InvalidArgumentException;
+use Exception;
 
 /**
-* Database configuration file class
-*
-* The API for this object follows that of a database objects. There are
-* queries as well as result sets.
-*
-* Example:
-* <code>
-* // Register autoloader
-* require 'Yau\autoload.php';
-*
-* // Load class
-* use Yau\MDBAC\MDBAC;
-*
-* $MDBAC = new MDBAC('db.conf.xml');
-* $result = $config->query('mydb');
-* while ($db = $result->fetch())
-* {
-*     print_r($db);
-* }
-* </code>
-*
-* Possible output from the above example:
-* <code>
-* Array
-* (
-*    [name] => mydb
-*    [driver] => mysql
-*    [dbname] => members
-*    [username] => john
-*    [password] => fido123
-*    [host] = localhost
-* )
-* </code>
-*
-* The second parameter can be used to specify a variety of options as to what
-* kind of result sets are returned.
-*
-* Example of using options:
-* <code>
-* use Yau\MDBAC\Config;
-*
-* $config = new Config('db.conf.xml');
-*
-* // To retrieve read-only connection with the username of "john"
-* $options = array(
-*     'username' => 'john',
-*     'access'   => 'read'
-* );
-* $result = $config->query('mydb', $options);
-* </code>
-*
-* This configuration class can be used in connection with the Yau\Db\Connect
-* classes to connect to the database. Since each database object/resource
-*
-* Example:
-* <code>
-* use Yau\MDBAC\Config;
-*
-* $config = new Config('db.conf.xml');
-*
-* // Get a result set
-* $result = $config->query('mydb');
-*
-* // Attempt to connect to database and return a PDO connection
-* while ($db = $result->fetch('PDO_MYSQL'))
-* {
-*     try { $dbh = Util_DB::connect('PDO_MYSQL, $db); }
-*     catch (\Exception $e) { exit($e->getMessage()); }
-* }
-* </code>
-*
-* ChangeLog
-* <ul>
-* <li>20091013: Switched to using array_multisort instead of uasort
-* <li>20080303: Fixed bug of not filtering out disabled connections
-* <li>20070816: Removed automatic caching to conserve memory since majority of
-*               connections involve only a single database.
-* </ul>
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_MDBAC
-* @link     http://www.w3.org/TR/xpath
-*/
+ * Database configuration file class
+ *
+ * The API for this object follows that of a database objects. There are
+ * queries as well as result sets.
+ *
+ * Example:
+ * <code>
+ * use Yau\Db\Config;
+ *
+ * $config = new Config('db.conf.xml');
+ * $result = $config->query('mydb');
+ * while ($db = $result->fetch())
+ * {
+ *     print_r($db);
+ * }
+ * </code>
+ *
+ * Possible output from the above example:
+ * <code>
+ * Array
+ * (
+ *    [name] => mydb
+ *    [driver] => mysql
+ *    [dbname] => members
+ *    [username] => john
+ *    [password] => fido123
+ *    [host] = localhost
+ * )
+ * </code>
+ *
+ * The second parameter can be used to specify a variety of options as to what
+ * kind of result sets are returned.
+ *
+ * Example of using options:
+ * <code>
+ * use Yau\MDBAC\Config;
+ *
+ * $config = new Config('db.conf.xml');
+ *
+ * // To retrieve read-only connection with the username of "john"
+ * $options = array(
+ *     'username' => 'john',
+ *     'access'   => 'read'
+ * );
+ * $result = $config->query('mydb', $options);
+ * </code>
+ *
+ * This configuration class can be used in connection with the Yau\Db\Connect
+ * classes to connect to the database. Since each database object/resource
+ *
+ * Example:
+ * <code>
+ * use Yau\MDBAC\Config;
+ *
+ * $config = new Config('db.conf.xml');
+ *
+ * // Get a result set
+ * $result = $config->query('mydb');
+ *
+ * // Attempt to connect to database and return a PDO connection
+ * while ($db = $result->fetch('PDO_MYSQL'))
+ * {
+ *     try { $dbh = DB::connect('PDO_MYSQL, $db); }
+ *     catch (\Exception $e) { exit($e->getMessage()); }
+ * }
+ * </code>
+ *
+ * ChangeLog
+ * <ul>
+ * <li>20091013: Switched to using array_multisort instead of uasort
+ * <li>20080303: Fixed bug of not filtering out disabled connections
+ * <li>20070816: Removed automatic caching to conserve memory since majority of
+ *               connections involve only a single database.
+ * </ul>
+ *
+ * @author John Yau
+ * @link   http://www.w3.org/TR/xpath
+ */
 class Config
 {
 /*=======================================================*/
 
 /**
-* The current SimpleXML object
-*
-* @var object
-*/
+ * The current JSON data
+ *
+ * @var array
+ */
+protected $data;
+
+/**
+ * The current SimpleXML object
+ *
+ * @var object
+ */
 protected $xml;
 
 /**
-* Cache of system host information
-*
-* @var array
-*/
-protected $systems = array();
+ * The data
+ *
+ * @var array
+ */
+private $config = [];
+
+/**
+ * Cache of system host information
+ *
+ * @var array
+ */
+protected $systems = [];
+
+/**
+ * Regular expression for checking hosts
+ *
+ * @var string
+ */
+private static $HOST_PATTERN = '/^(?:localhost|\d+\.\d+\.\d+\.\d+|[a-z0-9\-\.]+\.[a-z]+)$/';
+
+/**
+ * Regular expression for xml
+ *
+ * @var string
+ */
+private static $XML_PATTERN = '/^<\?xml\b.+>\s*$/s';
+
+/**
+ * Regular expression for json
+ *
+ * @var string
+ */
+private static $JSON_PATTERN = '/^\s*{.+}\s*$/s';
 
 //-------------------------------------
 
 /**
-* Constructor
-*
-* System options:
-* <pre>
-* - name     string the name of the host
-* - host     string the host or ip address used to connect
-* - disabled string if set, then host is disabled
-* </pre>
-*
-* User options:
-* <pre>
-* - username string the username used to connect to the database
-* - password string the password used to connect to the database
-* - default  string define a user as being the default
-* - disabled string if set, then username is disabled
-* </pre>
-*
-* Connection options:
-* <pre>
-* - hostname string  the name of the host as defined in systems area
-* - weight   integer the connection weight of the host; default will be 1
-* - port     integer optional port number to use to connect to host if other
-*                    than default
-* - default  string  define a connection as being the default
-* - disabled string  if set, then connection to system is temporarily disabled
-* </pre>
-*
-* @param  string $xml     either the path to the config file or a config XML
-* @param  array  $options optional associative array of options
-* @throws Exception if unable to parse XML
-*/
-public function __construct($xml, array $options = array())
+ * Constructor
+ *
+ * System options:
+ * <pre>
+ * - name     string the name of the host
+ * - host     string the host or ip address used to connect
+ * - disabled string if set, then host is disabled
+ * </pre>
+ *
+ * User options:
+ * <pre>
+ * - username string the username used to connect to the database
+ * - password string the password used to connect to the database
+ * - default  string define a user as being the default
+ * - disabled string if set, then username is disabled
+ * </pre>
+ *
+ * Connection options:
+ * <pre>
+ * - hostname string  the name of the host as defined in systems area
+ * - weight   integer the connection weight of the host; default will be 1
+ * - port     integer optional port number to use to connect to host if other
+ *                    than default
+ * - default  string  define a connection as being the default
+ * - disabled string  if set, then connection to system is temporarily disabled
+ * </pre>
+ *
+ * @param mixed $cfg     either the path to the config file or a config XML
+ * @param array $options optional associative array of options
+ * @throws InvalidArgumentException if unable to parse XML
+ */
+public function __construct($cfg, array $options = [])
 {
-	if (preg_match('/^<\?xml\b/', $xml))
+	if (empty($cfg))
 	{
-		// If a string, then parse it
-		$this->xml = simplexml_load_string($xml);
-		if (empty($this->xml))
+		throw new InvalidArgumentException('Empty config');
+	}
+	if (is_object($cfg) && $cfg instanceof SimpleXMLElement)
+	{
+		$this->xml = $cfg;
+		return;
+	}
+	elseif (is_array($cfg))
+	{
+		$this->data = $cfg;
+		return;
+	}
+	elseif (!is_string($cfg))
+	{
+		throw new InvalidArgumentException('Invalid config');
+	}
+
+	// If cfg is a filename, then get contents
+	$filename = false;
+	if (file_exists($cfg))
+	{
+		$cfg = file_get_contents($filename = $cfg);
+		if (empty($cfg))
 		{
-			throw new InvalidArgumentException('Unable to parse XML');
+			throw new InvalidArgumentException("File {$cfg} is blank");
 		}
 	}
-	elseif (file_exists($xml))
+
+	// Parse config string
+	if (preg_match(self::$XML_PATTERN, $cfg))
 	{
-		// If not in cache, then parse
-		$this->xml = simplexml_load_file($xml);
+		// If a string, then parse it
+		$use_errors = libxml_use_internal_errors(true);
+		$this->xml = simplexml_load_string($cfg);
+		libxml_use_internal_errors($use_errors);
 		if (empty($this->xml))
 		{
-			throw new InvalidArgumentException('Unable to parse ' . $xml);
+			throw ($error = libxml_get_last_error())
+				? new InvalidArgumentException($error->message, $error->code)
+				: new InvalidArgumentException('Unable to parse XML');
 		}
+
+		// Store system host information
+		foreach ($this->xml->xpath('systems/system') as $node)
+		{
+			// Form array of host attributes/information
+			$system = [];
+			foreach ($node->attributes() as $property => $value)
+			{
+				$system[$property] = (string) $value;
+			}
+
+			// Store info by host name
+			$name = (string) $node['name'];
+			$this->systems[$name] = $system;
+		}
+	}
+	elseif (preg_match(self::$JSON_PATTERN, $cfg))
+	{
+		$this->data = json_decode($cfg, true, 32, JSON_THROW_ON_ERROR);
+		if (empty($this->data))
+		{
+			throw new InvalidArgumentException('Unable to parse JSON');
+		}
+
+		// Store system host information
+		foreach (($this->data['system'] ?? []) as $name => $system)
+		{
+			$this->systems[$name] = $system;
+		}
+
+	//	throw new InvalidArgumentException('JSON currently not supported at this time');
 	}
 	else
 	{
-		throw new InvalidArgumentException('Invalid XML passed ' . $xml);
-	}
-
-	// Parse XML and store system host information
-	foreach ($this->xml->xpath('systems/system') as $node)
-	{
-		// Form array of host attributes/information
-		$system = array();
-		foreach ($node->attributes() as $property => $value)
-		{
-			$system[$property] = (string) $value;
-		}
-
-		// Store info by host name
-		$name = (string) $node['name'];
-		$this->systems[$name] = $system;
+		throw new InvalidArgumentException('Invalid config passed ' . (isset($filename) ? " $filename" : ''));
 	}
 }
 
 /**
-* Filter callback function to remove undefined or disabled hosts
-*
-* @param  array   $connection SimpleXML connection element
-* @return boolean TRUE if connection passes, or FALSE if not
-* @see    array_filter()
-*/
-protected function connectionFilter($connection)
+ * Function for sorting an array of users or connections by various weights
+ *
+ * The order in terms of ranking is as follows:
+ * <ol>
+ * <li>Access type
+ * <li>Default designation
+ * <li>Connection weight
+ * </ol>
+ *
+ * @param array $arr
+ * @return bool
+ */
+private function sortWeights(&$arr)
 {
-	if (isset($connection['system']))
+	// Return if there isn't enough to sort
+	if (count($arr) < 2)
 	{
-		$system = (string) $connection['system'];
-
-		// Return TRUE if system exists and not disabled
-		if (isset($this->systems[$system])
-				&& empty($this->systems[$system]['disabled']))
-		{
-			return TRUE;
-		}
+		return false;
 	}
-
-	// Return FALSE
-	return FALSE;
-}
-
-/**
-* Function for sorting an array of users or connections by various weights
-*
-* The order in terms of ranking is as follows:
-* <ol>
-* <li>Access type
-* <li>Default designation
-* <li>Connection weight
-* </ol>
-*
-* @param  array   $arr
-* @return boolean
-*/
-private static function sortWeights(&$arr)
-{
-	$sortby = array('access'=>array(), 'default'=>array(), 'weight'=>array());
+	$sortby = ['access'=>[], 'default'=>[], 'weight'=>[]];
 	foreach ($arr as $item)
 	{
 		$sortby['last'][] = (empty($item['weight'])) ? 0 : 1;
@@ -251,221 +295,247 @@ private static function sortWeights(&$arr)
 }
 
 /**
-* Return several possible database connection details for a database
-*
-* Options:
-* <pre>
-* - access   string specify whether to return "read" or "write" connections;
-*                   default is connections that can do both reads and writes
-* - username string the name of the username to use if other than default
-* - system   string the name of the system to use if other than default
-* </pre>
-*
-* @param  string $database the name of the database information to load
-* @param  array  $options  optional associative array of options
-* @return array  an array of associative arrays of connection info if it was
-*                loaded successfully
-*/
-public function fetchAll($database, array $options = array())
+ * Return several possible database connection details for a database
+ *
+ * Options:
+ * <pre>
+ * - access   string specify whether to return "read" or "write" connections;
+ *                   default is connections that can do both reads and writes
+ * - username string the name of the username to use if other than default
+ * - system   string the name of the system to use if other than default
+ * </pre>
+ *
+ * @param  string $database the name of the database information to load
+ * @param  array  $options  optional associative array of options
+ * @return array  an array of associative arrays of connection info if it was
+ *                loaded successfully
+ */
+public function fetchAll($database, array $options = [])
 {
-	// Search for the database
-	$path = 'databases/database[@name="' . htmlspecialchars($database) . '"]';
-	$result = $this->xml->xpath($path);
-	if (empty($result))
-	{
-		// Return empty array if unable to find database
-		return array();
-	}
-	$db = array_shift($result);
-
-	// Store database attributes
-	$db_info = array();
-	foreach ($db->attributes() as $property => $value)
-	{
-		$db_info[$property] = (string) $value;
-	}
-
 	/*
-	* Grab a user to use
-	*/
-
-	// Form a list of paths used to search for a user
-	$path = NULL;
-	if (isset($options['username']))
+	 * Get database info
+	 */
+	$db_info = [];
+	if (isset($this->xml))
 	{
-		// If username passed, then we need at least one
-		$need_user = TRUE;
+		// Search for the database
+		$path = sprintf('databases/database[@name="%s"]', htmlspecialchars($database));
+		$result = $this->xml->xpath($path);
+		if (empty($result))
+		{
+			// Return empty array if unable to find database
+			return [];
+		}
+		$db = array_shift($result);
 
-		// Form xpath
-		$path = 'users/user[not(@disabled) and @username="'
-		      . htmlspecialchars($options['username']) . '"]';
-	}
-	elseif (isset($db->users))
-	{
-		// There are users, so we need at least one
-		$need_user = TRUE;
-
-		// Form xpath
-		$path = 'users/user[not(@disabled)]';
+		// Store database attributes
+		foreach ($db->attributes() as $property => $value)
+		{
+			$db_info[$property] = (string) $value;
+		}
 	}
 	else
 	{
-		// If no users, then we don't need one
-		$need_user = FALSE;
+		// Return empty array if unable to find database
+		if (empty($this->data['database'][$database]))
+		{
+			return [];
+		}
+
+		// Store database attributes
+		$db = $this->data['database'][$database];
+		$db_info += ['name'=>$database] + array_filter($db, fn($value) => is_scalar($value));
+	}
+
+	// Form path and callback filter for access type
+	if (strcmp($options['access'] ?? '', 'read') == 0)
+	{
+		$access_path = sprintf('(@access="%s" or not(@access))', htmlspecialchars($options['access']));
+		$access_cb = fn($row) => empty($row['access']) || strcmp($row['access'], $options['access']) == 0;
+	}
+	else
+	{
+		$access_path = 'not(@access)';
+		$access_cb = fn($row) => empty($row['access']);
+	}
+
+	/*
+	 * Grab a user to use
+	 */
+
+	// Form a list of paths used to search for a user
+	$need_user = false;
+	if (isset($options['username']))
+	{
+		// If username passed, then we need at least one
+		$need_user = true;
+
+		$path = sprintf('users/user[not(@disabled) and @username="%s" and %s]', htmlspecialchars($options['username']), $access_path);
+		$callback = fn($row) => empty($row['disabled']) && strcmp($row['username'] ?? '', $options['username']) == 0 && $access_cb($row);
+	}
+	elseif (isset($this->xml) ? isset($db->users) : isset($db['user']))
+	{
+		// There are users, so we need at least one
+		$need_user = true;
+
+		$path = sprintf('users/user[not(@disabled) and %s]', $access_path);
+		$callback = fn($row) => empty($row['disabled']) && $access_cb($row);
 	}
 
 	// Search paths for user
-	$users = (isset($path)) ? $db->xpath($path) : array();
-
-	// If need a user and there is none, then return empty array
-	if ($need_user && empty($users))
+	$user_info = [];
+	if ($need_user)
 	{
-		return array();
-	}
+		$users = isset($this->xml)
+			? $db->xpath($path)
+			: array_filter($db['user'] ?? [], $callback);
 
-	// Form an array of user weights to aid in sorting
-	$arr_weights = array();
-	shuffle($users);
-	foreach ($users as $i => $user)
-	{
-		// Set flag that user weights were used
-		$weight = (isset($user['weight']))
-			? (int) $user['weight']
-			: 1;
-		$arr_weights[] = array(
-			'index'    => $i,
-			'username' => (string) $user['username'],
-			'default'  => (isset($user['default']) ? 1 : 0),
-			'weight'   => (($weight > 0) ? mt_rand(1, $weight) : 0),
-		);
-	}
+		// If need a user and there is none, then return empty array
+		if (empty($users))
+		{
+			return [];
+		}
 
-	// Sort users
-	if (count($arr_weights) > 1)
-	{
-		self::sortWeights($arr_weights);
-	}
+		// Form an array of user weights to aid in sorting
+		$arr_weights = [];
+		shuffle($users);
+		foreach ($users as $i => $user)
+		{
+			// Set flag that user weights were used
+			$weight = (int) ($user['weight'] ?? 1);
+			$arr_weights[] = [
+				'index'    => $i,
+				'username' => (string) $user['username'],
+				'default'  => (isset($user['default']) ? 1 : 0),
+				'access'   => (isset($user['access'])  ? 1 : 0),
+				'weight'   => (($weight > 0) ? mt_rand(1, $weight) : 0),
+			];
+		}
 
-	// Pick a user and store its attributes
-	$user_info = array();
-	if (!empty($users))
-	{
+		// Sort users
+		$this->sortWeights($arr_weights);
+
 		// Use the first one in the list
 		$arr = array_shift($arr_weights);
 		$user = $users[$arr['index']];
-
-		// Use the first user
-		foreach ($user->attributes() as $property => $value)
+		if (isset($this->xml))
 		{
-			$user_info[$property] = (string) $value;
+			foreach ($user->attributes() as $property => $value)
+			{
+				$user_info[$property] = (string) $value;
+			}
+		}
+		else
+		{
+			$user_info += $user;
 		}
 	}
+
 
 	/*
 	* Grab list of connections to use
 	*/
 
-	// Form path for database access type
-	$access_path = (isset($options['access']) && $options['access'] == 'read')
-		? '(@access="' . htmlspecialchars($options['access']) . '" or not(@access))'
-		: 'not(@access)';
-
 	// Form a list of paths used to search for a connection
-	$path = NULL;
+	$need_connection = false;
 	if (isset($options['system']))
 	{
 		// Need a connection if a system option was passed
-		$need_connection = TRUE;
+		$need_connection = true;
 
-		// Form xpath
-		$path = 'connections/connection[not(@disabled) and @system="'
-		      . htmlspecialchars($options['system'])
-		      . '" and ' . $access_path
-		      . ']';
+		$path = sprintf('connections/connection[not(@disabled) and @system="%s" and %s]', htmlspecialchars($options['system']), $access_path);
+		$callback = fn($row) => empty($row['disabled']) && strcmp($row['system'], $options['system']) == 0 && $access_cb($row);
 	}
-	elseif (isset($db->connections))
+	elseif (isset($this->xml) ? isset($db->connections) : isset($db['connection']))
 	{
 		// Need a connection if there's database connections are available
-		$need_connection = TRUE;
+		$need_connection = true;
 
-		// Form xpath
-		$path = 'connections/connection[not(@disabled) and ' . $access_path . ']';
-	}
-	else
-	{
-		// No connections associated with database, so we don't need it
-		$need_connection = FALSE;
+		$path = sprintf('connections/connection[not(@disabled) and %s]', $access_path);
+		$callback = fn($row) => empty($row['disabled']) && $access_cb($row);
 	}
 
 	// Search for connections using the path
-	$connections = (isset($path)) ? $db->xpath($path) : array();
-	array_filter($connections, array($this, 'connectionFilter'));
-
-	// Return empty array if need a connection, but couldn't find one
-	if ($need_connection && empty($connections))
+	$conn_info = [];
+	if ($need_connection)
 	{
-		return array();
+		$connections = (isset($this->xml))
+			? $db->xpath($path)
+			: array_filter($db['connection'] ?? [], $callback);
+		$connections = array_filter($connections, function($row) {
+			// Return true if system exists and not disabled
+			$system = (string) $row['system'];
+			return (isset($this->systems[$system]) && empty($this->systems[$system]['disabled']));
+		});
+
+		// Return empty array if couldn't find one
+		if (empty($connections))
+		{
+			return [];
+		}
+
+		// Form an array of connection weights to aid in sorting
+		$arr_weights = [];
+		shuffle($connections);
+		foreach ($connections as $i => $connection)
+		{
+			$weight = (int) ($connection['weight'] ?? 1);
+			$system = (string) $connection['system'];
+			$location = $this->systems[$system]['location'] ?? '';
+			$arr_weights[] = [
+				'index'   => $i,
+				'system'  => (string) $connection['system'],
+				'default' => (isset($connection['default']) ? 1 : 0),
+				'access'  => (isset($connection['access'])  ? 1 : 0),
+				'weight'  => (($weight > 0) ? mt_rand(1, $weight) : 0),
+				'location' => ((!empty($options['location']) && $options['location'] == $location) ? 2 : (empty($location) ? 1 : 0)),
+			];
+		}
+
+		// Sort connection weights to determine connection order
+		$this->sortWeights($arr_weights);
 	}
 
 	/*
 	* Prepare and return result
 	*/
-	$result = array();
+	$result = [];
 
 	// If no connections, then have just user and database info
 	if (empty($connections))
 	{
 		$result[] = array_merge($db_info, $user_info);
-		return $result;
 	}
-
-	// Form an array of connection weights to aid in sorting
-	$arr_weights = array();
-	shuffle($connections);
-	foreach ($connections as $i => $connection)
+	else
 	{
-		$weight = (isset($connection['weight']))
-			? (int) $connection['weight']
-			: 1;
-		$system = (string) $connection['system'];
-		$location = (isset($this->systems[$system]['location'])) ? $this->systems[$system]['location'] : '';
-		$arr_weights[] = array(
-			'index'   => $i,
-			'system'  => (string) $connection['system'],
-			'default' => (isset($connection['default']) ? 1 : 0),
-			'access'  => (isset($connection['access'])  ? 1 : 0),
-			'weight'  => (($weight > 0) ? mt_rand(1, $weight) : 0),
-			'location' => ((!empty($options['location']) && $options['location'] == $location) ? 2 :
-                                (empty($location) ? 1 : 0)),
-		);
-	}
-
-	// Sort connection weights to determine connection order
-	if (count($arr_weights) > 1)
-	{
-		self::sortWeights($arr_weights);
-	}
-
-	// Merge connection and system info with database info
-	foreach	($arr_weights as $arr)
-	{
-		$connection = $connections[$arr['index']];
-
-		// Form array of connection attributes
-		$conn_info = array();
-		foreach ($connection->attributes() as $property => $value)
+		// Merge connection and system info with database info
+		foreach	($arr_weights as $arr)
 		{
-			$conn_info[$property] = (string) $value;
+			$connection = $connections[$arr['index']];
+
+			// Form array of connection attributes
+			$conn_info = [];
+			if (isset($this->xml))
+			{
+				foreach ($connection->attributes() as $property => $value)
+				{
+					$conn_info[$property] = (string) $value;
+				}
+			}
+			else
+			{
+				$conn_info = $connection;
+			}
+
+			// Add system or host attributes to connection
+			// Note: disabled or invalid systems was already filtered above
+			$system_info = (isset($conn_info['system']))
+				? $this->systems[$conn_info['system']]
+				: [];
+
+			// Combine all of the info into results
+			$result[] = array_merge($system_info, $db_info, $user_info, $conn_info);
 		}
-
-		// Add system or host attributes to connection
-		// Note: disabled or invalid systems was already filtered above
-		$system_info = (isset($conn_info['system']))
-			? $this->systems[$conn_info['system']]
-			: array();
-
-		// Form all of the info into results
-		$result[] = array_merge($system_info, $db_info, $user_info, $conn_info);
 	}
 
 	// Return result
@@ -473,37 +543,37 @@ public function fetchAll($database, array $options = array())
 }
 
 /**
-* Return one possible database connection details for a database
-*
-* Options:
-* <pre>
-* - access   string specify whether to return "read" or "write" connections;
-*                   default is connections that can do both reads and writes
-* - username string the name of the username to use if other than default
-* - system   string the name of the system to use if other than default
-* </pre>
-*
-* @param  string $database the name of the database information to load
-* @param  array  $options  optional associative array of options
-* @return array  an associative arrays of connection info if it was
-*                loaded successfully, or NULL if none
-* @uses   Yau\MDBAC\Config::fetchAll()
-*/
-public function fetchOne($database, array $options = array())
+ * Return one possible database connection details for a database
+ *
+ * Options:
+ * <pre>
+ * - access   string specify whether to return "read" or "write" connections;
+ *                   default is connections that can do both reads and writes
+ * - username string the name of the username to use if other than default
+ * - system   string the name of the system to use if other than default
+ * </pre>
+ *
+ * @param string $database the name of the database information to load
+ * @param array  $options  optional associative array of options
+ * @return array  an associative arrays of connection info if it was
+ *                loaded successfully, or NULL if none
+ * @uses Yau\MDBAC\Config::fetchAll()
+ */
+public function fetchOne($database, array $options = [])
 {
 	$info = $this->fetchAll($database, $options);
 	return array_shift($info);
 }
 
 /**
-* Fetch all connection information for a database and return a result set object
-*
-* @param  string  $database the name of the database information to load
-* @param  array   $options  optional associative array of options
-* @return object a Yau\MDBAC\Result result set object
-* @uses   Yau\MDBAC\Config::query()
-*/
-public function query($database, $options = array())
+ * Fetch all connection information for a database and return a result set object
+ *
+ * @param string $database the name of the database information to load
+ * @param array  $options  optional associative array of options
+ * @return object a Yau\MDBAC\Result result set object
+ * @uses Yau\MDBAC\Config::query()
+ */
+public function query($database, array $options = [])
 {
 	// Fetch a result set
 	$result = $this->fetchAll($database, $options);
@@ -519,284 +589,473 @@ public function query($database, $options = array())
 // Validation functions
 
 /**
-* Pase a config XML for syntax errors
-*
-* Throws exceptions for the following:
-* - Missing or unreadable file
-* - Invalid XML syntax
-*
-* Trigger errors for the following:
-* - Bad values for some tags
-*
-* @param  mixed   $xml   either the raw XML string or a SimpleXML object
-* @param  string  $error optional variable to store the error string
-* @return boolean TRUE if the xml passes inspection, or FALSE if it does not
-* @see    SimpleXML
-* @todo   Add DTD validation
-*/
-public static function isValidXML($xml, &$error = NULL)
+ * Parse a config JSON for syntax errors
+ *
+ * Throws exceptions for the following:
+ * - Missing or unreadable file
+ * - Invalid XML syntax
+ *
+ * Trigger errors for the following:
+ * - Bad values for some tags
+ *
+ * @param mixed  $json  the raw JSON string
+ * @param string $error optional variable to store the error string
+ * @return bool true if the xml passes inspection, or false if it does not
+ */
+public static function isValidJson($json, &$error = null)
 {
-	// Check argument that's passed
-	if (is_string($xml))
+	try
 	{
-		// Check for proper xml header
-		if (substr($xml, 0, 5) != '<?xml')
+		$data = json_decode($json, true, 32, JSON_THROW_ON_ERROR);
+		if (empty($data))
 		{
-			$error = 'No XML header found';
-			return FALSE;
+			throw new Exception('Blank JSON config');
 		}
-
-		// If a string, then parse it
-		$xml = simplexml_load_string($xml);
-		if (empty($xml))
+		elseif (!is_array($data))
 		{
-			$error = 'Unable to parse XML';
-			return FALSE;
-		}
-	}
-	elseif (is_object($xml))
-	{
-		// If object, then check the class
-		$object_class = get_class($xml);
-		if ($object_class != 'SimpleXMLElement')
-		{
-			$error = 'Invalid object class of ' . $object_class;
-			return FALSE;
-		}
-	}
-	else
-	{
-		$error = 'Invalid XML type ' . gettype($xml);
-		return FALSE;
-	}
-
-	// Regular expression for checking hosts
-	static $host_regex = '/^(?:localhost|\d+\.\d+\.\d+\.\d+|[a-z0-9\-\.]+\.[a-z]+)$/';
-
-	/*
-	* Check system hosts
-	*/
-	$hosts = array();
-	foreach ($xml->xpath('systems/system') as $system)
-	{
-		// Get system name and host
-		$name = (isset($system['name'])) ? (string) $system['name'] : '';
-		$host = (isset($system['host'])) ? (string) $system['host'] : '';
-
-		// Check that system name and host are not empty
-		if (empty($name))
-		{
-			$error = 'Empty system label for ' . $host;
-			return FALSE;
-		}
-		if (empty($host))
-		{
-			$error = 'Empty system host for ' . $name;
-			return FALSE;
-		}
-
-		// Check system name and host
-		if (!preg_match('/^\w+$/', $name))
-		{
-			$error = 'System name ' . $name . ' not alphanumeric';
-			return FALSE;
-		}
-		if (!preg_match($host_regex, $host))
-		{
-			$error = 'Bad system host ' . $host;
-			return FALSE;
-		}
-
-		// Check optional attributes if any
-		if (isset($system['access']))
-		{
-			$access = (string) $system['access'];
-			if ($access != 'read' && $access != 'write')
-			{
-				$error = 'Invalid system access of ' . $access
-					. ' for ' . $name;
-				return FALSE;
-			}
-		}
-		if (isset($system['port']) && !preg_match('/^\d+$/', $system['port']))
-		{
-			$port = (string) $system['port'];
-			$error = "Invalid port {$port} for {$label}";
-			return FALSE;
-		}
-
-		// Make sure that names are not duplicated
-		if (isset($hosts[$name]))
-		{
-			$error = 'Duplicate system name ' . $name;
-			return FALSE;
-		}
-		$hosts[$name] = TRUE;
-	}
-
-	/*
-	* Check databases
-	*/
-	$db_names = array();
-	foreach ($xml->xpath('databases/database') as $database)
-	{
-		// Check database name
-		if (empty($database['name']))
-		{
-			$error = 'A database without a name found';
-			return FALSE;
-		}
-		$name = (string) $database['name'];
-		if (!preg_match('/^\w+$/', $name))
-		{
-			$error = "Database name {$name} not alphanumeric";
-			return FALSE;
-		}
-
-		// Check that database name are not duplicated
-		if (isset($db_names[$name]))
-		{
-			$error = "Duplicate database name {$name}";
-			return FALSE;
-		}
-		$db_names[$name] = TRUE;
-
-		/*
-		* Check each user set
-		*/
-		$defaults = 0;
-		$user_names = array();
-		foreach ($database->xpath('users/user') as $user)
-		{
-			// Check each user
-			if (empty($user['username']))
-			{
-				$error = "No username defined for a {$name} user";
-				return FALSE;
-			}
-			$username = (string) $user['username'];
-
-			// Make sure that usernames are not duplicated for each database
-			if (isset($user_names[$username]))
-			{
-				$error = "Duplicate username for {$name}";
-				return FALSE;
-			}
-			$user_names[$username] = TRUE;
-
-			// Make sure there's only one default user
-			if (!empty($user['default']))
-			{
-				if (++$defaults > 1)
-				{
-					$error = "More than one username default for {$name}";
-					return FALSE;
-				}
-			}
+			throw new Exception('Invalid JSON config');
 		}
 
 		/*
-		* Check each connection set
+		* Check system hosts
 		*/
-		$defaults = 0;
-		$system_names = array();
-		foreach ($database->xpath('connections/connection') as $connection)
+		if (empty($data['system']))
 		{
-			// Check that connection is to a valid system
-			if (empty($connection['system']))
+			throw new Exception('No systems defined');
+		}
+		$system_hosts = [];
+		foreach ($data['system'] as $name => $system)
+		{
+			$host = $system['host'] ?? '';
+
+			if (empty($name))
 			{
-				$error = "A connection for {$name} has no system";
-				return FALSE;
+				throw new Exception('Empty system label for ' . $host);
 			}
-			$system = (string) $connection['system'];
-			if (!isset($hosts[$system]))
+			if (!preg_match('/^\w+$/', $name))
 			{
-				$error = "System {$system} for {$name} not defined";
-				return FALSE;
+				throw new Exception("System name {$name} not alphanumeric");
+			}
+			if (empty($host))
+			{
+				throw new Exception('Empty system host for ' . $name);
+			}
+			if (!preg_match(self::$HOST_PATTERN, $host))
+			{
+				throw new Exception('Bad system host ' . $host);
 			}
 
-			// Check that systems are not duplicated
-			if (isset($system_names[$system]))
+			// Check optional attributes if any
+			if (isset($system['access']))
 			{
-				$error = "System {$system} used more than once for {$name}";
-				return FALSE;
-			}
-			$system_names[$system] = TRUE;
-
-			// Check weight
-			if (isset($connection['weight']))
-			{
-				$weight = (string) $connection['weight'];
-				if (!preg_match('/^\d+%?$/', $weight))
+				$access = $system['access'];
+				if (strcmp($access, 'read') !=0 && strcmp($access, 'write') != 0)
 				{
-					$error = 'Invalid connection weight '
-						. $weight . ' for system '
-						. $system;
+					throw new Exception("Invalid system access of {$access} for {$name}");
+				}
+			}
+			if (isset($system['port']))
+			{
+				$port = $system['port'];
+				if (!preg_match('/^\d+$/', $port))
+				{
+					throw new Exception("Invalid port {$port} for {$host}");
 				}
 			}
 
-
-			// Make sure that there's only one default connection
-			if (!empty($connection['default']))
+			// Make sure that names are not duplicated
+			if (isset($system_hosts[$name]))
 			{
-				if (++$defaults > 1)
+				throw new Exception('Duplicate system name ' . $name);
+			}
+			$system_hosts[$name] = $name;
+		}
+
+		/*
+		* Check databases
+		*/
+		if (!isset($data['database']))
+		{
+			throw new Exception('No databases defined');
+		}
+		$db_names = [];
+		foreach ($data['database'] as $name => $database)
+		{
+			// Check database name
+			if (!preg_match('/^\w+$/', $name))
+			{
+				throw new Exception("Database name {$name} not alphanumeric");
+			}
+
+			// Check that database name are not duplicated
+			if (isset($db_names[$name]))
+			{
+				throw new Exception("Duplicate database name {$name}");
+			}
+			$db_names[$name] = $name;
+
+			/*
+			* Check each user set
+			*/
+			$defaults = 0;
+			$user_names = [];
+			foreach (($database['user'] ?? []) as $user)
+			{
+				// Check each user
+				if (empty($user['username']))
 				{
-					$error = "More than one connection default for {$name}";
-					return FALSE;
+					throw new Exception("No username defined for a {$name} user");
+				}
+				$username = $user['username'];
+
+				// Make sure that usernames are not duplicated for each database
+				if (isset($user_names[$username]))
+				{
+					throw new Exception("Duplicate username for {$name}");
+				}
+				$user_names[$username] = $username;
+
+				// Make sure there's only one default user
+				if (!empty($user['default']) && ++$defaults > 1)
+				{
+					throw new Exception("More than one username default for {$name}");
+				}
+			}
+
+			/*
+			* Check each connection set
+			*/
+			$defaults = 0;
+			$system_names = [];
+			foreach (($database['connection'] ?? []) as $connection)
+			{
+				// Check that connection is to a valid system
+				if (empty($connection['system']))
+				{
+					throw new Exception("A connection for {$name} has no system");
+				}
+				$system = $connection['system'];
+				if (!isset($system_hosts[$system]))
+				{
+					throw new Exception("System {$system} for {$name} not defined");
+				}
+
+				// Check that systems are not duplicated
+				if (isset($system_names[$system]))
+				{
+					throw new Exception("System {$system} used more than once for {$name}");
+				}
+				$system_names[$system] = $system;
+
+				// Check weight
+				if (isset($connection['weight']))
+				{
+					$weight = (string) $connection['weight'];
+					if (!preg_match('/^\d+%?$/', $weight))
+					{
+						throw new Exception("Invalid connection weight {$weight} for system {$system}");
+					}
+				}
+
+				// Make sure that there's only one default connection
+				if (!empty($connection['default']) && ++$defaults > 1)
+				{
+					throw new Exception("More than one connection default for {$name}");
 				}
 			}
 		}
-	}
 
-	// Return TRUE if XML passes all checks
-	return TRUE;
+		// Return true if all checks pass
+		return true;
+	}
+	catch (Exception $e)
+	{
+		$error = $e->getMessage();
+		return false;
+	}
 }
 
 /**
-* Parse a config file and check for syntax errors
-*
-* Example
-* <code>
-* $filename = '/home/conf/mydb.conf.xml';
-* if (Config::isValidFile($filename))
-* {
-*     $conf = new Yau\MDBAC\Config($filename);
-*     $db = $conf->fetch('mydb');
-* }
-* else
-* {
-*     throw new Exception("Invalid config file {$filename}");
-* }
-* </code>
-*
-* @param  string  $filename the path to the XML config file
-* @param  string  $error    optional variable to store the error string
-* @return boolean TRUE if the file passes inspection, or FALSE if it does not
-*/
-public static function isValidFile($filename, &$error = NULL)
+ * Parse a config XML for syntax errors
+ *
+ * Throws exceptions for the following:
+ * - Missing or unreadable file
+ * - Invalid XML syntax
+ *
+ * Trigger errors for the following:
+ * - Bad values for some tags
+ *
+ * @param mixed  $xml   either the raw XML string or a SimpleXML object
+ * @param string $error optional variable to store the error string
+ * @return bool true if the xml passes inspection, or false if it does not
+ * @see SimpleXML
+ * @todo Add DTD validation
+ */
+public static function isValidXml($xml, &$error = null)
 {
-	// Check file
-	if (!file_exists($filename))
+	try
 	{
-		$error = "Config file {$filename} not found";
-		return FALSE;
+		// Check argument that's passed
+		if (is_string($xml))
+		{
+			// Check for proper xml
+			if (substr($xml, 0, 5) != '<?xml')
+			{
+				throw new Exception('No XML header found');
+			}
+			elseif (!preg_match(self::$XML_PATTERN, $xml))
+			{
+				throw new Exception('Invalid XML');
+			}
+
+			// If a string, then parse it
+			$use_errors = libxml_use_internal_errors(true);
+			$xml = simplexml_load_string($xml);
+			libxml_use_internal_errors($use_errors);
+			if (empty($xml))
+			{
+				throw new Exception(($error = libxml_get_last_error()) ? $error->message : 'Unable to parse XML');
+			}
+		}
+		elseif (is_object($xml))
+		{
+			// If object, then check the class
+			if (!($xml instanceof SimpleXMLElement))
+			{
+				throw new Exception('Object not an instance of SimpleXMLElement');
+			}
+		}
+		else
+		{
+			throw new Exception('Invalid XML type ' . gettype($xml));
+		}
+
+		/*
+		* Check system hosts
+		*/
+		$system_hosts = [];
+		foreach ($xml->xpath('systems/system') as $system)
+		{
+			// Get system name and host
+			$name = (string) ($system['name'] ?? '');
+			$host = (string) ($system['host'] ?? '');
+
+			// Check that system name and host are not empty
+			if (empty($name))
+			{
+				throw new Exception('Empty system label for ' . $host);
+			}
+			if (empty($host))
+			{
+				throw new Exception('Empty system host for ' . $name);
+			}
+
+			// Check system name and host
+			if (!preg_match('/^\w+$/', $name))
+			{
+				throw new Exception("System name {$name} not alphanumeric");
+			}
+			if (!preg_match(self::$HOST_PATTERN, $host))
+			{
+				throw new Exception('Bad system host ' . $host);
+			}
+
+			// Check optional attributes if any
+			if (isset($system['access']))
+			{
+				$access = (string) $system['access'];
+				if (strcmp($access, 'read') != 0 && strcmp($access, 'write') != 0)
+				{
+					throw new Exception("Invalid system access of {$access} for {$name}");
+				}
+			}
+			if (isset($system['port']))
+			{
+				$port = (string) $system['port'];
+				if (!preg_match('/^\d+$/', $port))
+				{
+					throw new Exception("Invalid port {$port} for {$host}");
+				}
+			}
+
+			// Make sure that names are not duplicated
+			if (isset($system_hosts[$name]))
+			{
+				throw new Exception('Duplicate system name ' . $name);
+			}
+			$system_hosts[$name] = $name;
+		}
+
+		/*
+		* Check databases
+		*/
+		$db_names = [];
+		foreach ($xml->xpath('databases/database') as $database)
+		{
+			// Check database name
+			if (empty($database['name']))
+			{
+				throw new Exception('A database without a name found');
+			}
+			$name = (string) $database['name'];
+			if (!preg_match('/^\w+$/', $name))
+			{
+				throw new Exception("Database name {$name} not alphanumeric");
+			}
+
+			// Check that database name are not duplicated
+			if (isset($db_names[$name]))
+			{
+				throw new Exception("Duplicate database name {$name}");
+			}
+			$db_names[$name] = $name;
+
+			/*
+			* Check each user set
+			*/
+			$defaults = 0;
+			$user_names = [];
+			foreach ($database->xpath('users/user') as $user)
+			{
+				// Check each user
+				if (empty($user['username']))
+				{
+					throw new Exception("No username defined for a {$name} user");
+				}
+				$username = (string) $user['username'];
+
+				// Make sure that usernames are not duplicated for each database
+				if (isset($user_names[$username]))
+				{
+					throw new Exception("Duplicate username for {$name}");
+				}
+				$user_names[$username] = $username;
+
+				// Make sure there's only one default user
+				if (!empty($user['default']))
+				{
+					if (++$defaults > 1)
+					{
+						throw new Exception("More than one username default for {$name}");
+					}
+				}
+			}
+
+			/*
+			* Check each connection set
+			*/
+			$defaults = 0;
+			$system_names = [];
+			foreach ($database->xpath('connections/connection') as $connection)
+			{
+				// Check that connection is to a valid system
+				if (empty($connection['system']))
+				{
+					throw new Exception("A connection for {$name} has no system");
+				}
+				$system = (string) $connection['system'];
+				if (!isset($system_hosts[$system]))
+				{
+					throw new Exception("System {$system} for {$name} not defined");
+				}
+
+				// Check that systems are not duplicated
+				if (isset($system_names[$system]))
+				{
+					throw new Exception("System {$system} used more than once for {$name}");
+				}
+				$system_names[$system] = $system;
+
+				// Check weight
+				if (isset($connection['weight']))
+				{
+					$weight = (string) $connection['weight'];
+					if (!preg_match('/^\d+%?$/', $weight))
+					{
+						throw new Exception("Invalid connection weight {$weight} for system {$system}");
+					}
+				}
+
+				// Make sure that there's only one default connection
+				if (!empty($connection['default']) && ++$defaults > 1)
+				{
+					throw new Exception("More than one connection default for {$name}");
+				}
+			}
+		}
+
+		// Return true if all checks pass
+		return true;
 	}
-	if (!is_readable($filename))
+	catch (Exception $e)
 	{
-		$error = "Unable to read config file {$filename}";
-		return FALSE;
+		$error = $e->getMessage();
+		return false;
 	}
-	if (filesize($filename) < 10)
+}
+
+/**
+ * Parse a config file and check for syntax errors
+ *
+ * Example
+ * <code>
+ * $filename = '/home/conf/mydb.conf.xml';
+ * if (Config::isValidFile($filename))
+ * {
+ *     $conf = new Yau\MDBAC\Config($filename);
+ *     $db = $conf->fetch('mydb');
+ * }
+ * else
+ * {
+ *     throw new Exception("Invalid config file {$filename}");
+ * }
+ * </code>
+ *
+ * @param string $filename the path to the config file
+ * @param string $error    optional variable to store the error string
+ * @return bool true if the file passes inspection, or false if it does not
+ */
+public static function isValidFile($filename, &$error = null)
+{
+	try
 	{
-		$error = "Config file {$filename} is too small";
-		return FALSE;
+		// Check file
+		if (!file_exists($filename))
+		{
+			throw new Exception("Config file {$filename} not found");
+		}
+		if (!is_readable($filename))
+		{
+			throw new Exception("Unable to read config file {$filename}");
+		}
+		if (filesize($filename) < 10)
+		{
+			throw new Exception("Config file {$filename} is too small");
+		}
+
+		// Load file
+		$cfg = file_get_contents($filename);
+	}
+	catch (Exception $e)
+	{
+		$error = $e->getMessage();
+		return false;
 	}
 
-	// Load file
-	$xml = file_get_contents($filename);
-
-	// Check the xml
-	return self::isValidXML($xml, $error);
+	// Check the config
+	if (preg_match(self::$XML_PATTERN, $cfg))
+	{
+		return self::isValidXml($cfg, $error);
+	}
+	elseif (preg_match(self::$JSON_PATTERN, $cfg))
+	{
+		return self::isValidJson($cfg, $error);
+	}
+	else
+	{
+		$error = 'Invalid configuration file';
+		return false;
+	}
 }
 
 /*=======================================================*/
