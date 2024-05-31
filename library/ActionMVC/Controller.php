@@ -199,7 +199,7 @@ private $defaultAction = 'default';
  *
  * @return string
  */
-public function getBasePath()
+public function getBasePath():string
 {
 	return $this->path;
 }
@@ -209,7 +209,7 @@ public function getBasePath()
  *
  * @param string $path
  */
-public function setBasePath($path)
+public function setBasePath(string $path)
 {
 	$this->path = realpath($path);
 }
@@ -221,7 +221,7 @@ public function setBasePath($path)
  * @param string $name
  * @return string
  */
-public function getClassName($type, $name = 'default')
+public function getClassName(string $type, string $name = 'default'):string
 {
 	$called_class = get_called_class();
 	return ((($pos = strrpos($called_class, '\\')) === false)
@@ -236,7 +236,7 @@ public function getClassName($type, $name = 'default')
  * @param string $name
  * @return string
  */
-public function getFileName($type, $name = 'default')
+public function getFileName(string $type, string $name = 'default'):string
 {
 	return $this->path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $type) . 's' . DIRECTORY_SEPARATOR . $name . '.php';
 }
@@ -248,7 +248,7 @@ public function getFileName($type, $name = 'default')
  * @param string $name name of object to return
  * @return object
  */
-public function get($type, $name = 'default')
+public function get(string $type, string $name = 'default')
 {
 	// Check arguments
 	if (!preg_match('/^\w+$/', $type))
@@ -267,18 +267,17 @@ public function get($type, $name = 'default')
 		// Special case for returning default objects
 		if ($name == 'default')
 		{
-			if ($type == 'controller')
+			switch ($type)
 			{
+			case 'controller':
 				return $this;
-			}
-			elseif ($type == 'request')
-			{
+			case 'request':
 				$request = Request::getInstance();
 				$request->setController($this);
 				return $this->objects[$class_name] = $request;
-			}
-			elseif ($type == 'view')
-			{
+			case 'router':
+				return false;
+			case 'view':
 				$view = View::getInstance();
 				$view->setController($this);
 				return $this->objects[$class_name] = $view;
@@ -386,7 +385,7 @@ public function exists($type, $name = 'default'):bool
 *
 * @param string
 */
-public function setActionName($name):void
+public function setActionName(string $name):void
 {
 	$this->actionName = $name;
 }
@@ -396,7 +395,7 @@ public function setActionName($name):void
 *
 * @return string
 */
-public function getActionName()
+public function getActionName():string
 {
 	return $this->actionName;
 }
@@ -404,13 +403,11 @@ public function getActionName()
 /**
  * Return the current action that's been executed
  *
- * @return string
+ * @return string|null
  */
 public function getAction()
 {
-	return (empty($this->currentAction))
-		? $this->get('request')->get($this->getActionName())
-		: $this->currentAction;
+	return ($request = $this->get('request')) ? $request->get($this->getActionName()) : null;
 }
 
 /**
@@ -434,7 +431,7 @@ public function getAction()
  *                       the for url
  * @return string
  */
-public function getActionUrl($action = null, array $params = []):string
+public function getActionUrl(?string $action = null, array $params = []):string
 {
 	// If action is NULL, then use current action
 	if (is_null($action))
@@ -443,7 +440,12 @@ public function getActionUrl($action = null, array $params = []):string
 	}
 
 	// Build and return url
-	$params = (isset($action) ? [$this->getActionName()=>$action] : []) + $params;
+	if (($router = $this->get('router')) && ($path = $router->getUrlPath($action, $params)))
+	{
+		// Use router path if it exists
+		return $path;
+	}
+	$params = (empty($action) ? [] : [$this->getActionName()=>$action]) + $params;
 	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params));
 }
 
@@ -454,7 +456,7 @@ public function getActionUrl($action = null, array $params = []):string
  * $param array  $params
  * @return string
  */
-public function getActionTag($action = null, array $params = []):string
+public function getActionTag(?string $action = null, array $params = []):string
 {
 	// If action is NULL, then use current action
 	if (is_null($action))
@@ -474,22 +476,24 @@ public function getActionTag($action = null, array $params = []):string
 /**
  * Load and execute an action
  *
- * @param string  $action the name of the action to execute
+ * @param string $action the name of the action to execute
  * @throws Exception if action is invalid
  */
-public function doAction($action)
+public function doAction(string $action)
 {
 	// Check action
-	if (empty($action) || !is_scalar($action) || !preg_match('/^\w+$/', $action))
+	if (!empty($action) && is_scalar($action) && preg_match('/^\w+$/', $action))
+	{
+		// Execute action
+		$action = $this->get('action', $action);
+		if (is_object($action))
+		{
+			$action->execute();
+		}
+	}
+	else
 	{
 		throw new Exception('Invalid action');
-	}
-
-	// Execute action
-	$action = $this->get('action', $action);
-	if (is_object($action))
-	{
-		$action->execute();
 	}
 }
 
@@ -500,10 +504,7 @@ public function doAction($action)
  */
 public function run()
 {
-	$request = $this->get('request');
-	$action = (empty($request->action))
-		? $this->defaultAction
-		: $request->action;
+	$action = $this->getAction() ?: $this->defaultAction;
 	$this->doAction($action);
 }
 

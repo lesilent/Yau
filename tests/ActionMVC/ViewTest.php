@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+use Yau\ActionMVC\Controller;
 use Yau\ActionMVC\View;
 
 /**
@@ -62,6 +63,10 @@ public function testView($template, $html):void
 	$str = $view->render($template);
 	$this->assertIsString($str);
 	$this->assertEquals($html, trim($str));
+
+	$controller = new Controller();
+	$view->setController($controller);
+	$this->assertSame($controller, $view->getController());
 }
 
 /*=======================================================*/

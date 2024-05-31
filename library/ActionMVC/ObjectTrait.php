@@ -29,10 +29,10 @@ public function getController()
 }
 
 /**
-* Set the controller
-*
-* @param object $controller
-*/
+ * Set the controller
+ *
+ * @param object $controller
+ */
 public function setController($controller):void
 {
 	$this->controller = $controller;

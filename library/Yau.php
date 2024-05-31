@@ -18,6 +18,13 @@ class Yau
 /*=======================================================*/
 
 /**
+* Flag for whether autoloader has been registered or not
+*
+* @var bool
+*/
+private static $registered = false;
+
+/**
  * Autoloader function
  *
  * @param string $class
@@ -38,7 +45,7 @@ private static function autoload($class):void
  */
 public static function registerAutoloader():bool
 {
-	return spl_autoload_register([__CLASS__, 'autoload']);
+	return (self::$registered) ? true : (spl_autoload_register([__CLASS__, 'autoload']) && (self::$registered = true));
 }
 
 /**
@@ -48,7 +55,7 @@ public static function registerAutoloader():bool
  */
 public static function unregisterAutoloader():bool
 {
-	return spl_autoload_unregister([__CLASS__, 'autoload']);
+	return (self::$registered) ? (spl_autoload_unregister([__CLASS__, 'autoload']) && !(self::$registered = false)) : false;
 }
 
 /*=======================================================*/

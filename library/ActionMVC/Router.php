@@ -35,7 +35,7 @@ private $routes = [];
  * @param string $action optional action if different than one defined in route
  * @throws Exception
  */
-public function addRoute($route, array $slugs, $action = null)
+public function addRoute(string $route, array $slugs, $action = null)
 {
 	$holders = [];
 	$pattern = ((strcmp($route[0], '^') == 0) ? '^' : '')
@@ -46,7 +46,7 @@ public function addRoute($route, array $slugs, $action = null)
 		}
 		$holders[] = $matches[1];
 		return '(' . preg_replace('#(?<!\\\)\((?!\?)#', '(?:', $slugs[$matches[1]]) . ')';
-	}, $route) . ((strcmp($pattern[strlen($pattern) - 1], '$') != 0) ? '(?=[\/\?\#]|$)' : '');
+	}, $route) . ((($length = strlen($route)) > 1 && strcmp($route[$length - 1], '$') != 0) ? '(?=[\/\?\#]|$)' : '');
 	if (empty($action) && preg_match('/\w+/', $route, $matches))
 	{
 		$action = $matches[0];
@@ -66,7 +66,7 @@ public function addRoute($route, array $slugs, $action = null)
  * @param string $path
  * @return array|false
  */
-public function match($path)
+public function match(string $path)
 {
 	foreach ($this->routes as $route)
 	{

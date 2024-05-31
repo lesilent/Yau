@@ -10,7 +10,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Yau\\": "library/"
+			"Yau\\": "src/"
 		}
 	},
 	"license": "MIT"
