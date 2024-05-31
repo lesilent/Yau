@@ -14,9 +14,8 @@ namespace Yau;
  *
  * @author John Yau
  */
-if (!class_exists('Yau', false))
+if (!class_exists('Yau\Yau', false))
 {
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'Yau.php';
 	Yau::registerAutoloader();
 }
-

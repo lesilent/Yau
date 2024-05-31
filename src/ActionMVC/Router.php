@@ -66,8 +66,16 @@ public function addRoute(string $route, array $slugs, $action = null)
  * @param string $path
  * @return array|false
  */
-public function match(string $path)
+public function match(?string $path = null)
 {
+	if (!isset($path))
+	{
+		if (!isset($_SERVER['REQUEST_URI']))
+		{
+			return false;
+		}
+		$path = $_SERVER['REQUEST_URI'];
+	}
 	foreach ($this->routes as $route)
 	{
 		if (preg_match('#^' . $route['pattern'] . '(?=[\/\?\#]|$)#', $path, $matches))
@@ -78,6 +86,16 @@ public function match(string $path)
 			{
 				$params[$slug] = $matches[$offset + 1];
 			}
+
+			// Append query parameters if any
+			$query = parse_url($path, PHP_URL_QUERY);
+			if (is_string($query) && strlen($query) > 0)
+			{
+				parse_str($query, $result);
+				$params += $result;
+			}
+
+			// Return parameters
 			return $params;
 		}
 	}

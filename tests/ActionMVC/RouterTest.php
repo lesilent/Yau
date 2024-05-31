@@ -25,6 +25,7 @@ public static function routeProvider():array
 		['/news/{year}/{month}/{day}', ['year'=>'\d{4}', 'month'=>'[1-9]|1[0-2]', 'day'=>'[12]?[1-9]|3[01]']],
 		['/archive/{name}.pdf', ['name'=>'\w+']],
 		['/members', []],
+		['/article/{id}', ['id'=>'\w+']],
 	];
 }
 
@@ -56,6 +57,10 @@ public static function pathProvider():array
 		['/members', ['action'=>'members']],
 		['/members/sdf', ['action'=>'members']],
 		['/members+hello', false],
+		['/article/123', ['action'=>'article', 'id'=>'123']],
+		['/article/456?ref=parent', ['action'=>'article', 'id'=>'456', 'ref'=>'parent']],
+		['/article/789/?ref=child', ['action'=>'article', 'id'=>'789', 'ref'=>'child']],
+		['/article/abc/?link[]=2&link[]=4', ['action'=>'article', 'id'=>'abc', 'link'=>['2','4']]],
 	];
 }
 
@@ -71,11 +76,21 @@ public function testMatch($path, $params):void
 	if (is_array($params))
 	{
 		$this->assertIsArray($result);
-		$this->assertSame($params, $router->match($path . '?'));
-		$this->assertSame($params, $router->match($path . '?hello=world'));
+		$this->assertSame($params, $router->match($path . '#'));
+		$this->assertSame($params, $router->match($path . '#hello'));
+		if (strpos($path, '?') === false)
+		{
+			$this->assertSame($params, $router->match($path . '?'));
+			$this->assertSame(is_array($params) ? ($params + ['hello'=>'world']) : $params, $router->match($path . '?hello=world'));
+		}
 	}
 	$result = $router->match(preg_replace('/\w+/', '-', $path, 1));
 	$this->assertFalse($result);
+
+	// Test REQUEST_URI
+	$_SERVER['REQUEST_URI'] = $path;
+	$result = $router->match();
+	$this->assertSame($params, $result);
 }
 
 /*=======================================================*/
