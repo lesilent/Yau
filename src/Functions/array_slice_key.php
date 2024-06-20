@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Functions
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Functions;
 
@@ -17,14 +9,14 @@ namespace Yau\Functions;
 * <code>
 * use Yau\Functions\Functions;
 *
-* $arr = array(
-*     'fnmae' => 'John',
+* $arr = [
+*     'fname' => 'John',
 *     'lname' => 'Doe',
 *     'age'   => 18,
 *     'hair'  => 'black'
-* );
-* $input = Functions::array_slice_key($arr, array('age', 'hair'));
-* // $input is now array('age'=>18, 'hair'=>'black');
+* ];
+* $input = Functions::array_slice_key($arr, ['age', 'hair']);
+* // $input is now ['age'=>18, 'hair'=>'black'];
 * </code>
 *
 * @param  array $arr  the associative array

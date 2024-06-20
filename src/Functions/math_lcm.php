@@ -1,40 +1,34 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Functions
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Functions;
 
+use InvalidArgumentException;
+
 /**
-* Function for returning the least common multiple among an array of integers
-*
-* Example
-* <code>
-* use Yau\Functions\Functions;
-*
-* // Using arrays
-* $numbers = array(1, 2, 3, 4, 5);
-* echo Functions::math_lcm($numbers);   // Outputs 60
-*
-* // Using multiple arguments
-* echo Functions::math_lcm(1, 2, 3, 4, 5);   // Outputs 60
-* </code>
-*
-* @param  array   $numbers
-* @return integer the least common multiple
-*/
+ * Function for returning the least common multiple among an array of integers
+ *
+ * Example
+ * <code>
+ * use Yau\Functions\Functions;
+ *
+ * // Using arrays
+ * $numbers = [1, 2, 3, 4, 5];
+ * echo Functions::math_lcm($numbers);   // Outputs 60
+ *
+ * // Using multiple arguments
+ * echo Functions::math_lcm(1, 2, 3, 4, 5);   // Outputs 60
+ * </code>
+ *
+ * @param array $numbers
+ * @return integer the least common multiple
+ */
 function math_lcm($numbers)
 {
 	// Check numbers
 	if (empty($numbers))
 	{
 		trigger_error('Array must contain at least one element to find least common multiple');
-		return FALSE;
+		return false;
 	}
 	if (!is_array($numbers))
 	{
@@ -43,7 +37,7 @@ function math_lcm($numbers)
 	if (min($numbers) < 1)
 	{
 		trigger_error('Cannot find least common multiple of numbers less than 1');
-		return FALSE;
+		return false;
 	}
 
 	// Initialize some variables

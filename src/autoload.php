@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-namespace Yau;
-
 /**
  * Yau Tools
  *
@@ -17,5 +15,6 @@ namespace Yau;
 if (!class_exists('Yau\Yau', false))
 {
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'Yau.php';
+	final class Yau extends Yau\Yau { }
 	Yau::registerAutoloader();
 }

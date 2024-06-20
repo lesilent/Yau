@@ -1,30 +1,22 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Functions
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Functions;
 
 /**
-* Convert applicable characters to to HTML entities, including those from Windows-1252
-*
-* @param  string  $str
-* @param  integer $flags
-* @param  string  $encoding
-* @return string
-* @uses   htmlentities()
-* @link   http://utopia.knoware.nl/users/eprebel/Communication/CharacterSets/Windows.html
-* @link   http://en.wikipedia.org/wiki/Windows-1252
-* @link   http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/bestfit1252.txt
-*/
-function mswin_htmlentities($str, $flags = NULL, $encoding = 'ISO-8859-1')
+ * Convert applicable characters to to HTML entities, including those from Windows-1252
+ *
+ * @param string  $str
+ * @param integer $flags
+ * @param string  $encoding
+ * @return string
+ * @uses htmlentities()
+ * @link http://utopia.knoware.nl/users/eprebel/Communication/CharacterSets/Windows.html
+ * @link http://en.wikipedia.org/wiki/Windows-1252
+ * @link http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/bestfit1252.txt
+ */
+function mswin_htmlentities(string $str, $flags = null, $encoding = 'ISO-8859-1'):string
 {
-	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags, $encoding) + array(
+	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags, $encoding) + [
 		"\x85" => '&hellip;', // 133
 		"\x88" => '&circ;',   // 136
 		"\x89" => '&permil;', // 137
@@ -140,5 +132,5 @@ function mswin_htmlentities($str, $flags = NULL, $encoding = 'ISO-8859-1')
 		"\xfd" => '&yacute;', // 253
 		"\xfe" => '&thorn;',  // 254
 		"\xff" => '&yuml;',   // 255
-	));
+	]);
 }

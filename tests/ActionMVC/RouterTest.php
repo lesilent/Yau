@@ -23,6 +23,7 @@ public static function routeProvider():array
 	return [
 		['/magazine/{volume}/{number}', ['volume'=>'\d+', 'number'=>'\d{1,2}']],
 		['/news/{year}/{month}/{day}', ['year'=>'\d{4}', 'month'=>'[1-9]|1[0-2]', 'day'=>'[12]?[1-9]|3[01]']],
+		['/news/{news_id}', ['news_id'=>'\w{8}']],
 		['/archive/{name}.pdf', ['name'=>'\w+']],
 		['/members', []],
 		['/article/{id}', ['id'=>'\w+']],
@@ -52,6 +53,8 @@ public static function pathProvider():array
 		['/news/2024/1/30', ['action'=>'news', 'year'=>'2024', 'month'=>'1', 'day'=>'30']],
 		['/news/2024/2/0', false],
 		['/news/2024/3/33', false],
+		['/news/abcdefgh', ['action'=>'news', 'news_id'=>'abcdefgh']],
+		['/news/abcdefghi', false],
 		['/archive/bob.pdf', ['action'=>'archive', 'name'=>'bob']],
 		['/archive/joe.pdf?', ['action'=>'archive', 'name'=>'joe']],
 		['/members', ['action'=>'members']],
@@ -66,6 +69,7 @@ public static function pathProvider():array
 
 /**
  * @param string $path
+ * @param mixed  $params
  * @dataProvider pathProvider
  */
 public function testMatch($path, $params):void
@@ -86,11 +90,45 @@ public function testMatch($path, $params):void
 	}
 	$result = $router->match(preg_replace('/\w+/', '-', $path, 1));
 	$this->assertFalse($result);
+}
 
-	// Test REQUEST_URI
-	$_SERVER['REQUEST_URI'] = $path;
-	$result = $router->match();
-	$this->assertSame($params, $result);
+/**
+ * @return array
+ */
+public static function actionProvider():array
+{
+	return [
+		['magazine', ['volume'=>60, 'number'=>9], '/magazine/60/9'],
+		['news', ['year'=>2024,'month'=>3,'day'=>14], '/news/2024/3/14'],
+		['news', ['year'=>2024,'month'=>3,'day'=>14, 'hour'=>12], '/news/2024/3/14?hour=12'],
+		['news', ['year'=>2024,'month'=>3,'day'=>14, 'hour'=>12, 'minute'=>30], '/news/2024/3/14?hour=12&minute=30'],
+		['news', ['news_id'=>'abcdefgh'], '/news/abcdefgh'],
+		['members', [], '/members'],
+		['members', ['list'=>'settings'], '/members?list=settings'],
+		['other', [], false],
+		['other', ['go'=>'there', 'come'=>'here'], false],
+	];
+}
+
+/**
+ * @param string $action
+ * @param array $params
+ * @param string $path
+ * @dataProvider actionProvider
+ */
+public function testGetPath($action, $params, $path):void
+{
+	$router = self::$router;
+	$this->assertSame($path, $router->getPath($action, $params));
+	if (is_string($path))
+	{
+		$router->setTrailingSlash(true);
+		$path = (($pos = strpos($path, '?')) !== false)
+			? str_replace('?', '/?', $path)
+			: $path . '/';
+		$this->assertSame($path, $router->getPath($action, $params));
+		$router->setTrailingSlash(false);
+	}
 }
 
 /*=======================================================*/

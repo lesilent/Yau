@@ -28,6 +28,14 @@ private static $SLUG_PATTERN = '/\{(\w+)\}/';
 private $routes = [];
 
 /**
+ * Flag for returning path with trailing slash
+ *
+ * @var bool default is false
+ * @link https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash
+ */
+private $slash = false;
+
+/**
  * Add an action route
  *
  * @param string $route
@@ -66,16 +74,8 @@ public function addRoute(string $route, array $slugs, $action = null)
  * @param string $path
  * @return array|false
  */
-public function match(?string $path = null)
+public function match(?string $path)
 {
-	if (!isset($path))
-	{
-		if (!isset($_SERVER['REQUEST_URI']))
-		{
-			return false;
-		}
-		$path = $_SERVER['REQUEST_URI'];
-	}
 	foreach ($this->routes as $route)
 	{
 		if (preg_match('#^' . $route['pattern'] . '(?=[\/\?\#]|$)#', $path, $matches))
@@ -103,13 +103,33 @@ public function match(?string $path = null)
 }
 
 /**
- * Return the path
+ * Return flag for returning path with trailing slash
+ *
+ * @return bool
+ */
+public function getTrailingSlash():bool
+{
+	return $this->slash;
+}
+
+/**
+ * Set flag for returning path with trailing slash
+ *
+ * @param bool $slash
+ */
+public function setTrailingSlash(bool $slash):void
+{
+	$this->slash = $slash;
+}
+
+/**
+ * Return the corresponding route path based on the action and parameters
  *
  * @param string $action
  * @param array $params
  * @return string|false
  */
-public function getUrlPath($action, array $params = [])
+public function getPath($action, array $params = [])
 {
 	foreach ($this->routes as $route)
 	{
@@ -117,9 +137,14 @@ public function getUrlPath($action, array $params = [])
 			&& count(array_diff_key($route['slugs'], $params)) == 0)
 		{
 			$path = preg_replace_callback(self::$SLUG_PATTERN, fn(array $matches) => $params[$matches[1]] ?? '', $route['route']);
+			if ($this->getTrailingSlash() && strcmp(substr($path, -1), '/') != 0)
+			{
+				$path .= '/';
+			}
 			if ($data = array_diff_key($params, $route['slugs']))
 			{
-				$path .= '?' . http_build_query($data);
+				$path .= ((strpos($path, '?') === false) ? '?' : '&')
+					. http_build_query($data);
 			}
 			return $path;
 		}

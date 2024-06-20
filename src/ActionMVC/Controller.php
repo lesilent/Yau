@@ -209,7 +209,7 @@ public function getBasePath():string
  *
  * @param string $path
  */
-public function setBasePath(string $path)
+public function setBasePath(string $path):void
 {
 	$this->path = realpath($path);
 }
@@ -328,7 +328,7 @@ public function get(string $type, string $name = 'default')
  *
  * @param string $type
  */
-public function set($type)
+public function set($type):void
 {
 	// Check number of arguments
 	$argc = func_num_args();
@@ -405,7 +405,7 @@ public function getActionName():string
  *
  * @return string|null
  */
-public function getAction()
+public function getAction():?string
 {
 	return ($request = $this->get('request')) ? $request->get($this->getActionName()) : null;
 }
@@ -433,18 +433,20 @@ public function getAction()
  */
 public function getActionUrl(?string $action = null, array $params = []):string
 {
-	// If action is NULL, then use current action
-	if (is_null($action))
+	// If action is empty, then use current action
+	if (!empty($action))
 	{
 		$action = $this->getAction();
 	}
 
 	// Build and return url
-	if (($router = $this->get('router')) && ($path = $router->getUrlPath($action, $params)))
+	if (!empty($action) && ($router = $this->get('router')) && ($path = $router->getUrlPath($action, $params)))
 	{
 		// Use router path if it exists
 		return $path;
 	}
+
+	// Else return path without router
 	$params = (empty($action) ? [] : [$this->getActionName()=>$action]) + $params;
 	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params));
 }
@@ -453,20 +455,20 @@ public function getActionUrl(?string $action = null, array $params = []):string
  * Return the form hidden action tag
  *
  * @param string $action
- * $param array  $params
+ * @param array  $params
  * @return string
  */
 public function getActionTag(?string $action = null, array $params = []):string
 {
-	// If action is NULL, then use current action
-	if (is_null($action))
+	// If action is empty, then use current action
+	if (empty($action))
 	{
 		$action = $this->getAction();
 	}
 
 	// Build and return HTML
 	$html = '';
-	foreach (((isset($action) ? [$this->getActionName()=>$action] : []) + $params) as $name => $value)
+	foreach (((empty($action) ? [] : [$this->getActionName()=>$action]) + $params) as $name => $value)
 	{
 		$html .= sprintf('<input type="hidden" name="%s" value="%s" />', htmlspecialchars($name), htmlspecialchars($value));
 	}
@@ -479,7 +481,7 @@ public function getActionTag(?string $action = null, array $params = []):string
  * @param string $action the name of the action to execute
  * @throws Exception if action is invalid
  */
-public function doAction(string $action)
+public function doAction(string $action):void
 {
 	// Check action
 	if (!empty($action) && is_scalar($action) && preg_match('/^\w+$/', $action))
@@ -502,7 +504,7 @@ public function doAction(string $action)
 /**
  * Run the controller
  */
-public function run()
+public function run():void
 {
 	$action = $this->getAction() ?: $this->defaultAction;
 	$this->doAction($action);

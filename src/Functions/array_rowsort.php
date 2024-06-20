@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Functions
-*/
+<?php declare(strict_types = 1);
 
 namespace Yau\Functions;
 
@@ -17,21 +9,21 @@ namespace Yau\Functions;
 * <code>
 * use Yau\Functions\Functions;
 *
-* $arr = array();
-* $arr[] = array('age' => 22, 'fname' => 'John', 'lname' => 'Doe');
-* $arr[] = array('age' => 20, 'fname' => 'Sam',  'lname' => 'Smith');
-* $arr[] = array('age' => 38, 'fname' => 'Phil', 'lname' => 'Jones');
-* $arr[] = array('age' => 31, 'fname' => 'Ted',  'lname' => 'Smith');
-* $arr[] = array('age' => 22, 'fname' => 'Gary', 'lname' => 'Klein');
-* $arr[] = array('age' => 43, 'fname' => 'John', 'lname' => 'Jones');
-* $arr[] = array('age' => 29, 'fname' => 'Bob',  'lname' => 'Davis');
-* $arr[] = array('age' => 37, 'fname' => 'Lee',  'lname' => 'Hall');
+* $arr = [];
+* $arr[] = ['age' => 22, 'fname' => 'John', 'lname' => 'Doe'];
+* $arr[] = ['age' => 20, 'fname' => 'Sam',  'lname' => 'Smith'];
+* $arr[] = ['age' => 38, 'fname' => 'Phil', 'lname' => 'Jones'];
+* $arr[] = ['age' => 31, 'fname' => 'Ted',  'lname' => 'Smith'];
+* $arr[] = ['age' => 22, 'fname' => 'Gary', 'lname' => 'Klein'];
+* $arr[] = ['age' => 43, 'fname' => 'John', 'lname' => 'Jones'];
+* $arr[] = ['age' => 29, 'fname' => 'Bob',  'lname' => 'Davis'];
+* $arr[] = ['age' => 37, 'fname' => 'Lee',  'lname' => 'Hall'];
 *
 * // Sort by last name in ascending order, then by age
-* $sort_by = array(
+* $sort_by = [
 *      'lname', SORT_ASC,
 *      'age', SORT_ASC, SORT_NUMERIC
-* );
+* ];
 *
 * $arr = Functions::array_rowsort($arr, $sort_by);
 * </code>
@@ -106,7 +98,7 @@ namespace Yau\Functions;
 function array_rowsort(array $arr, $sort_by)
 {
 	// Array of arguments for array_multisort
-	$args = array();
+	$args = [];
 
 	// Handle usage if arguments aren't passed as an array
 	if (!is_array($sort_by))
@@ -126,10 +118,10 @@ function array_rowsort(array $arr, $sort_by)
 		else
 		{
 			// Else obtain a list of column values for key
-			$values = array();
+			$values = [];
 			foreach ($arr as $rkey => $row)
 			{
-				$values[$rkey] = array_key_exists($by, $row) ? $row[$by] : NULL;
+				$values[$rkey] = array_key_exists($by, $row) ? $row[$by] : null;
 			}
 			$args[] = $values;
 		}

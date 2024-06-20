@@ -7,7 +7,7 @@ use Yau\Validator\StandardValidator;
 use Yau\Validator\Standard\Email;
 use Yau\Validator\Standard\Ip;
 use Yau\Savant\Savant;
-use Yau\Yau;
+use Yau;
 use Exception;
 use Error;
 

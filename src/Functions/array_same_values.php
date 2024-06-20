@@ -1,12 +1,4 @@
-<?php
-
-/**
-* Yau Tools
-*
-* @author   John Yau
-* @category Yau
-* @package  Yau_Functions
-*/
+<?php declare(strict_types=1);
 
 namespace Yau\Functions;
 
@@ -17,14 +9,14 @@ namespace Yau\Functions;
 * <code>
 * use Yau\Functions\Functions;
 *
-* $arr1 = array('blue', 'green', 'red');
-* $arr2 = array('red', 'blue', 'green');
-* $arr3 = array('red', 'blue', 'black');
+* $arr1 = ['blue', 'green', 'red'];
+* $arr2 = ['red', 'blue', 'green'];
+* $arr3 = ['red', 'blue', 'black'];
 *
-* // Should be TRUE
+* // Should be true
 * $result = Functions::array_same_values($arr1, $arr2);
 *
-* // Should be FALSE
+* // Should be false
 * $result = Functions::array_same_values($arr2, $arr3);
 * </code>
 *
@@ -41,8 +33,8 @@ function array_same_values(array $array1, array $array2)
 		$arr = func_get_arg($i);
 		if (count($arr) != $arr_count || array_diff($arr, $array1))
 		{
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }

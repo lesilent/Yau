@@ -1,110 +1,104 @@
-<?php
+<?php declare(strict_types=1);
 
-/**
-* Yau Tools Tests
-*
-* @author  John Yau
-*/
-namespace YauTest\Functions;
-
+use PHPUnit\Framework\TestCase;
 use Yau\Functions\Functions;
-use Yau\Functions AS Func;
 
 /**
-*
-*/
-class FunctionsTest extends \PHPUnit_Framework_TestCase
+ *
+ */
+class FunctionsTest extends TestCase
 {
 /*=======================================================*/
 
 /**
-*/
+ */
 public function test_array_filter_key()
 {
-	$output = Functions::array_filter_key(array());
-	$this->assertSame($output, array());
+	$actual = Functions::array_filter_key([]);
+	$this->assertIsArray($actual);
+	$this->assertSame([], $actual);
 
-	$arr = array(
-		'1' => 'James',
-		'0' => 'John',
-		'2' => 'Joe',
-		''  => 'Jack',
-	);
-	$output = Functions::array_filter_key($arr);
-	$this->assertSame($output, array('1'=>'James', '2'=>'Joe'));
+	$actual = Functions::array_filter_key(['1'=>'James','0'=>'John','2'=>'Joe',''=>'Jack']);
+	$this->assertIsArray($actual);
+	$this->assertSame(['1'=>'James','2'=>'Joe'], $actual);
 
-	$arr = array(
-		'abc' => 'Jim',
-		1     => 'James',
-		0     => 'John',
-		2     => 'Joe',
-		false => 'Jack',
-		true  => 'Jake',
-	);
-	$output = Functions::array_filter_key($arr);
-	$this->assertSame($output, array('abc'=>'Jim', 1=>'James', 2=>'Joe', true=>'Jake'));
+	$actual = Functions::array_filter_key(['abc'=>'Jim',1=>'James',0=>'John',2=>'Joe',false=>'Jack',true=>'Jake']);
+	$this->assertIsArray($actual);
+	$this->assertSame(['abc'=>'Jim',1=>'James',2=>'Joe',true=>'Jake'], $actual);
+
+	// Filter with callback for even keys
+	$actual = Functions::array_filter_key([1=>'one',2=>'two',3=>'three',4=>'four'], fn($key) => $key % 2 == 0);
+	$this->assertIsArray($actual);
+	$this->assertSame([2=>'two',4=>'four'], $actual);
 }
 
 /**
 */
 public function test_array_rowsort()
 {
-	$arr = array();
-	$arr[] = array('age' => 22, 'fname' => 'John', 'lname' => 'Doe');
-	$arr[] = array('age' => 20, 'fname' => 'Sam',  'lname' => 'Smith');
-	$arr[] = array('age' => 38, 'fname' => 'Phil', 'lname' => 'Jones');
-	$arr[] = array('age' => 31, 'fname' => 'Ted',  'lname' => 'Smith');
-	$arr[] = array('age' => 22, 'fname' => 'Gary', 'lname' => 'Klein');
-	$arr[] = array('age' => 43, 'fname' => 'John', 'lname' => 'Jones');
-	$arr[] = array('age' => 29, 'fname' => 'Bob',  'lname' => 'Davis');
-	$arr[] = array('age' => 37, 'fname' => 'Lee',  'lname' => 'Hall');
+	$arr = [];
+	$arr[] = ['age' => 22, 'fname' => 'John', 'lname' => 'Doe'];
+	$arr[] = ['age' => 20, 'fname' => 'Sam',  'lname' => 'Smith'];
+	$arr[] = ['age' => 38, 'fname' => 'Phil', 'lname' => 'Jones'];
+	$arr[] = ['age' => 31, 'fname' => 'Ted',  'lname' => 'Smith'];
+	$arr[] = ['age' => 22, 'fname' => 'Gary', 'lname' => 'Klein'];
+	$arr[] = ['age' => 43, 'fname' => 'John', 'lname' => 'Jones'];
+	$arr[] = ['age' => 29, 'fname' => 'Bob',  'lname' => 'Davis'];
+	$arr[] = ['age' => 37, 'fname' => 'Lee',  'lname' => 'Hall'];
 
 	// Expected output
-	$expected = array(
-		array('age' => 29, 'fname' => 'Bob',  'lname' => 'Davis'),
-		array('age' => 22, 'fname' => 'John', 'lname' => 'Doe'),
- 		array('age' => 37, 'fname' => 'Lee',  'lname' => 'Hall'),
-		array('age' => 38, 'fname' => 'Phil', 'lname' => 'Jones'),
-		array('age' => 43, 'fname' => 'John', 'lname' => 'Jones'),
-		array('age' => 22, 'fname' => 'Gary', 'lname' => 'Klein'),
-		array('age' => 20, 'fname' => 'Sam',  'lname' => 'Smith'),
-		array('age' => 31, 'fname' => 'Ted',  'lname' => 'Smith'),
-	);
+	$expected = [
+		['age' => 29, 'fname' => 'Bob',  'lname' => 'Davis'],
+		['age' => 22, 'fname' => 'John', 'lname' => 'Doe'],
+ 		['age' => 37, 'fname' => 'Lee',  'lname' => 'Hall'],
+		['age' => 38, 'fname' => 'Phil', 'lname' => 'Jones'],
+		['age' => 43, 'fname' => 'John', 'lname' => 'Jones'],
+		['age' => 22, 'fname' => 'Gary', 'lname' => 'Klein'],
+		['age' => 20, 'fname' => 'Sam',  'lname' => 'Smith'],
+		['age' => 31, 'fname' => 'Ted',  'lname' => 'Smith'],
+	];
 
 	// Sort by last name in ascending order, then by age
-	$sort_by = array(
+	$sort_by = [
 		'lname', SORT_ASC,
 		'age', SORT_ASC, SORT_NUMERIC
-	);
-	$output = Functions::array_rowsort($arr, $sort_by);
-	$this->assertSame($output, $expected);
+	];
+	$actual = Functions::array_rowsort($arr, $sort_by);
+	$this->assertIsArray($actual);
+	$this->assertSame($expected, $actual);
 
 	// Sort by passing multiple arguments instead of a single array
-	$output = Functions::array_rowsort($arr, 'lname', SORT_ASC, 'age', SORT_ASC, SORT_NUMERIC);
-	$this->assertSame($output, $expected);
+	$actual = Functions::array_rowsort($arr, 'lname', SORT_ASC, 'age', SORT_ASC, SORT_NUMERIC);
+	$this->assertIsArray($actual);
+	$this->assertSame($expected, $actual);
 }
 
 /**
-*/
+ */
 public function test_array_slice_key()
 {
-	$arr = array(
+	$arr = [
 		'fname' => 'John',
 		'lname' => 'Doe',
 		'age'   => 18,
 		'hair'  => 'black'
-	);
-	$output = Functions::array_slice_key($arr, array('age', 'hair'));
- 	$this->assertSame($output, array('age'=>18, 'hair'=>'black'));
+	];
+	$actual = Functions::array_slice_key($arr, ['age', 'hair']);
+	$this->assertIsArray($actual);
+	$this->assertSame(['age'=>18, 'hair'=>'black'], $actual);
+
+	$actual = Functions::array_slice_key($arr, ['age', 'fname']);
+	$this->assertIsArray($actual);
+	$this->assertSame(['age'=>18, 'fname'=>'John'], $actual);
 }
 
 /**
 */
 public function test_array_same_values()
 {
-	$arr1 = array('blue', 'green', 'red');
-	$arr2 = array('red', 'blue', 'green');
-	$arr3 = array('red', 'blue', 'black');
+	$arr1 = ['blue', 'green', 'red'];
+	$arr2 = ['red', 'blue', 'green'];
+	$arr3 = ['red', 'blue', 'black'];
 
 	$result = Functions::array_same_values($arr1, $arr2);
 	$this->assertTrue($result);
@@ -114,22 +108,41 @@ public function test_array_same_values()
 }
 
 /**
-*/
+ */
 public function test_cidr_match()
 {
 	$this->assertTrue(Functions::cidr_match('192.168.1.23', '192.168.1.0/24'));
+	$this->assertTrue(Functions::cidr_match('1.2.3.4', '0.0.0.0/0'));
+	$this->assertTrue(Functions::cidr_match('127.0.0.1', '127.0.0.1/32'));
+	$this->assertFalse(Functions::cidr_match('127.0.0.1', '127.0.0.2/32'));
 }
 
 /**
-*/
-public function test_math_lcm()
+ * @return array
+ */
+public function mathLcmProvider():array
 {
-	$this->assertEquals(60, Functions::math_lcm(array(1, 2, 3, 4, 5)));
-	$this->assertEquals(60, Functions::math_lcm(1, 2, 3, 4, 5));
+	return [
+		[[2, 2], 2],
+		[[1, 2, 3, 4, 5], 60],
+		[[2, 3], 6],
+		[[2, 6], 6],
+	];
 }
 
 /**
-*/
+ * @param array $numbers
+ * @param integer $expected
+ * @dataProvider mathLcmProvider
+ */
+public function test_math_lcm($numbers, $expected)
+{
+	$this->assertEquals($expected, Functions::math_lcm($numbers));
+	$this->assertEquals($expected, call_user_func_array([Functions::class, 'math_lcm'], $numbers));
+}
+
+/**
+ */
 public function test_numcmp()
 {
 	$this->assertGreaterThan(0, Functions::numcmp(2, 1));
