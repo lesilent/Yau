@@ -440,7 +440,7 @@ public function getActionUrl(?string $action = null, array $params = []):string
 	}
 
 	// Build and return url
-	if (!empty($action) && ($router = $this->get('router')) && ($path = $router->getUrlPath($action, $params)))
+	if (!empty($action) && ($router = $this->get('router')) && ($path = $router->getPath($action, $params)))
 	{
 		// Use router path if it exists
 		return $path;
