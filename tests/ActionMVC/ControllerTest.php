@@ -36,6 +36,12 @@ public function testController():void
 	$view = $controller->get('view');
 	$this->assertInstanceOf(View::class, $view);
 
+	$helper = new class {};
+	$controller->set('globalhelp', $helper);
+	$controller->set('helper', 'special', $helper);
+	$this->assertSame($helper, $controller->get('globalhelp'));
+	$this->assertSame($helper, $controller->get('helper', 'special'));
+
 	$controller->setBasePath(__DIR__);
 	$controller->doAction('default');
 	$this->assertSame('default', $view->title);

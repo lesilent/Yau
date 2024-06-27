@@ -3,7 +3,7 @@
 namespace Yau\ActionMVC;
 
 use Yau\ActionMVC\ObjectTrait;
-use Exception;
+use InvalidArgumentException;
 
 /**
  * Router
@@ -33,7 +33,14 @@ private $routes = [];
  * @var bool default is false
  * @link https://developers.google.com/search/blog/2010/04/to-slash-or-not-to-slash
  */
-private $slash = false;
+private $trailingSlash = false;
+
+/**
+ * Flag for whether default paths should be returned if no matching route is found
+ *
+ * @var bool default is false
+ */
+private $defaultPaths = false;
 
 /**
  * Add an action route
@@ -41,21 +48,25 @@ private $slash = false;
  * @param string $route
  * @param array $slugs
  * @param string $action optional action if different than one defined in route
- * @throws Exception
+ * @throws InvalidArgumentException if invalid route or missing slugs
  */
-public function addRoute(string $route, array $slugs, $action = null)
+public function addRoute(string $route, array $slugs, ?string $action = null)
 {
+	if (strlen($route) < 1)
+	{
+		throw new InvalidArgumentException('Invalid route');
+	}
 	$holders = [];
 	$pattern = ((strcmp($route[0], '^') == 0) ? '^' : '')
 		. preg_replace_callback(self::$SLUG_PATTERN, function ($matches) use (&$holders, $slugs) {
 		if (!isset($slugs[$matches[1]]))
 		{
-			throw new Exception('No slug defined for ' . $matches[1]);
+			throw new InvalidArgumentException('No slug defined for ' . $matches[1]);
 		}
 		$holders[] = $matches[1];
 		return '(' . preg_replace('#(?<!\\\)\((?!\?)#', '(?:', $slugs[$matches[1]]) . ')';
 	}, $route) . ((($length = strlen($route)) > 1 && strcmp($route[$length - 1], '$') != 0) ? '(?=[\/\?\#]|$)' : '');
-	if (empty($action) && preg_match('/\w+/', $route, $matches))
+	if (empty($action) && preg_match('/[a-z]\w*/', $route, $matches))
 	{
 		$action = $matches[0];
 	}
@@ -69,7 +80,7 @@ public function addRoute(string $route, array $slugs, $action = null)
 }
 
 /**
- * Match a path to a route
+ * Match a path to an existing route
  *
  * @param string $path
  * @return array|false
@@ -103,23 +114,35 @@ public function match(?string $path)
 }
 
 /**
- * Return flag for returning path with trailing slash
+ * Return or set whether returning path with trailing slash
  *
- * @return bool
+ * @param bool $slash
+ * @return bool the current setting
  */
-public function getTrailingSlash():bool
+public function useTrailingSlash(?bool $slash = null):bool
 {
-	return $this->slash;
+	$result = $this->trailingSlash;
+	if (isset($slash))
+	{
+		$this->trailingSlash = $slash;
+	}
+	return $result;
 }
 
 /**
- * Set flag for returning path with trailing slash
+ * Return or set whether default paths should be returned if no route is matched
  *
- * @param bool $slash
+ * @param bool $default
+ * @return bool the current setting
  */
-public function setTrailingSlash(bool $slash):void
+public function useDefaultPaths(?bool $default = null):bool
 {
-	$this->slash = $slash;
+	$result = $this->defaultPaths;
+	if (isset($default))
+	{
+		$this->defaultPaths = $default;
+	}
+	return $result;
 }
 
 /**
@@ -129,15 +152,16 @@ public function setTrailingSlash(bool $slash):void
  * @param array $params
  * @return string|false
  */
-public function getPath($action, array $params = [])
+public function getPath(string $action, array $params = [])
 {
+	$path = false;
 	foreach ($this->routes as $route)
 	{
 		if (strcmp($route['action'], $action) == 0
 			&& count(array_diff_key($route['slugs'], $params)) == 0)
 		{
 			$path = preg_replace_callback(self::$SLUG_PATTERN, fn(array $matches) => $params[$matches[1]] ?? '', $route['route']);
-			if ($this->getTrailingSlash() && strcmp(substr($path, -1), '/') != 0)
+			if ($this->useTrailingSlash() && strcmp(substr($path, -1), '/') != 0)
 			{
 				$path .= '/';
 			}
@@ -149,7 +173,13 @@ public function getPath($action, array $params = [])
 			return $path;
 		}
 	}
-	return false;
+	if ($this->useDefaultPaths())
+	{
+		$path = '/' . preg_replace('/_+/', '/', $action)
+			. ($this->useTrailingSlash() ? '/' : '')
+			. (empty($params) ? '' : '?' . http_build_query($params));
+	}
+	return $path;
 }
 
 /*=================================================================*/

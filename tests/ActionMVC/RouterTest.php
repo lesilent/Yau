@@ -27,6 +27,7 @@ public static function routeProvider():array
 		['/archive/{name}.pdf', ['name'=>'\w+']],
 		['/members', []],
 		['/article/{id}', ['id'=>'\w+']],
+		['/', [], 'index'],
 	];
 }
 
@@ -64,6 +65,7 @@ public static function pathProvider():array
 		['/article/456?ref=parent', ['action'=>'article', 'id'=>'456', 'ref'=>'parent']],
 		['/article/789/?ref=child', ['action'=>'article', 'id'=>'789', 'ref'=>'child']],
 		['/article/abc/?link[]=2&link[]=4', ['action'=>'article', 'id'=>'abc', 'link'=>['2','4']]],
+		['/', ['action'=>'index']],
 	];
 }
 
@@ -88,8 +90,11 @@ public function testMatch($path, $params):void
 			$this->assertSame(is_array($params) ? ($params + ['hello'=>'world']) : $params, $router->match($path . '?hello=world'));
 		}
 	}
-	$result = $router->match(preg_replace('/\w+/', '-', $path, 1));
-	$this->assertFalse($result);
+	if (preg_match('/\w/', $path))
+	{
+		$result = $router->match(preg_replace('/\w+/', '-', $path, 1));
+		$this->assertFalse($result);
+	}
 }
 
 /**
@@ -107,6 +112,7 @@ public static function actionProvider():array
 		['members', ['list'=>'settings'], '/members?list=settings'],
 		['other', [], false],
 		['other', ['go'=>'there', 'come'=>'here'], false],
+		['index', [], '/'],
 	];
 }
 
@@ -120,15 +126,48 @@ public function testGetPath($action, $params, $path):void
 {
 	$router = self::$router;
 	$this->assertSame($path, $router->getPath($action, $params));
-	if (is_string($path))
+	if (is_string($path) && strcmp(substr($path, -1), '/') != 0)
 	{
-		$router->setTrailingSlash(true);
+		$router->useTrailingSlash(true);
 		$path = (($pos = strpos($path, '?')) !== false)
 			? str_replace('?', '/?', $path)
 			: $path . '/';
 		$this->assertSame($path, $router->getPath($action, $params));
-		$router->setTrailingSlash(false);
+		$router->useTrailingSlash(false);
 	}
+}
+
+/**
+ * @return array
+ */
+public static function actionDefaultProvider():array
+{
+	return [
+		['about', '/about'],
+		['blog_list', '/blog/list'],
+	];
+}
+
+/**
+ * @param string $action
+ * @param string $path
+ * @dataProvider actionDefaultProvider
+ */
+public function testGetPathDefault($action, $path):void
+{
+	$router = self::$router;
+	$router->useDefaultPaths(true);
+	foreach ([false, true] as $slash)
+	{
+		$router->useTrailingSlash($slash);
+		foreach ([[], ['page'=>'2']] as $params)
+		{
+			$expected = $path . ($slash ? '/' : '') . (empty($params) ? '' : '?' . http_build_query($params));
+			$this->assertSame($expected, $router->getPath($action, $params, true));
+		}
+	}
+	$router->useDefaultPaths(false);
+	$router->useTrailingSlash(false);
 }
 
 /*=======================================================*/

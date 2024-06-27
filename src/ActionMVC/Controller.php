@@ -327,39 +327,35 @@ public function get(string $type, string $name = 'default')
  * </code>
  *
  * @param string $type
+ * @throws InvalidArgumentException if invalid arguments
  */
-public function set($type):void
+public function set(string $type, ...$args):void
 {
-	// Check number of arguments
-	$argc = func_num_args();
-	if ($argc == 0)
+	// Check arguments
+	if (!preg_match('/^\w+$/', $type))
 	{
-		throw new InvalidArgumentException('No parameters specified for MVC object');
+		throw new InvalidArgumentException('Invalid MVC object type ' . $type);
 	}
-	if ($argc < 2 || $argc > 3)
+	$argc = count($args);
+	if ($argc < 1 || $argc > 2)
 	{
 		throw new InvalidArgumentException('Invalid parameters specified for MVC object');
 	}
 
 	// Process arguments
-	$args = func_get_args();
-	$obj = array_pop($args);
-	$type = array_shift($args);
-	if (!preg_match('/^\w+$/', $type))
+	if ($argc > 1)
 	{
-		throw new InvalidArgumentException('Invalid MVC object type ' . $type);
-	}
-	if (!empty($args))
-	{
-		$name = array_shift($args);
+		$name = $args[0];
 		if (!preg_match('/^\w+$/', $name))
 		{
 			throw new InvalidArgumentException('Invalid MVC object name ' . $name);
 		}
+		$obj = $args[1];
 	}
 	else
 	{
 		$name = 'default';
+		$obj = $args[0];
 	}
 
 	// Store object
@@ -374,7 +370,7 @@ public function set($type):void
 * @param string $name
 * @return bool
 */
-public function exists($type, $name = 'default'):bool
+public function exists(string $type, string $name = 'default'):bool
 {
 	$class_name = $this->getClassName($type, $name);
 	return isset($this->objects[$class_name]);
@@ -417,7 +413,7 @@ public function getAction():?string
  * <code>
  * // Create a link for the current action with a refresh parameter
  * $params = ['refresh'=>1];
- * $url = $controller->getActionUrl(NULL, $params);
+ * $url = $controller->getActionUrl(null, $params);
  * echo '<a href="', htmlspecialchars($url), '">Refresh</a>';
  *
  * // Create a link for a "delete_color" action with a color of black
