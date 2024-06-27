@@ -430,7 +430,7 @@ public function getAction():?string
 public function getActionUrl(?string $action = null, array $params = []):string
 {
 	// If action is empty, then use current action
-	if (!empty($action))
+	if (empty($action))
 	{
 		$action = $this->getAction();
 	}
