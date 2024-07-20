@@ -77,7 +77,7 @@ public function execute(array $params = [])
  */
 public function fetchAssocRow()
 {
-	// Return FALSE if no results
+	// Return false if no results
 	if (is_scalar($this->res) && $this->res == \DB_OK)
 	{
 		return false;
@@ -112,13 +112,18 @@ public function fetchNumRow()
  */
 public function fetchAll()
 {
-	// Return FALSE if no results
+	// Return false if no results
 	if (is_scalar($this->res) && $this->res == \DB_OK)
 	{
 		return false;
 	}
 
 	// Return the results
+	$results = [];
+	while ($row = $this->res->fetchRow(\DB_FETCHMODE_ASSOC))
+	{
+		$results[] = $row;
+	}
 	return $results;
 }
 

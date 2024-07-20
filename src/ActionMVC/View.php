@@ -57,7 +57,7 @@ public function setBasePath($path):void
  * @param string $template
  * @return string
  */
-public function render(?string $template):string
+public function render(?string $template = null):string
 {
 	$filename = $this->getBasePath() . DIRECTORY_SEPARATOR . $template . '.php';
 	return $this->fetch($filename);

@@ -22,9 +22,9 @@ public function test_array_filter_key()
 	$this->assertIsArray($actual);
 	$this->assertSame(['1'=>'James','2'=>'Joe'], $actual);
 
-	$actual = Functions::array_filter_key(['abc'=>'Jim',1=>'James',0=>'John',2=>'Joe',false=>'Jack',true=>'Jake']);
+	$actual = Functions::array_filter_key(['abc'=>'Jim',1=>'James',0=>'John',2=>'Joe']);
 	$this->assertIsArray($actual);
-	$this->assertSame(['abc'=>'Jim',1=>'James',2=>'Joe',true=>'Jake'], $actual);
+	$this->assertSame(['abc'=>'Jim',1=>'James',2=>'Joe'], $actual);
 
 	// Filter with callback for even keys
 	$actual = Functions::array_filter_key([1=>'one',2=>'two',3=>'three',4=>'four'], fn($key) => $key % 2 == 0);

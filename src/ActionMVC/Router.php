@@ -46,7 +46,7 @@ private $defaultPaths = false;
  * Add an action route
  *
  * @param string $route
- * @param array $slugs
+ * @param array  $slugs
  * @param string $action optional action if different than one defined in route
  * @throws InvalidArgumentException if invalid route or missing slugs
  */
@@ -65,14 +65,26 @@ public function addRoute(string $route, array $slugs, ?string $action = null)
 		}
 		$holders[] = $matches[1];
 		return '(' . preg_replace('#(?<!\\\)\((?!\?)#', '(?:', $slugs[$matches[1]]) . ')';
-	}, $route) . ((($length = strlen($route)) > 1 && strcmp($route[$length - 1], '$') != 0) ? '(?=[\/\?\#]|$)' : '');
+	}, str_replace('.', '\\.' ,$route));
+	$pos = strlen($pattern) - 1;
+	$last_char = $pattern[$pos];
+	if ($last_char === '$')
+	{
+		$pattern = substr($pattern, 0, $pos) . '(?=[\?\#]|$)';
+		$route_val = substr($route, 0, -1);
+	}
+	else
+	{
+		$pattern .= ($last_char === '/') ? '(?=[\?\#]|$)' : '(?=[\/\?\#]|$)';
+		$route_val = $route;
+	}
 	if (empty($action) && preg_match('/[a-z]\w*/', $route, $matches))
 	{
 		$action = $matches[0];
 	}
 	$this->routes[$route] = [
 		'action'  => $action,
-		'route'   => $route,
+		'route'   => $route_val,
 		'pattern' => $pattern,
 		'slugs'   => $slugs,
 		'holders' => $holders,
@@ -89,7 +101,7 @@ public function match(?string $path)
 {
 	foreach ($this->routes as $route)
 	{
-		if (preg_match('#^' . $route['pattern'] . '(?=[\/\?\#]|$)#', $path, $matches))
+		if (preg_match('#^' . $route['pattern'] . '#', $path, $matches))
 		{
 			$action_name = ($controller = $this->getController()) ? $controller->getActionName() : 'action';
 			$params = [$action_name=>$route['action']];

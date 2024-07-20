@@ -3,6 +3,7 @@
 namespace Yau\Db\Adapter\Driver\Odbc;
 
 use Yau\Db\Adapter\Driver\AbstractDriver;
+use ErrorException;
 
 /**
  * Database adapter driver for use with ODBC connection resources
@@ -37,7 +38,7 @@ public function exec($stmt, array $params = [])
  */
 public function lastInsertId()
 {
-	throw new Exception(__METHOD__ . ' is not supported');
+	throw new ErrorException(__METHOD__ . ' is not supported');
 }
 
 //-------------------------------------

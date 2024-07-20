@@ -94,7 +94,7 @@ public function fetchNumAll()
 	if (empty($rows) && !$this->next_rowset && $this->sth->nextRowset())
 	{
 		$this->next_rowset = true;
-		$rows = $this->seth->fetchAll(\PDO::FETCH_NUM);
+		$rows = $this->sth->fetchAll(\PDO::FETCH_NUM);
 	}
 	return $rows;
 }

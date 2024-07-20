@@ -159,6 +159,8 @@ public function query($query, array $params = [])
 /**
  * Execute a SQL statement and return the number of rows affected
  *
+ * @param string $stmt
+ * @param array  $params
  * @return integer the number of affected rows, or false if error
  */
 abstract public function exec($stmt, array $params = []);
@@ -274,7 +276,7 @@ public function getAll($query, array $params = [])
 {
 	return ($sth = $this->query($query, $params))
 		? $sth->fetchAll()
-		: FALSE;
+		: false;
 }
 
 //-------------------------------------
