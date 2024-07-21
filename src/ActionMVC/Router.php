@@ -70,13 +70,13 @@ public function addRoute(string $route, array $slugs, ?string $action = null)
 	$last_char = $pattern[$pos];
 	if ($last_char === '$')
 	{
+		$endstr = true;
 		$pattern = substr($pattern, 0, $pos) . '(?=[\?\#]|$)';
-		$route_val = substr($route, 0, -1);
 	}
 	else
 	{
+		$endstr = false;
 		$pattern .= ($last_char === '/') ? '(?=[\?\#]|$)' : '(?=[\/\?\#]|$)';
-		$route_val = $route;
 	}
 	if (empty($action) && preg_match('/[a-z]\w*/', $route, $matches))
 	{
@@ -84,7 +84,8 @@ public function addRoute(string $route, array $slugs, ?string $action = null)
 	}
 	$this->routes[$route] = [
 		'action'  => $action,
-		'route'   => $route_val,
+		'route'   => ($endstr ? substr($route, 0, -1) : $route),
+		'endstr'  => $endstr,
 		'pattern' => $pattern,
 		'slugs'   => $slugs,
 		'holders' => $holders,
@@ -173,7 +174,7 @@ public function getPath(string $action, array $params = [])
 			&& count(array_diff_key($route['slugs'], $params)) == 0)
 		{
 			$path = preg_replace_callback(self::$SLUG_PATTERN, fn(array $matches) => $params[$matches[1]] ?? '', $route['route']);
-			if ($this->useTrailingSlash() && strcmp(substr($path, -1), '/') != 0)
+			if ($this->useTrailingSlash() && !$route['endstr'] && strcmp(substr($path, -1), '/') != 0)
 			{
 				$path .= '/';
 			}
