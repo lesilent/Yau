@@ -26,18 +26,18 @@ protected $namespaces = [];
 protected $prefixes = [];
 
 /**
-* Flag for whether autoloaded has been registered or not
-*
-* @var bool
-*/
+ * Flag for whether autoloaded has been registered or not
+ *
+ * @var bool
+ */
 protected $registered = false;
 
 /**
-* Return the path for a class based on registered namespaces and prefix
-*
-* @param  string $class_name the full class name
-* @return mixed  the fully formed path if there's a match, or FALSE if not
-*/
+ * Return the path for a class based on registered namespaces and prefix
+ *
+ * @param string|false $class_name the full class name or false if not found
+ * @return mixed the fully formed path if there's a match, or false if not
+ */
 public function getPath($class_name)
 {
 	// Load classes with a namespace
@@ -84,10 +84,10 @@ public function getPath($class_name)
 /**
  * Return whether a class or interface file exists to be loaded
  *
- * @param string  $class_name
+ * @param string $class_name
  * @return bool
  */
-public function classExists($class_name)
+public function classExists($class_name):bool
 {
 	return (class_exists($class_name, false)
 		|| (($path = $this->getPath($class_name)) && is_readable($path)));
@@ -99,7 +99,7 @@ public function classExists($class_name)
  * @param string $class_name the name of the class to load
  * @return bool
  */
-public function loadClass($class_name)
+public function loadClass($class_name):bool
 {
 	if (class_exists($class_name, false) || interface_exists($class_name, false))
 	{
@@ -121,7 +121,7 @@ public function loadClass($class_name)
  * @param string $class_name the name of the class to load
  * @return bool
  */
-public function load($class_name)
+public function load($class_name):bool
 {
 	return $this->loadClass($class_name);
 }
@@ -132,7 +132,7 @@ public function load($class_name)
  * @param string $namespace
  * @param string $path
  */
-public function registerNamespace($namespace, $path)
+public function registerNamespace($namespace, $path):void
 {
 	$this->namespaces[$namespace] = rtrim($path, '\\');
 	$this->register();
@@ -143,7 +143,7 @@ public function registerNamespace($namespace, $path)
  *
  * @param array $namespaces
  */
-public function registerNamespaces(array $namespaces)
+public function registerNamespaces(array $namespaces):void
 {
 	foreach ($namespaces as $ns => $path)
 	{
@@ -158,7 +158,7 @@ public function registerNamespaces(array $namespaces)
  * @param string $prefix
  * @param string $path
  */
-public function registerPrefix($prefix, $path)
+public function registerPrefix($prefix, $path):void
 {
 	$this->prefixes[$prefix] = $path;
 	$this->register();
@@ -169,7 +169,7 @@ public function registerPrefix($prefix, $path)
  *
  * @param array $prefixes
  */
-public function registerPrefixes($prefixes)
+public function registerPrefixes($prefixes):void
 {
 	foreach ($prefixes as $prefix => $path)
 	{
@@ -189,7 +189,7 @@ public function registerPrefixes($prefixes)
  */
 public function register():bool
 {
-	if (!$this->registered && spl_autoload_register[$this, 'loadClass']))
+	if (!$this->registered && spl_autoload_register([$this, 'loadClass']))
 	{
 		return $this->registered = true;
 	}

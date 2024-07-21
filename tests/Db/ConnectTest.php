@@ -14,30 +14,11 @@ class ConnectTest extends TestCase
 /*=======================================================*/
 
 /**
- * Name of configuration files used for connecting to database
- *
- * @var array
- */
-private $CONFIG_FILES = [
-	__DIR__ . DIRECTORY_SEPARATOR . 'connect.ini',
-];
-
-/**
  * Known drivers
  *
  * @var array
  */
 private static $KNOWN_DRIVERS = ['cli', 'pdo_mysql'];
-
-/**
- * Return config files
- *
- * @return array
- */
-public static function getConnectConfigFiles():array
-{
-	return self::$CONFIG_FILES;
-}
 
 /**
  */
@@ -116,68 +97,69 @@ public function testBadConnect($driver, $params):void
  */
 public function connectProvider():iterable
 {
-	foreach (self::getConnectConfigFiles() as $filename)
+	$i = 1;
+	do
 	{
-		yield [$filename];
+		if (empty($_ENV["DB_DRIVER_$i"]))
+		{
+			if ($i < 2)
+			{
+				$this->markTestSkipped('No db credentials defined in phpunit.xml');
+			}
+			return;
+		}
+		$driver = $_ENV["DB_DRIVER_$i"];
+		$params = [];
+		foreach (['HOST', 'NAME', 'USERNAME', 'PASSWORD'] as $field)
+		{
+			$params[strtolower($field)] = $_ENV["DB_{$field}_{$i}"] ?? null;
+		}
+		yield [$driver, $params];
+		$i++;
 	}
+	while (true);
 }
 
 /**
- * @param string $filename
+ * @param array $params
  * @throws Exception if invalid connect configuration
  * @dataProvider connectProvider()
  */
-public function testConnect($filename):void
+public function testConnect($driver, $params):void
 {
-	if (!file_exists($filename))
+	$dbh = Connect::factory($driver, $params);
+	$this->assertNotFalse($dbh);
+	if (is_object($dbh) || is_resource($dbh))
 	{
-		throw new Exception("File does not exist: $filename");
-	}
-	$config = parse_ini_file($filename, true);
-	if (empty($config))
-	{
-		throw new Exception("Blank file $filename");
-	}
-	foreach ($config as $db => $params)
-	{
-		if (empty($params['driver']))
-		{
-			throw new Exception("Database $db is missing driver");
-		}
-		$dbh = Connect::factory($params['driver'], $params);
-		$this->assertNotFalse($dbh);
-		if (is_object($dbh) || is_resource($dbh))
-		{
-			$dbh = Adapter::factory($dbh);
-			$this->assertInstanceOf(AdapterDriver::class, $dbh);
+		$dbh = Adapter::factory($dbh);
+		$this->assertInstanceOf(AdapterDriver::class, $dbh);
 
-			$sth = $dbh->prepare('SELECT ? AS num');
-			$this->assertInstanceOf(StatementDriver::class, $sth);
-			$id = uniqid();
+		$sth = $dbh->prepare('SELECT ? AS num');
+		$this->assertInstanceOf(StatementDriver::class, $sth);
+		$id = uniqid();
 
-			// Test fetchOne
-			$sth->execute([$id]);
-			$this->assertSame($id, $sth->fetchOne());
+		// Test fetchOne
+		$sth->execute([$id]);
+		$this->assertSame($id, $sth->fetchOne());
 
-			// Test fetchRow
-			$sth->execute([$id]);
-			$row = $sth->fetchRow();
-			$this->assertIsArray($row);
-			$this->assertCount(1, $row);
-			$this->assertArrayHasKey('num', $row);
-			$this->assertSame($id, reset($row));
+		// Test fetchRow
+		$sth->execute([$id]);
+		$row = $sth->fetchRow();
+		$this->assertIsArray($row);
+		$this->assertCount(1, $row);
+		$this->assertArrayHasKey('num', $row);
+		$this->assertSame($id, reset($row));
 
-			// Test fetchAll
-			$sth->execute([$id]);
-			$result = $sth->fetchAll();
-			$this->assertIsArray($row);
-			$this->assertCount(1, $row);
-			$row = reset($result);
-			$this->assertIsArray($row);
-			$this->assertCount(1, $row);
-			$this->assertArrayHasKey('num', $row);
-			$this->assertSame($id, reset($row));
-		}
+		// Test fetchAll
+		$sth->execute([$id]);
+		$result = $sth->fetchAll();
+		$this->assertIsArray($row);
+		$this->assertCount(1, $row);
+		$row = reset($result);
+		$this->assertIsArray($row);
+		$this->assertCount(1, $row);
+		$this->assertArrayHasKey('num', $row);
+		$this->assertSame($id, reset($row));
 	}
 }
 
