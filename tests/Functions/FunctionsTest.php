@@ -105,6 +105,9 @@ public function test_array_same_values()
 
 	$result = Functions::array_same_values($arr2, $arr3);
 	$this->assertFalse($result);
+
+	$result = Functions::array_same_values($arr1, $arr2, $arr3);
+	$this->assertFalse($result);
 }
 
 /**

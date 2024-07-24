@@ -224,8 +224,8 @@ public function setBasePath(string $path):void
 public function getClassName(string $type, string $name = 'default'):string
 {
 	$called_class = get_called_class();
-	return ((($pos = strrpos($called_class, '\\')) === false)
-		? '' : substr($called_class, 0, $pos + 1))
+	return ((stripos($called_class, '@anonymous') === false && ($pos = strrpos($called_class, '\\')) !== false)
+		? substr($called_class, 0, $pos + 1) : '')
 		. str_replace(' ', '', ucwords(str_replace('_', ' ', $name . '_' . $type)));
 }
 

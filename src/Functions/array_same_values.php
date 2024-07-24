@@ -3,35 +3,33 @@
 namespace Yau\Functions;
 
 /**
-* Return whether arrays have the same values
-*
-* Example:
-* <code>
-* use Yau\Functions\Functions;
-*
-* $arr1 = ['blue', 'green', 'red'];
-* $arr2 = ['red', 'blue', 'green'];
-* $arr3 = ['red', 'blue', 'black'];
-*
-* // Should be true
-* $result = Functions::array_same_values($arr1, $arr2);
-*
-* // Should be false
-* $result = Functions::array_same_values($arr2, $arr3);
-* </code>
-*
-* @param  array   $array1
-* @param  array   $array2
-* @return boolean
-*/
-function array_same_values(array $array1, array $array2)
+ * Return whether arrays have the same values
+ *
+ * Example:
+ * <code>
+ * use Yau\Functions\Functions;
+ *
+ * $arr1 = ['blue', 'green', 'red'];
+ * $arr2 = ['red', 'blue', 'green'];
+ * $arr3 = ['red', 'blue', 'black'];
+ *
+ * // Should be true
+ * $result = Functions::array_same_values($arr1, $arr2);
+ *
+ * // Should be false
+ * $result = Functions::array_same_values($arr2, $arr3);
+ * </code>
+ *
+ * @param array $array
+ * @param array $arrays
+ * @return bool
+ */
+function array_same_values(array $array, array ...$arrays):bool
 {
-	$argc = func_num_args();
-	$arr_count = count($array1);
-	for ($i = 1; $i < $argc; $i++)
+	$arr_count = count($array);
+	foreach ($arrays as $arr)
 	{
-		$arr = func_get_arg($i);
-		if (count($arr) != $arr_count || array_diff($arr, $array1))
+		if (count($arr) != $arr_count || array_diff($arr, $array))
 		{
 			return false;
 		}
