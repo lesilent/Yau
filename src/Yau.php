@@ -34,7 +34,7 @@ private static function autoload($class):void
 	$ns_len = strlen(__NAMESPACE__);
 	if (strcmp(substr($class, 0, $ns_len + 1), __NAMESPACE__ . '\\') == 0)
 	{
-		require_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($class, $ns_len)) . '.php';
+		require_once __DIR__ . str_replace('\\', DIRECTORY_SEPARATOR, substr($class, $ns_len)) . '.php';
 	}
 }
 
