@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" cacheResult="false">
 <php>
-<!--
 	<env name="DB_DRIVER_1" value="" />
 	<env name="DB_HOST_1" value="" />
-	<env name="DB_NAME_1" value="" />
+	<env name="DB_DBNAME_1" value="" />
 	<env name="DB_USERNAME_1" value="" />
 	<env name="DB_PASSWORD_1" value="" />
-	<env name="DB_QUERY_1" value="" />
--->
 </php>
 </phpunit>

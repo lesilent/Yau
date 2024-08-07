@@ -108,13 +108,12 @@ public function connectProvider():iterable
 			}
 			return;
 		}
-		$driver = $_ENV["DB_DRIVER_$i"];
 		$params = [];
-		foreach (['HOST', 'NAME', 'USERNAME', 'PASSWORD'] as $field)
+		foreach (['DRIVER', 'HOST', 'DBNAME', 'USERNAME', 'PASSWORD'] as $field)
 		{
 			$params[strtolower($field)] = $_ENV["DB_{$field}_{$i}"] ?? null;
 		}
-		yield [$driver, $params];
+		yield [$params];
 		$i++;
 	}
 	while (true);
@@ -125,9 +124,9 @@ public function connectProvider():iterable
  * @throws Exception if invalid connect configuration
  * @dataProvider connectProvider()
  */
-public function testConnect($driver, $params):void
+public function testConnect($params):void
 {
-	$dbh = Connect::factory($driver, $params);
+	$dbh = Connect::factory('PDO', $params);
 	$this->assertNotFalse($dbh);
 	if (is_object($dbh) || is_resource($dbh))
 	{
