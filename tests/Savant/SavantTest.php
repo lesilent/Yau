@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Yau\Savant;
+
 use PHPUnit\Framework\TestCase;
 use Yau\Savant\Savant;
 

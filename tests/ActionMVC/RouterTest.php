@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Yau\ActionMVC;
+
 use PHPUnit\Framework\TestCase;
 use Yau\ActionMVC\Router;
 

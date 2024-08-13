@@ -26,6 +26,7 @@ private $items = [];
  */
 public function __construct(array $params = [])
 {
+	parent::__construct($params);
 }
 
 /**
@@ -37,6 +38,7 @@ public function __construct(array $params = [])
  */
 public function get($key, $default = null)
 {
+	$key = $this->hashKey($key);
 	if (isset($this->items[$key]))
 	{
 		if (isset($this->items[$key]['ttl']) && $this->items[$key]['ttl'] < time())
@@ -61,7 +63,7 @@ public function get($key, $default = null)
  */
 public function set($key, $value, $ttl = null)
 {
-	$this->items[$key] = ['key'=>$key, 'value'=>$value]
+	$this->items[$this->hashKey($key)] = ['value'=>$value]
 		+ (isset($ttl) ? ['ttl'=>$this->getTimestampForTTL($ttl)] : []);
 	return true;
 }
@@ -74,7 +76,7 @@ public function set($key, $value, $ttl = null)
  */
 public function delete($key)
 {
-	unset($this->items[$key]);
+	unset($this->items[$this->hashKey($key)]);
 	return true;
 }
 
@@ -97,6 +99,7 @@ public function clear()
  */
 public function has($key)
 {
+	$key = $this->hashKey($key);
 	if (isset($this->items[$key]))
 	{
 		if (isset($this->items[$key]['ttl']) && $this->items[$key]['ttl'] < time())

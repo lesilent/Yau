@@ -30,13 +30,6 @@ private $path;
 private $depth = 0;
 
 /**
- * Hashing algorithm for directories
- *
- * @var string
- */
-private $hash = 'crc32b';
-
-/**
  * Directory permissions
  *
  * @var string
@@ -69,14 +62,6 @@ public function __construct(array $params = [])
 		throw new InvalidArgumentException('Missing path ' . $params['path']);
 	}
 	$this->path = $params['path'];
-	if (!empty($params['hash']))
-	{
-		if (!in_array($params['hash'], hash_algos()))
-		{
-			throw new InvalidArgumentException('Invalid hash algorithm ' . $params['hash']);
-		}
-		$this->hash = $params['hash'];
-	}
 	if (isset($params['depth']))
 	{
 		$this->depth = intval($params['depth']);
@@ -85,26 +70,54 @@ public function __construct(array $params = [])
 	{
 		$this->perm = intval($params['perm']);
 	}
+	parent::__construct($params);
+}
+
+/**
+ * Hash key
+ *
+ * @param string $key
+ * @return string
+ */
+protected function hashKey($key):string
+{
+	return empty($this->algo)
+		? preg_replace_callback('/\W/', fn($matches) => base_convert(ord($matches[0]), 10, 36), $key)
+		: parent::hashKey($key);
 }
 
 /**
  * Return the filename to a cached item
  *
  * @param string $key
- * @return string
+ * @return string|false
+ * @throws InvalidArgumentException if key is zero length
  */
-private function getKeyPath($key):string
+private function getKeyPath($key)
 {
-	$hash = hash($this->hash, $key);
+	$key = $this->hashKey($key);
+	$key_length = strlen($key);
+	if ($key_length == 0)
+	{
+		return false;
+	}
 	$path = $this->path;
 	for ($i = 0; $i < $this->depth; $i++)
 	{
-		if (isset($hash[$i]))
-		{
-			$path .= DIRECTORY_SEPARATOR . $hash[$i];
-		}
+		$path .= DIRECTORY_SEPARATOR . $key[$i % $key_length];
 	}
-	return $path . DIRECTORY_SEPARATOR . $hash;
+	return $path . DIRECTORY_SEPARATOR . $key;
+}
+
+/**
+ * Return decoded value
+ *
+ * @param string $value
+ * @return mixed
+ */
+protected function decodeValue(string $value)
+{
+	return empty($this->encoding) ? unserialize($value) : parent::decodeValue($value);
 }
 
 /**
@@ -124,7 +137,7 @@ public function get($key, $default = null)
 		if (flock($handle, LOCK_SH))
 		{
 			if (($contents = stream_get_contents($handle)) !== false
-				&& ($item = $this->decode($contents))
+				&& ($item = $this->decodeValue($contents))
 				&& is_array($item))
 			{
 				if (isset($item['ttl']) && $item['ttl'] < time())
@@ -149,28 +162,6 @@ public function get($key, $default = null)
 }
 
 /**
- * Encode a cached item
- *
- * @param array $item
- * @return string
- */
-private function encode(array $item)
-{
-	return base64_encode(serialize($item));
-}
-
-/**
- * Decode a cached item
- *
- * @param string $item
- * @return array
- */
-private function decode(string $item)
-{
-	return unserialize(base64_decode($item));
-}
-
-/**
  * Store a value in the cache
  *
  * @param string $key
@@ -180,27 +171,26 @@ private function decode(string $item)
  */
 public function set($key, $value, $ttl = null)
 {
-	$item = ['key'=>$key, 'value'=>$value]
+	$item = ['value'=>$value]
 		+ (isset($ttl) ? ['ttl'=>$this->getTimestampForTTL($ttl)] : []);
-	if (($encoded = $this->encode($item)) === false)
+	$encoded = $this->encodeValue($item);
+	if (!is_string($encoded))
 	{
 		// Return false if unable to encode item
 		return false;
 	}
-	$path = $this->getKeyPath($key);
-	$directory = dirname($path);
-	$return = false;
-	if (is_dir($directory) || mkdir($directory, $this->perm, true))
+	$result = false;
+	if (($path = $this->getKeyPath($key))
+		&& ($directory = dirname($path))
+		&& (is_dir($directory) || mkdir($directory, $this->perm, true))
+		&& ($handle = fopen($path, 'c')))
 	{
-		if ($handle = fopen($path, 'c'))
+		if (flock($handle, LOCK_EX))
 		{
-			if (flock($handle, LOCK_EX))
-			{
-				$result = ftruncate($handle, 0) && fwrite($handle, $encoded);
-				flock($handle, LOCK_UN);
-			}
-			fclose($handle);
+			$result = ftruncate($handle, 0) && fwrite($handle, $encoded);
+			flock($handle, LOCK_UN);
 		}
+		fclose($handle);
 	}
 	return $result;
 }
@@ -213,8 +203,8 @@ public function set($key, $value, $ttl = null)
  */
 public function delete($key)
 {
-	$path = $this->getKeyPath($key);
-	return (file_exists($path)) ? unlink($path) : true;
+	return (($path = $this->getKeyPath($key)) && file_exists($path))
+		? unlink($path) : true;
 }
 
 /**
@@ -227,12 +217,14 @@ public function clear()
 	$result = true;
 	$directory = new RecursiveDirectoryIterator($this->path, FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS);
 	$iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::CHILD_FIRST);
-	$hash_length = strval(strlen(hash($this->hash, '')));
+	$hash_length = empty($this->algo) ? '1,' : strval(strlen($this->hashKey('')));
 	foreach ($iterator as $finfo)
 	{
-		if (preg_match('/^[0-9a-f]{' . ($finfo->isDir() ? '1' : $hash_length) . '}$/', $finfo->getFilename()))
+		$is_dir = $finfo->isDir();
+		if (preg_match('/^\w{' . ($is_dir ? '1' : $hash_length) . '}$/', $finfo->getFilename()))
 		{
-			$result = unlink($finfo->getPathname()) && $result;
+			$func = $is_dir ? 'rmdir' : 'unlink';
+			$result = $func($finfo->getPathname()) && $result;
 		}
 	}
 	return $result;
@@ -254,10 +246,10 @@ public function has($key)
 		if (flock($handle, LOCK_SH))
 		{
 			if (($contents = stream_get_contents($handle)) !== false
-				&& ($item = $this->decode($contents))
+				&& ($item = $this->decodeValue($contents))
 				&& is_array($item))
 			{
-				if (isset($item['ttl']) && $item['ttl'] < time())
+				if (isset($item['ttl']) && intval($item['ttl']) < time())
 				{
 					unlink($path);
 				}

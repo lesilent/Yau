@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
+namespace Yau\AccessObject;
+
 use PHPUnit\Framework\TestCase;
 use Yau\AccessObject\AccessObject;
+use InvalidArgumentException;
 
 /**
 * Tests for Yau\AccessObject\AccessObject

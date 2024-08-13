@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
+namespace Yau\Mutex;
+
 use PHPUnit\Framework\TestCase;
 use Yau\Mutex\Mutex;
 use Yau\Mutex\Adapter\File;
+use InvalidArgumentException;
 
 /**
  * Tests for Yau\Mutex\Mutex

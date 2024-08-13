@@ -3,7 +3,7 @@
 namespace Yau\Cache\Adapter;
 
 use Psr\SimpleCache\CacheInterface;
-use Psr\SimpleCache\InvalidArgumentException;
+use InvalidArgumentException;
 use DateInterval;
 
 /**
@@ -14,11 +14,18 @@ abstract class AbstractAdapter implements CacheInterface
 /*=======================================================*/
 
 /**
- * Parameters
+ * Hash algorithm for keys
  *
- * @var array
+ * @var array|bool
  */
-protected $params = [];
+protected $algo = 'md5';
+
+/**
+ * Encoding type for values
+ *
+ * @var string|bool
+ */
+protected $encoding = 'serialize';
 
 /**
  * Constructor
@@ -26,7 +33,78 @@ protected $params = [];
  * @param array $params
  * @throws InvalidArgumentException
  */
-abstract function __construct(array $params = []);
+public function __construct(array $params = [])
+{
+	if (isset($params['algo']))
+	{
+		if (!empty($params['algo']) && !in_array($params['algo'], hash_algos()))
+		{
+			throw new InvalidArgumentException('Invalid hash algorithm ' . $params['algo']);
+		}
+		$this->algo = $params['algo'];
+	}
+	if (isset($params['encoding']))
+	{
+		if (!empty($params['encoding']) && !in_array($params['encoding'], ['json', 'serialize']))
+		{
+			throw new InvalidArgumentException('Invalid encoding ' . $params['encoding']);
+		}
+		$this->encoding = $params['encoding'];
+	}
+}
+
+/**
+ * Return hashed key
+ *
+ * @param string $key
+ * @return string
+ */
+protected function hashKey($key):string
+{
+	return empty($this->algo) ? $key : hash($this->algo, $key);
+}
+
+/**
+ * Return encoded value
+ *
+ * @param mixed $value
+ * @return string
+ */
+protected function encodeValue($value):string
+{
+	switch ($this->encoding)
+	{
+		case 'json':
+			return json_encode($value);
+			break;
+		case 'serialize':
+			return serialize($value);
+			break;
+		default:
+			return is_string($value) ? $value : serialize($value);
+	}
+}
+
+/**
+ * Return decoded value
+ *
+ * @param string $value
+ * @return mixed
+ */
+protected function decodeValue(string $value)
+{
+	switch ($this->encoding)
+	{
+		case 'json':
+			return json_decode($value, true);
+			break;
+		case 'serialize':
+			return unserialize($value);
+			break;
+		default:
+			return $value;
+	}
+}
 
 /**
  * Return the timestamp for TTL

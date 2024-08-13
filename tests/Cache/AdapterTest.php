@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Yau\Cache;
+
 use PHPUnit\Framework\TestCase;
 use Yau\Cache\Adapter\ArrayAdapter;
 use Yau\Cache\Adapter\AbstractAdapter;
@@ -16,14 +18,21 @@ class AdapterTest extends TestCase
 /*=======================================================*/
 
 /**
- * @return iterator
+ * @return iterable
  */
-public function adapterProvider():iterator
+public function adapterProvider():iterable
 {
-	yield ['array', []];
-	$path = tempnam(sys_get_temp_dir(), 'cache');
-	unlink($path);
-	yield ['filesystem', ['path'=>$path]];
+	foreach (['crc32b', 'md5', 'sha1', false] as $algo)
+	{
+		foreach (['json', 'serialize', false] as $encoding)
+		{
+			$params = ['algo'=>$algo, 'encoding'=>$encoding];
+			yield ['array', $params];
+			$path = tempnam(sys_get_temp_dir(), 'cache');
+			unlink($path);
+			yield ['filesystem', $params + ['path'=>$path]];
+		}
+	}
 }
 
 /**
@@ -31,9 +40,9 @@ public function adapterProvider():iterator
  *
  * @param object $adapter
  * @param string $key
- * @return interator
+ * @return iterable
  */
-private function clearGenerator($adapter, $key):iterator
+private function clearGenerator($adapter, $key):iterable
 {
 	yield fn() => $adapter->delete($key);
 	yield fn() => $adapter->clear();
@@ -51,33 +60,52 @@ public function testAdapter($driver, $params):void
 	$adapter = new $class_name($params);
 	$this->assertInstanceOf(AbstractAdapter::class, $adapter);
 
-	$key = uniqid('test', true);
-	$value = random_bytes(mt_rand(32, 1024));
-	foreach ($this->clearGenerator($adapter, $key) as $func)
+	// Create key and values to test with
+	$key = uniqid('test', !empty($algo));
+	$scalar_value = random_bytes(mt_rand(32, 1024));
+	$test_values = [random_bytes(mt_rand(32, 1024))];
+	if (!empty($params['encoding']))
 	{
-		// Store value in cache
-		$this->assertFalse($adapter->has($key));
-		$this->assertTrue($adapter->set($key, $value, 1));
-		$this->assertTrue($adapter->has($key));
-		$cached_value = $adapter->get($key);
-		$this->assertSame($value, $cached_value);
+		// For json, we remove characters that cause encoding issues
+		if ($params['encoding'] == 'json')
+		{
+			$test_values[0] = json_encode($test_values[0], JSON_INVALID_UTF8_IGNORE);
+		}
 
-		// Clear value and make sure it's not in cache
-		call_user_func($func);
-		$this->assertFalse($adapter->has($key));
-		$this->assertNull($adapter->get($key));
-		$default = random_bytes(mt_rand(32, 1024));
-		$this->assertSame($default, $adapter->get($key, $default));
+		// If there's encoding, then also test with a non-scalar value
+		$test_values[] = [$key=>$test_values];
+	}
 
-		// Store values with various TTL
-		$this->assertTrue($adapter->set($key, $value, -1));
-		$this->assertNull($adapter->get($key));
-		$this->assertFalse($adapter->has($key));
-		$this->assertTrue($adapter->set($key, $value, new \DateInterval('P1D')));
-		$this->assertTrue($adapter->has($key));
-		$adapter->clear();
-		$this->assertFalse($adapter->has($key));
-		$this->assertNull($adapter->get($key));
+	// Test the cache with the values
+	foreach ($test_values as $value)
+	{
+		foreach ($this->clearGenerator($adapter, $key) as $func)
+		{
+			// Store value in cache
+			$this->assertFalse($adapter->has($key));
+			$this->assertTrue($adapter->set($key, $value, 1));
+			$this->assertTrue($adapter->has($key));
+			$this->assertSame($value, $adapter->get($key));
+
+			// Clear value and make sure it's not in cache
+			call_user_func($func);
+			$this->assertFalse($adapter->has($key));
+			$this->assertNull($adapter->get($key));
+			$default = random_bytes(mt_rand(32, 1024));
+			$this->assertSame($default, $adapter->get($key, $default));
+			$default = random_bytes(mt_rand(32, 1024));
+			$this->assertSame($default, $adapter->get($key, fn() => $default));
+
+			// Store values with various TTL
+			$this->assertTrue($adapter->set($key, $value, -1));
+			$this->assertNull($adapter->get($key));
+			$this->assertFalse($adapter->has($key));
+			$this->assertTrue($adapter->set($key, $value, new \DateInterval('P1D')));
+			$this->assertTrue($adapter->has($key));
+			$this->assertTrue($adapter->clear());
+			$this->assertFalse($adapter->has($key));
+			$this->assertNull($adapter->get($key));
+		}
 	}
 }
 
@@ -105,8 +133,7 @@ public function testChainAdapter():void
 	foreach ($adapters as $offset => $adapter)
 	{
 		$this->assertTrue($adapter->has($key));
-		$cached_value = $chain->get($key);
-		$this->assertSame($value, $cached_value);
+		$this->assertSame($value, $chain->get($key));
 		$this->assertTrue($adapter->delete($key));
 		$this->assertFalse($adapter->has($key));
 		$cached_value = $chain->get($key);
@@ -192,6 +219,75 @@ public function testDbAdapter($params):void
 			$this->testAdapter('db', ['dbh'=>$db]);
 		}
 	}
+}
+
+/**
+ * Test filesystem adapter
+ */
+public function testFilesystemAdapter():void
+{
+	$path = tempnam(sys_get_temp_dir(), 'cache');
+	unlink($path);
+
+	// Test with no depth
+	$fcount = mt_rand(10, 20);
+	$adapter = new FilesystemAdapter(['path'=>$path]);
+	$iterator = new \FilesystemIterator($path);
+	for ($i = 0; $i < $fcount; $i++)
+	{
+		$filecount = 0;
+		foreach ($iterator as $finfo)
+		{
+			$this->assertTrue($finfo->isFile());
+			$filecount++;
+		}
+		$this->assertSame($i, $filecount);
+		$key = uniqid('test', true);
+		$value = random_bytes(mt_rand(32, 1024));
+		$this->assertFalse($adapter->has($key));
+		$this->assertTrue($adapter->set($key, $value));
+		$this->assertTrue($adapter->has($key, $value));
+	}
+	$adapter->clear();
+	$filecount = 0;
+	foreach ($iterator as $finfo)
+	{
+		$filecount++;
+	}
+	$this->assertSame(0, $filecount);
+	$this->assertTrue(rmdir($path));
+
+	// Test with depth
+	$fcount = mt_rand(10, 20);
+	$adapter = new FilesystemAdapter(['path'=>$path, 'depth'=>mt_rand(2, 10)]);
+	for ($i = 0; $i < $fcount; $i++)
+	{
+		foreach ($iterator as $finfo)
+		{
+			$this->assertTrue($finfo->isDir());
+		}
+		$key = uniqid('test', true);
+		$value = random_bytes(mt_rand(32, 1024));
+		$this->assertFalse($adapter->has($key));
+		$this->assertTrue($adapter->set($key, $value));
+		$this->assertTrue($adapter->has($key, $value));
+	}
+	$directory = new \RecursiveDirectoryIterator($path, \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS);
+	$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::LEAVES_ONLY);
+	$filecount = 0;
+	foreach ($iterator as $finfo)
+	{
+		$this->assertTrue($finfo->isFile());
+		$filecount++;
+	}
+	$this->assertEquals($fcount, $filecount);
+	$adapter->clear();
+	$filecount = 0;
+	foreach ($iterator as $finfo)
+	{
+		$filecount++;
+	}
+	$this->assertSame(0, $filecount);
 }
 
 /*=======================================================*/

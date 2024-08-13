@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
+namespace Yau\Functions;
+
 use PHPUnit\Framework\TestCase;
 use Yau\Functions\Functions;
 
 /**
- *
+ * Tests for Yau\Functions\Functions
  */
 class FunctionsTest extends TestCase
 {

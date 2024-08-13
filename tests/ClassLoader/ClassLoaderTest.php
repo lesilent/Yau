@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Yau\ClassLoader;
+
 use PHPUnit\Framework\TestCase;
 use Yau\ClassLoader\ClassLoader;
 use Yau\Validator\StandardValidator;
@@ -14,7 +16,7 @@ if (!class_exists('PHPUnit\Framework\TestCase'))
 	{
 		require_once $path . DIRECTORY_SEPARATOR . 'ClassLoader' . DIRECTORY_SEPARATOR . 'ClassLoader.php';
 	}
-	$loader = new Yau\ClassLoader\ClassLoader();
+	$loader = new \Yau\ClassLoader\ClassLoader();
 	$loader->registerNamespace('Yau', $path);
 	$email = 'good@email.com';
 	$validator = StandardValidator::getInstance();

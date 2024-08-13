@@ -1,7 +1,10 @@
 <?php declare(strict_types = 1);
 
+namespace Yau\MDBAC;
+
 use PHPUnit\Framework\TestCase;
 use Yau\MDBAC\MDBAC;
+use InvalidArgumentException;
 
 /**
  * Tests for Yau\MDBAC\MDBAC
@@ -37,13 +40,13 @@ public function setUp():void
 public function providerDriverConstants():array
 {
 	// Get path to the MDBAC Connect classes
-	$reflect = new ReflectionClass('Yau\Db\Connect\Connect');
+	$reflect = new \ReflectionClass('Yau\Db\Connect\Connect');
 	$path = dirname($reflect->getFileName()) . DIRECTORY_SEPARATOR . 'Driver';
 	$pathlen = strlen($path);
 
 	// Iterate over the files to get drivers
 	$drivers = [];
-	$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS));
+	$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS));
 	foreach ($iterator as $pathname)
 	{
 		if (is_file($pathname)

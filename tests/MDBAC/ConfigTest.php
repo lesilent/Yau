@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
+namespace Yau\MDBAC;
+
 use PHPUnit\Framework\TestCase;
 use Yau\MDBAC\Config;
 use Yau\MDBAC\Result;
+use InvalidArgumentException;
 
 /**
  * Tests for Yau\MDBAC\Config

@@ -96,6 +96,13 @@ public function __construct(array $params = [])
 			$this->$option = $params[$option];
 		}
 	}
+	parent::__construct($params);
+
+	// Trigger error in 2038
+	if (time() > 2145942000)
+	{
+		trigger_error('createTable needs to be updated to avoid the year 2028 problem', E_USER_DEPRECATED);
+	}
 }
 
 /**
@@ -152,16 +159,6 @@ public function createTable($drop = false):void
 		default:
 			throw new DomainException('No createTable support for ' . $this->driver);
 	}
-
-/*
-
-	 "CREATE TABLE $this->table ($this->idCol VARBINARY(255) NOT NULL PRIMARY KEY, $this->dataCol MEDIUMBLOB NOT NULL, $this->lifetimeCol INTEGER UNSIGNED, $this->timeCol INTEGER UNSIGNED NOT NULL) COLLATE utf8mb4_bin, ENGINE = InnoDB",
-	'sqlite' => "CREATE TABLE $this->table ($this->idCol TEXT NOT NULL PRIMARY KEY, $this->dataCol BLOB NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
-	'pgsql' => "CREATE TABLE $this->table ($this->idCol VARCHAR(255) NOT NULL PRIMARY KEY, $this->dataCol BYTEA NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
-	'oci' => "CREATE TABLE $this->table ($this->idCol VARCHAR2(255) NOT NULL PRIMARY KEY, $this->dataCol BLOB NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
-	'sqlsrv' => "CREATE TABLE $this->table ($this->idCol VARCHAR(255) NOT NULL PRIMARY KEY, $this->dataCol VARBINARY(MAX) NOT NULL, $this->lifetimeCol INTEGER, $this->timeCol INTEGER NOT NULL)",
-	default => throw new \DomainException(sprintf('Creating the cache table is currently not implemented for PDO driver "%s".', $driver)),
-*/
 	$dbh->exec($sql);
 }
 
@@ -206,8 +203,14 @@ public function get($key, $default = null)
 		default:
 			throw new DomainException('No get support for ' . $this->driver);
 	}
-	return ($row = $this->getConnection()->getRow($sql, [$key, time()]))
-		? unserialize(reset($row)) : $default;
+	if ($row = $this->getConnection()->getRow($sql, [$this->hashKey($key), time()]))
+	{
+		return $this->decodeValue(reset($row));
+	}
+	else
+	{
+		return ($default instanceof \Closure) ? call_user_func($default) : $default;
+	}
 }
 
 /**
@@ -242,7 +245,7 @@ public function set($key, $value, $ttl = null)
 		default:
 			throw new DomainException('No set support for ' . $this->driver);
 	}
-	$values = [$key, serialize($value), $this->getTimestampForTTL($ttl)];
+	$values = [$this->hashKey($key), $this->encodeValue($value), $this->getTimestampForTTL($ttl)];
 	$this->getConnection()->exec($sql, $values);
 	return true;
 }
@@ -256,7 +259,7 @@ public function set($key, $value, $ttl = null)
 public function delete($key)
 {
 	$sql = "DELETE FROM {$this->table} WHERE {$this->id_col} = ?";
-	$this->getConnection()->exec($sql, [$key]);
+	$this->getConnection()->exec($sql, [$this->hashKey($key)]);
 	return true;
 }
 
@@ -292,7 +295,7 @@ public function has($key)
 		default:
 			throw new DomainException('No has support for ' . $this->driver);
 	}
-	return $this->getConnection()->getOne($sql, [$key, time()]) ? true : false;
+	return $this->getConnection()->getOne($sql, [$this->hashKey($key), time()]) ? true : false;
 }
 
 /*=======================================================*/

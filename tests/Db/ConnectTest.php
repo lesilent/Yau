@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
+namespace Yau\Db;
+
 use PHPUnit\Framework\TestCase;
 use Yau\Db\Connect\Connect;
 use Yau\Db\Adapter\Adapter;
 use Yau\Db\Adapter\Driver\AbstractDriver as AdapterDriver;
 use Yau\Db\Statement\Driver\AbstractDriver as StatementDriver;
+use RuntimeException;
 
 /**
  * Tests for Yau\Db\Connect\Connect
