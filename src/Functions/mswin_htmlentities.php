@@ -5,18 +5,17 @@ namespace Yau\Functions;
 /**
  * Convert applicable characters to to HTML entities, including those from Windows-1252
  *
- * @param string  $str
- * @param integer $flags
- * @param string  $encoding
+ * @param string $str
+ * @param int    $flags
+ * @param string $encoding
  * @return string
- * @uses htmlentities()
  * @link http://utopia.knoware.nl/users/eprebel/Communication/CharacterSets/Windows.html
  * @link http://en.wikipedia.org/wiki/Windows-1252
  * @link http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/bestfit1252.txt
  */
-function mswin_htmlentities(string $str, $flags = null, $encoding = 'ISO-8859-1'):string
+function mswin_htmlentities(string $str, ?int $flags = null, string $encoding = 'ISO-8859-1'): string
 {
-	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags, $encoding) + [
+	return strtr($str, get_html_translation_table(HTML_ENTITIES, $flags ?? (ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), $encoding) + [
 		"\x85" => '&hellip;', // 133
 		"\x88" => '&circ;',   // 136
 		"\x89" => '&permil;', // 137
