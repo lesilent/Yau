@@ -39,7 +39,7 @@ private static $instances = [];
  * @return object
  * @throws Exception if name is not a valid class
  */
-public static function getInstance(string $name = null)
+public static function getInstance(?string $name = null)
 {
 	// Get name of class to instantiate
 	if (empty($name))
