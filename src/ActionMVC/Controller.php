@@ -199,7 +199,7 @@ private $defaultAction = 'default';
  *
  * @return string
  */
-public function getBasePath():string
+public function getBasePath(): string
 {
 	return $this->path;
 }
@@ -209,7 +209,7 @@ public function getBasePath():string
  *
  * @param string $path
  */
-public function setBasePath(string $path):void
+public function setBasePath(string $path): void
 {
 	$this->path = realpath($path);
 }
@@ -221,7 +221,7 @@ public function setBasePath(string $path):void
  * @param string $name
  * @return string
  */
-public function getClassName(string $type, string $name = 'default'):string
+public function getClassName(string $type, string $name = 'default'): string
 {
 	$called_class = get_called_class();
 	return ((stripos($called_class, '@anonymous') === false && ($pos = strrpos($called_class, '\\')) !== false)
@@ -236,7 +236,7 @@ public function getClassName(string $type, string $name = 'default'):string
  * @param string $name
  * @return string
  */
-public function getFileName(string $type, string $name = 'default'):string
+public function getFileName(string $type, string $name = 'default'): string
 {
 	return $this->path . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $type) . 's' . DIRECTORY_SEPARATOR . $name . '.php';
 }
@@ -284,11 +284,11 @@ public function get(string $type, string $name = 'default')
 			}
 		}
 
-		// Load file if there's no class for it
-		if (!class_exists($class_name))
+		// Load file if there's no class for it (note: this skips autoloader for better or worse)
+		if (!class_exists($class_name, false))
 		{
 			$filename = $this->getFileName($type, $name);
-			if (!include($filename))
+			if (!include_once($filename))
 			{
 				throw new RuntimeException("Unable to load $name $type");
 			}
@@ -329,7 +329,7 @@ public function get(string $type, string $name = 'default')
  * @param string $type
  * @throws InvalidArgumentException if invalid arguments
  */
-public function set(string $type, ...$args):void
+public function set(string $type, ...$args): void
 {
 	// Check arguments
 	if (!preg_match('/^\w+$/', $type))
@@ -370,7 +370,7 @@ public function set(string $type, ...$args):void
 * @param string $name
 * @return bool
 */
-public function exists(string $type, string $name = 'default'):bool
+public function exists(string $type, string $name = 'default'): bool
 {
 	$class_name = $this->getClassName($type, $name);
 	return isset($this->objects[$class_name]);
@@ -381,7 +381,7 @@ public function exists(string $type, string $name = 'default'):bool
 *
 * @param string
 */
-public function setActionName(string $name):void
+public function setActionName(string $name): void
 {
 	$this->actionName = $name;
 }
@@ -391,7 +391,7 @@ public function setActionName(string $name):void
 *
 * @return string
 */
-public function getActionName():string
+public function getActionName(): string
 {
 	return $this->actionName;
 }
@@ -401,7 +401,7 @@ public function getActionName():string
  *
  * @return string|null
  */
-public function getAction():?string
+public function getAction(): ?string
 {
 	return ($request = $this->get('request')) ? $request->get($this->getActionName()) : null;
 }
@@ -427,7 +427,7 @@ public function getAction():?string
  *                       the for url
  * @return string
  */
-public function getActionUrl(?string $action = null, array $params = []):string
+public function getActionUrl(?string $action = null, array $params = []): string
 {
 	// If action is empty, then use current action
 	if (empty($action))
@@ -454,7 +454,7 @@ public function getActionUrl(?string $action = null, array $params = []):string
  * @param array  $params
  * @return string
  */
-public function getActionTag(?string $action = null, array $params = []):string
+public function getActionTag(?string $action = null, array $params = []): string
 {
 	// If action is empty, then use current action
 	if (empty($action))
@@ -477,7 +477,7 @@ public function getActionTag(?string $action = null, array $params = []):string
  * @param string $action the name of the action to execute
  * @throws Exception if action is invalid
  */
-public function doAction(string $action):void
+public function doAction(string $action): void
 {
 	// Check action
 	if (!empty($action) && is_scalar($action) && preg_match('/^\w+$/', $action))
@@ -500,7 +500,7 @@ public function doAction(string $action):void
 /**
  * Run the controller
  */
-public function run():void
+public function run(): void
 {
 	$action = $this->getAction() ?: $this->defaultAction;
 	$this->doAction($action);
