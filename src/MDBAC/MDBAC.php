@@ -124,7 +124,7 @@ public function __construct($cfg, $options = [])
  *
  * @return object the Yau\MDBAC\Config object of the connection information
  */
-public function getConfig():object
+public function getConfig(): object
 {
 	if (empty($this->config))
 	{
@@ -140,7 +140,7 @@ public function getConfig():object
  * @param array  $options  associative array of connection options
  * @return array array of associative arrays of connection information
  */
-public function getDatabaseInfo($database, $options = []):array
+public function getDatabaseInfo($database, $options = []): array
 {
 	// Call database-specific method, if available
 	$method = 'get' . ucwords($database) . 'Info';
@@ -241,7 +241,7 @@ public function connect($driver, $database, array $options = [])
 		{
 			// Strip off backtrace that may contain username or password
 			$error_message = $e->getMessage();
-			$error_code = $e->getCode();
+			$error_code = (int) $e->getCode();
 		}
 	}
 
@@ -307,7 +307,7 @@ public function getConnectionInfo($param = null)
  *
  * @return string the name of the current host
  */
-protected function getHostname():string
+protected function getHostname(): string
 {
 	return ($_SERVER['HOSTNAME'] ?? php_uname('n'));
 }
