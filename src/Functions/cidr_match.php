@@ -18,7 +18,7 @@ namespace Yau\Functions;
  * @return bool true if ip address matches mask, false otherwise
  * @link http://stackoverflow.com/questions/594112
  */
-function cidr_match(string $ip, string $mask)
+function cidr_match(string $ip, string $mask): bool
 {
 	list($subnet, $bits) = explode('/', $mask);
 	$ip = ip2long($ip);

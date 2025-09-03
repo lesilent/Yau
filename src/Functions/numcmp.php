@@ -30,12 +30,11 @@ namespace Yau\Functions;
  * print_r($arr);
  * </code>
  *
- * @param integer $num1
- * @param integer $num2
- * @return integer returns < 0 if num1 is less than num2; > 0 if num1 is greater
- *                  num2, and 0 if they are equal
+ * @param int $num1
+ * @param int $num2
+ * @return int returns < 0 if num1 is less than num2; > 0 if num1 is greater num2, and 0 if they are equal
  */
-function numcmp($num1, $num2)
+function numcmp($num1, $num2): int
 {
 	if ($num1 > $num2)
 	{

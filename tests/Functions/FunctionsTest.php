@@ -14,7 +14,7 @@ class FunctionsTest extends TestCase
 
 /**
  */
-public function test_array_filter_key()
+public function test_array_filter_key(): void
 {
 	$actual = Functions::array_filter_key([]);
 	$this->assertIsArray($actual);
@@ -36,7 +36,7 @@ public function test_array_filter_key()
 
 /**
 */
-public function test_array_rowsort()
+public function test_array_rowsort(): void
 {
 	$arr = [];
 	$arr[] = ['age' => 22, 'fname' => 'John', 'lname' => 'Doe'];
@@ -125,7 +125,7 @@ public function test_cidr_match()
 /**
  * @return array
  */
-public function mathLcmProvider():array
+public function mathLcmProvider(): array
 {
 	return [
 		[[2, 2], 2],
@@ -140,7 +140,7 @@ public function mathLcmProvider():array
  * @param integer $expected
  * @dataProvider mathLcmProvider
  */
-public function test_math_lcm($numbers, $expected)
+public function test_math_lcm(array $numbers, int $expected): void
 {
 	$this->assertEquals($expected, Functions::math_lcm($numbers));
 	$this->assertEquals($expected, call_user_func_array([Functions::class, 'math_lcm'], $numbers));
@@ -148,14 +148,22 @@ public function test_math_lcm($numbers, $expected)
 
 /**
  */
-public function test_numcmp()
+public function test_numcmp(): void
 {
 	$this->assertGreaterThan(0, Functions::numcmp(2, 1));
 	$this->assertEquals(0, Functions::numcmp(3, 3));
 	$this->assertLessThan(0, Functions::numcmp(1, 3));
 }
 
-/*=======================================================*/
+/**
+ */
+public function test_temp_filename(): void
+{
+	$fname = Functions::temp_filename('test');
+	$this->assertString($fname);
+	$this->assertTrue(is_writable($fname));
+	echo $fname;
 }
 
-
+/*=======================================================*/
+}

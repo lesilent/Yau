@@ -19,8 +19,8 @@ namespace Yau\Functions;
  * // $input is now ['age'=>18, 'hair'=>'black'];
  * </code>
  *
- * @param  array $arr  the associative array
- * @param  array $keys the array of keys to extract from array
+ * @param array $arr  the associative array
+ * @param array $keys the array of keys to extract from array
  * @return array a slice of the array
  */
 function array_slice_key(array $arr, array $keys)
