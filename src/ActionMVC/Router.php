@@ -78,9 +78,9 @@ public function addRoute(string $route, array $slugs, ?string $action = null)
 		$endstr = false;
 		$pattern .= ($last_char === '/') ? '(?=[\?\#]|$)' : '(?=[\/\?\#]|$)';
 	}
-	if (empty($action) && preg_match('/[a-z]\w*/', $route, $matches))
+	if (empty($action) && preg_match('/[a-z]\w*(\/+[a-z]\w*)*/', $route, $matches))
 	{
-		$action = $matches[0];
+		$action = preg_replace('/\/+/', '_', $matches[0]);
 	}
 	$this->routes[$route] = [
 		'action'  => $action,
@@ -132,7 +132,7 @@ public function match(?string $path)
  * @param bool $slash
  * @return bool the current setting
  */
-public function useTrailingSlash(?bool $slash = null):bool
+public function useTrailingSlash(?bool $slash = null): bool
 {
 	$result = $this->trailingSlash;
 	if (isset($slash))
@@ -148,7 +148,7 @@ public function useTrailingSlash(?bool $slash = null):bool
  * @param bool $default
  * @return bool the current setting
  */
-public function useDefaultPaths(?bool $default = null):bool
+public function useDefaultPaths(?bool $default = null): bool
 {
 	$result = $this->defaultPaths;
 	if (isset($default))

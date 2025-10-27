@@ -33,7 +33,7 @@ public function getController()
  *
  * @param object $controller
  */
-public function setController($controller):void
+public function setController($controller): void
 {
 	$this->controller = $controller;
 }

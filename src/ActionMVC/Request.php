@@ -98,7 +98,7 @@ public function __construct()
  * @param string $name     the name of variable in super global array
  * @return mixed
  */
-private function getGLOBAL($variable, $name)
+private function getGLOBAL(string $variable, string $name)
 {
 	return (!empty($this->undefValue) || (isset($GLOBALS[$variable])
 		&& is_array($GLOBALS[$variable])

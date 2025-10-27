@@ -24,7 +24,7 @@ private $controller = null;
  * Note: This method is called after object has been instantiated
  * @deprecated
  */
-public function init():void
+public function init(): void
 {
 	// Additional logic goes here
 }
@@ -36,7 +36,7 @@ public function init():void
  *
  * @deprecated
  */
-public function cleanup():void
+public function cleanup(): void
 {
 	// Additional logic goes here
 }

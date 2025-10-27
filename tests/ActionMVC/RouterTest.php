@@ -20,7 +20,7 @@ private static $router;
 /**
  * @return array
  */
-public static function routeProvider():array
+public static function routeProvider(): array
 {
 	return [
 		['/magazine/{volume}/{number}', ['volume'=>'\d+', 'number'=>'\d{1,2}']],
@@ -28,15 +28,16 @@ public static function routeProvider():array
 		['/news/{news_id}', ['news_id'=>'\w{8}']],
 		['/archive/{name}.pdf$', ['name'=>'\w+']],
 		['/files/{file}$', ['file'=>'\w[\w\'\s\-]+\w\.\w{3,4}']],
-		['/members', []],
 		['/article/{id}', ['id'=>'\w+']],
+		['/members', []],
+		['/board/files/{role}', ['role'=>'\w+']],
 		['/', [], 'index'],
 	];
 }
 
 /**
  */
-public static function setUpBeforeClass():void
+public static function setUpBeforeClass(): void
 {
 	self::$router = new Router();
 	foreach (self::routeProvider() as $args)
@@ -48,7 +49,7 @@ public static function setUpBeforeClass():void
 /**
  * @return array
  */
-public static function pathProvider():array
+public static function pathProvider(): array
 {
 	return [
 		['/magazine/1/2', ['action'=>'magazine', 'volume'=>'1', 'number'=>'2']],
@@ -64,13 +65,14 @@ public static function pathProvider():array
 		['/archive/joe.pdf?year=2024', ['action'=>'archive', 'name'=>'joe', 'year'=>'2024']],
 		['/archive/vic.pdf?action=sub', ['action'=>'archive', 'name'=>'vic']],
 		['/files/test.txt', ['action'=>'files', 'file'=>'test.txt']],
-		['/members', ['action'=>'members']],
-		['/members/sdf', ['action'=>'members']],
-		['/members+hello', false],
 		['/article/123', ['action'=>'article', 'id'=>'123']],
 		['/article/456?ref=parent', ['action'=>'article', 'id'=>'456', 'ref'=>'parent']],
 		['/article/789/?ref=child', ['action'=>'article', 'id'=>'789', 'ref'=>'child']],
 		['/article/abc/?link[]=2&link[]=4', ['action'=>'article', 'id'=>'abc', 'link'=>['2','4']]],
+		['/members', ['action'=>'members']],
+		['/members/sdf', ['action'=>'members']],
+		['/members+hello', false],
+		['/board/files/president', ['action'=>'board_files', 'role'=>'president']],
 		['/', ['action'=>'index']],
 	];
 }
@@ -80,7 +82,7 @@ public static function pathProvider():array
  * @param mixed  $params
  * @dataProvider pathProvider
  */
-public function testMatch($path, $params):void
+public function testMatch($path, $params): void
 {
 	$router = self::$router;
 	$result = $router->match($path);
@@ -106,7 +108,7 @@ public function testMatch($path, $params):void
 /**
  * @return array
  */
-public static function actionProvider():array
+public static function actionProvider(): array
 {
 	return [
 		['magazine', ['volume'=>60, 'number'=>9], '/magazine/60/9'],
@@ -116,6 +118,7 @@ public static function actionProvider():array
 		['news', ['news_id'=>'abcdefgh'], '/news/abcdefgh'],
 		['members', [], '/members'],
 		['members', ['list'=>'settings'], '/members?list=settings'],
+		['board_files', ['role'=>'president'], '/board/files/president'],
 		['other', [], false],
 		['other', ['go'=>'there', 'come'=>'here'], false],
 		['index', [], '/'],
@@ -128,7 +131,7 @@ public static function actionProvider():array
  * @param string $path
  * @dataProvider actionProvider
  */
-public function testGetPath($action, $params, $path):void
+public function testGetPath($action, $params, $path): void
 {
 	$router = self::$router;
 	$this->assertSame($path, $router->getPath($action, $params));
@@ -146,7 +149,7 @@ public function testGetPath($action, $params, $path):void
 /**
  * @return array
  */
-public static function actionDefaultProvider():array
+public static function actionDefaultProvider(): array
 {
 	return [
 		['about', '/about'],
@@ -159,7 +162,7 @@ public static function actionDefaultProvider():array
  * @param string $path
  * @dataProvider actionDefaultProvider
  */
-public function testGetPathDefault($action, $path):void
+public function testGetPathDefault($action, $path): void
 {
 	$router = self::$router;
 	$router->useDefaultPaths(true);

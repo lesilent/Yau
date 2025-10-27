@@ -28,7 +28,7 @@ private $path;
  *
  * @return string
  */
-public function getBasePath():string
+public function getBasePath(): string
 {
 	// Initialize path if not set
 	if (!isset($this->path))
@@ -46,7 +46,7 @@ public function getBasePath():string
  *
  * @param string $path
  */
-public function setBasePath($path):void
+public function setBasePath($path): void
 {
 	$this->path = realpath($path);
 }
@@ -57,7 +57,7 @@ public function setBasePath($path):void
  * @param string $template
  * @return string
  */
-public function render(?string $template = null):string
+public function render(?string $template = null): string
 {
 	$filename = $this->getBasePath() . DIRECTORY_SEPARATOR . $template . '.php';
 	return $this->fetch($filename);
