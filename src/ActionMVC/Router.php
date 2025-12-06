@@ -100,6 +100,10 @@ public function addRoute(string $route, array $slugs, ?string $action = null)
  */
 public function match(?string $path)
 {
+	if (!isset($path))
+	{
+		$path = $_SERVER['REQUEST_URI'];
+	}
 	foreach ($this->routes as $route)
 	{
 		if (preg_match('#^' . $route['pattern'] . '#', $path, $matches))
@@ -108,7 +112,7 @@ public function match(?string $path)
 			$params = [$action_name=>$route['action']];
 			foreach ($route['holders'] as $offset => $slug)
 			{
-				$params[$slug] = $matches[$offset + 1];
+				$params[$slug] = rawurldecode($matches[$offset + 1]);
 			}
 
 			// Append query parameters if any
@@ -181,7 +185,7 @@ public function getPath(string $action, array $params = [])
 			if ($data = array_diff_key($params, $route['slugs']))
 			{
 				$path .= ((strpos($path, '?') === false) ? '?' : '&')
-					. http_build_query($data);
+					. http_build_query($data, '', ini_get('arg_separator.output'), PHP_QUERY_RFC3986);
 			}
 			return $path;
 		}
@@ -190,7 +194,7 @@ public function getPath(string $action, array $params = [])
 	{
 		$path = '/' . preg_replace('/_+/', '/', $action)
 			. ($this->useTrailingSlash() ? '/' : '')
-			. (empty($params) ? '' : '?' . http_build_query($params));
+			. (empty($params) ? '' : '?' . http_build_query($params, '', ini_get('arg_separator.output'), PHP_QUERY_RFC3986));
 	}
 	return $path;
 }
