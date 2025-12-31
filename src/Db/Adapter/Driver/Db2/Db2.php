@@ -17,9 +17,9 @@ class Db2 extends AbstractDriver
 /**
  * Execute a statement and return the number of affected rows
  *
- * @param string $stmt   the SQL statement to execute
- * @param array  $params optional array of values to bind to placeholders
- * @return integer the number of affected rows, or false if error
+ * @param string $stmt the SQL statement to execute
+ * @param array $params optional array of values to bind to placeholders
+ * @return int the number of affected rows, or false if error
  */
 public function exec($stmt, array $params = [])
 {
@@ -31,7 +31,7 @@ public function exec($stmt, array $params = [])
 /**
  * Return the last insert id
  *
- * @return integer
+ * @return int
  */
 public function lastInsertId()
 {

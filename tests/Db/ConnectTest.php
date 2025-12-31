@@ -25,7 +25,7 @@ private static $KNOWN_DRIVERS = ['cli', 'pdo_mysql'];
 
 /**
  */
-public function testAvailableDrivers():void
+public function testAvailableDrivers(): void
 {
 	$drivers = Connect::getAvailableDrivers();
 	$this->assertIsArray($drivers);
@@ -37,7 +37,7 @@ public function testAvailableDrivers():void
 
 /**
  */
-public function testFactory():void
+public function testFactory(): void
 {
 	foreach (Connect::getAvailableDrivers() as $driver)
 	{
@@ -61,7 +61,7 @@ public function testFactory():void
 /**
  * @return array
  */
-public function badConnectProvider():array
+public function badConnectProvider(): array
 {
 	$arguments = [];
 	foreach (Connect::getAvailableDrivers() as $driver)
@@ -86,10 +86,10 @@ public function badConnectProvider():array
 
 /**
  * @param string $driver
- * @param array  $params
+ * @param array $params
  * @dataProvider badConnectProvider()
  */
-public function testBadConnect($driver, $params):void
+public function testBadConnect($driver, $params): void
 {
 	$this->expectException(RuntimeException::class);
 	Connect::factory($driver, $params);
@@ -98,7 +98,7 @@ public function testBadConnect($driver, $params):void
 /**
  * @return iterable
  */
-public function connectProvider():iterable
+public function connectProvider(): iterable
 {
 	$i = 1;
 	do
@@ -124,10 +124,9 @@ public function connectProvider():iterable
 
 /**
  * @param array $params
- * @throws Exception if invalid connect configuration
  * @dataProvider connectProvider()
  */
-public function testConnect($params):void
+public function testConnect($params): void
 {
 	$dbh = Connect::factory('PDO', $params);
 	$this->assertNotFalse($dbh);

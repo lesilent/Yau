@@ -31,17 +31,18 @@ private static $DB_ERROR_CLASS = 'DB_Error';
  * @param mixed $value the variable to check
  * @return bool
  */
-public static function isError($value)
+public static function isError($value): bool
 {
-	return (is_object($value) && ($value instanceof self::$DB_ERROR_CLASS || \DB::isError($value)));
+	return (is_object($value) && ($value instanceof self::$DB_ERROR_CLASS
+		|| (class_exists('DB') && \DB::isError($value))));
 }
 
 /**
  * Execute a statement and return number of affected rows
  *
- * @param string $stmt   the SQL statement to execute
- * @param array  $params optional array of values to bind to placeholders
- * @return integer the number of affected rows, or FALSE if error
+ * @param string $stmt the SQL statement to execute
+ * @param array $params optional array of values to bind to placeholders
+ * @return int the number of affected rows, or FALSE if error
  */
 public function exec($stmt, array $params = [])
 {
@@ -94,7 +95,7 @@ public function rollback()
 /**
  * Return the id generated from the last INSERT operation
  *
- * @throws Exception always
+ * @throws ErrorException always
  */
 public function lastInsertId()
 {

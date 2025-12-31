@@ -1,10 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Yau\AccessObject;
-
 use PHPUnit\Framework\TestCase;
 use Yau\AccessObject\AccessObject;
-use InvalidArgumentException;
 
 /**
 * Tests for Yau\AccessObject\AccessObject
@@ -15,20 +12,21 @@ class AccessObjectTest extends TestCase
 
 /**
  */
-public function testGetterSetter():void
+public function testGetterSetter(): void
 {
 	$obj = new AccessObject();
 
+	// @phpstan-ignore property.notFound
 	$obj->test1 = 12345;
 	$this->assertSame(12345, $obj->test1);
 	$this->assertSame(12345, $obj['test1']);
 
 	$obj['test2'] = 12345;
 	$this->assertSame(12345, $obj['test2']);
-	$this->assertSame(12345, $obj->test2);
+	$this->assertSame(12345, $obj->test2);  // @phpstan-ignore property.notFound
 
 	$obj->assign(['test3'=>12345]);
-	$this->assertSame(12345, $obj->test3);
+	$this->assertSame(12345, $obj->test3);  // @phpstan-ignore property.notFound
 	$this->assertSame(12345, $obj['test3']);
 }
 
@@ -37,17 +35,17 @@ public function testGetterSetter():void
 public function testAssign():void
 {
 	$obj1 = new AccessObject();
-	$obj1->test1 = 12345;
+	$obj1->test1 = 12345;  // @phpstan-ignore property.notFound
 	$obj2 = new AccessObject();
 	$obj2->assign($obj1);
-	$obj2->test2 = 12345;
-	$this->assertEquals(12345, $obj2->test1);
+	$obj2->test2 = 12345;  // @phpstan-ignore property.notFound
+	$this->assertEquals(12345, $obj2->test1);  // @phpstan-ignore property.notFound
 	$this->assertEquals(12345, $obj2->test2);
 }
 
 /**
  */
-public function testUndefinedValueException():void
+public function testUndefinedValueException(): void
 {
 	$this->expectException(InvalidArgumentException::class);
 	$obj = new AccessObject();
@@ -56,27 +54,27 @@ public function testUndefinedValueException():void
 
 /**
  */
-public function testUndefinedValue():void
+public function testUndefinedValue(): void
 {
 	$obj = new AccessObject();
 	$obj->setUndefinedValue(false);
-	$this->assertSame(false, $obj->undefkey);
+	$this->assertSame(false, $obj->undefkey);  // @phpstan-ignore property.notFound
 }
 
 /**
  */
-public function testInternalRegistry():void
+public function testInternalRegistry(): void
 {
 	$obj = new AccessObject();
-	$obj->test1 = 12345;
-	$obj->registry = [];
-	$obj->_registry = [];
+	$obj->test1 = 12345;   // @phpstan-ignore property.notFound
+	$obj->registry = [];   // @phpstan-ignore property.private
+	$obj->_registry = [];  // @phpstan-ignore property.notFound
 	$this->assertEquals(12345, $obj->test1);
 }
 
 /**
  */
-public function testSorters():void
+public function testSorters(): void
 {
 	$obj = new AccessObject();
 
@@ -105,27 +103,27 @@ public function testSorters():void
 }
 
 /**
-*/
-public function testCountable():void
+ */
+public function testCountable(): void
 {
 	$obj = new AccessObject();
-	$obj->test = 12345;
+	$obj->test = 12345;  // @phpstan-ignore property.notFound
 	$obj->clear();
 	$this->assertCount(0, $obj);
-	$obj->test1 = 12345;
-	$obj->test2 = 12345;
-	$obj->test3 = 12345;
+	$obj->test1 = 12345;  // @phpstan-ignore property.notFound
+	$obj->test2 = 12345;  // @phpstan-ignore property.notFound
+	$obj->test3 = 12345;  // @phpstan-ignore property.notFound
 	$this->assertCount(3, $obj);
 }
 
 /**
-*/
-public function testIterator():void
+ */
+public function testIterator(): void
 {
 	$obj = new AccessObject();
-	$obj->test1 = 1;
-	$obj->test2 = 2;
-	$obj->test3 = 3;
+	$obj->test1 = 1;  // @phpstan-ignore property.notFound
+	$obj->test2 = 2;  // @phpstan-ignore property.notFound
+	$obj->test3 = 3;  // @phpstan-ignore property.notFound
 	$names = '';
 	$total = 0;
 	foreach ($obj as $name => $value)
@@ -139,19 +137,18 @@ public function testIterator():void
 
 /**
  */
-public function testSerializable():void
+public function testSerializable(): void
 {
 	$obj = new AccessObject();
-	$obj->fname = 'John';
+	$obj->fname = 'John';  // @phpstan-ignore property.notFound
 	$obj['lname'] = 'Doe';
 	$s = serialize($obj);
 	$this->assertTrue(is_string($s));
 	unset($obj);
-	$this->assertTrue(!isset($obj));
 	$obj = unserialize($s);
 	$this->assertInstanceOf(AccessObject::class, $obj);
-	$this->assertEquals('John', $obj->fname);
-	$this->assertEquals('Doe', $obj->lname);
+	$this->assertEquals('John', $obj->fname);  // @phpstan-ignore property.notFound
+	$this->assertEquals('Doe', $obj->lname);   // @phpstan-ignore property.notFound
 }
 
 /*=======================================================*/

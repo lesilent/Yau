@@ -24,7 +24,7 @@ namespace Yau\Functions;
  * @param array $arrays
  * @return bool
  */
-function array_same_values(array $array, array ...$arrays):bool
+function array_same_values(array $array, array ...$arrays): bool
 {
 	$arr_count = count($array);
 	foreach ($arrays as $arr)

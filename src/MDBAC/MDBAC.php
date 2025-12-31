@@ -99,10 +99,10 @@ protected $options = [];
  * - use_localhost boolean flag to use localhost if host name matches server's hostname
  * </code>
  *
- * @param string $cfg     path to or string of the database configuration info
- * @param array  $options optional associative array of options
+ * @param string $cfg path to or string of the database configuration info
+ * @param array $options optional associative array of options
  */
-public function __construct($cfg, $options = [])
+public function __construct(string $cfg, array $options = [])
 {
 	$this->cfg = $cfg;
 	$this->options = $options;
@@ -137,10 +137,10 @@ public function getConfig(): object
  * Return connection information for connecting to a database
  *
  * @param string $database the name of the database to get information for
- * @param array  $options  associative array of connection options
+ * @param array $options associative array of connection options
  * @return array array of associative arrays of connection information
  */
-public function getDatabaseInfo($database, $options = []): array
+public function getDatabaseInfo(string $database, array $options = []): array
 {
 	// Call database-specific method, if available
 	$method = 'get' . ucwords($database) . 'Info';
@@ -162,11 +162,11 @@ public function getDatabaseInfo($database, $options = []): array
  *
  * @param string $driver
  * @param string $database the name of the database to connect to
- * @param array  $options optional array of connection options
+ * @param array $options optional array of connection options
  * @throws InvalidArgumentException if invalid driver
  * @throws RuntimeException if unable to connect
  */
-public function connect($driver, $database, array $options = [])
+public function connect(string $driver, string $database, array $options = [])
 {
 	// Check driver
 	if (!preg_match('/^\w+$/', $driver))
@@ -198,7 +198,7 @@ public function connect($driver, $database, array $options = [])
 
 	// Connect to database
 	$error_message = 'Unable to connect to ' . $database;
-	$this->info = null;
+	$this->info = [];
 	foreach ($this->getDatabaseInfo($database, $options) as $params)
 	{
 		// Store original parameters
@@ -241,7 +241,7 @@ public function connect($driver, $database, array $options = [])
 		{
 			// Strip off backtrace that may contain username or password
 			$error_message = $e->getMessage();
-			$error_code = (int) $e->getCode();
+			$error_code = $e->getCode();
 		}
 	}
 
@@ -263,12 +263,12 @@ public function connect($driver, $database, array $options = [])
  * $dbh2 = $mdbac->connectOnce('PDO_MYSQL', 'starfleet');
  * </code>
  *
- * @param string $driver   the driver object or resource to return
+ * @param string $driver the driver object or resource to return
  * @param string $database the database to connect to
- * @param array  $options  associative array of connection options
+ * @param array $options associative array of connection options
  * @return mixed
  */
-public function connectOnce($driver, $database, $options = [])
+public function connectOnce(string $driver, string $database, array $options = [])
 {
 	// Check for instance
 	$conn_key = serialize(func_get_args());
@@ -291,13 +291,13 @@ public function connectOnce($driver, $database, $options = [])
  * print_r($info);
  * </code>
  *
- * @param string optional
+ * @param string $param
  * @return mixed if a parameter is passed, then the value for that connection
  *               parameter. If no value is passed, then the associative array
  *               of connection info as returned by the Config object
  *               is returned.
  */
-public function getConnectionInfo($param = null)
+public function getConnectionInfo(?string $param = null)
 {
 	return (empty($param)) ? $this->info : ($this->info[$param] ?? null);
 }
@@ -309,7 +309,7 @@ public function getConnectionInfo($param = null)
  */
 protected function getHostname(): string
 {
-	return ($_SERVER['HOSTNAME'] ?? php_uname('n'));
+	return $_SERVER['HOSTNAME'] ?? php_uname('n');
 }
 
 /*=================================================================*/

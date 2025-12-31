@@ -28,7 +28,7 @@ const PATTERN = '/^(\d{3})\-?(\d{2})\-?(\d{4})$/';
  * @return bool true if check passes, or false if not
  * @link http://en.wikipedia.org/wiki/Social_security_number#Structure
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (preg_match(self::PATTERN, $value, $matches)
 		&& strcmp($matches[1], '666') != 0	// No Number of the Beast

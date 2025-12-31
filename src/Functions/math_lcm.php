@@ -20,9 +20,9 @@ use InvalidArgumentException;
  * </code>
  *
  * @param array $numbers
- * @return integer the least common multiple
+ * @return int|false the least common multiple
  */
-function math_lcm($numbers)
+function math_lcm(...$numbers)
 {
 	// Check numbers
 	if (empty($numbers))
@@ -30,31 +30,39 @@ function math_lcm($numbers)
 		trigger_error('Array must contain at least one element to find least common multiple');
 		return false;
 	}
-	if (!is_array($numbers))
+
+	// Get all numbers
+	$all_numbers = [];
+	foreach ($numbers as $value)
 	{
-		$numbers = func_get_args();
+		if (is_array($value))
+		{
+			$all_numbers = [...$all_numbers, ...$value];
+		}
+		else
+		{
+			$all_numbers[] = $value;
+		}
 	}
-	if (min($numbers) < 1)
+	if (min($all_numbers) < 1)
 	{
 		trigger_error('Cannot find least common multiple of numbers less than 1');
 		return false;
 	}
 
-	// Initialize some variables
-	$number_count = count($numbers);
-	$result = $largest_number = max($numbers);
-
 	// Find lowest common denominator
-	while ($num = current($numbers))
+	$result = $largest_number = max($all_numbers);
+	reset($all_numbers);
+	while ($num = current($all_numbers))
 	{
 		if ($result % $num == 0)
 		{
-			next($numbers);
+			next($all_numbers);
 		}
 		else
 		{
 			$result += $largest_number;
-			reset($numbers);
+			reset($all_numbers);
 		}
 	}
 

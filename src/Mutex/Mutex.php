@@ -17,11 +17,11 @@ class Mutex
 /**
  * Factory method to return an instance of a mutext object
  *
- * @param  string $type     the type of mutex
- * @param  mixed  $resource optional resource
- * @param  array  $options  associative array of options
+ * @param string $type the type of mutex
+ * @param mixed $resource optional resource
+ * @param array $options associative array of options
  * @return object
- * @throws Exception if invalid type
+ * @throws InvalidArgumentException if invalid type
  */
 public static function factory($type, $resource = null, $options = [])
 {
@@ -38,7 +38,7 @@ public static function factory($type, $resource = null, $options = [])
  *
  * @return array
  */
-public static function getAvailableAdapters():array
+public static function getAvailableAdapters(): array
 {
 	// Iteratate over directory to find files
 	$adapters = [];

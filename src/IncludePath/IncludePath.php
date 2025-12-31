@@ -37,7 +37,7 @@ class IncludePath
  * @param string $path the path to add to the current include path
  * @return string the previous include path or false on failure
  */
-public static function add(string $path):string
+public static function add(string $path): string
 {
 	// Add path to current include paths
 	$incpath = get_include_path();
@@ -68,7 +68,7 @@ public static function add(string $path):string
  * @param string $path the path to remove from the current include path
  * @return string the previous include path or false on failure
  */
-public static function remove(string $path):string
+public static function remove(string $path): string
 {
 	// Add path to current include paths
 	$incpath = get_include_path();

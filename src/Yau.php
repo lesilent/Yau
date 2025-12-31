@@ -29,7 +29,7 @@ private static $registered = false;
  *
  * @param string $class
  */
-private static function autoload($class):void
+private static function autoload($class): void
 {
 	$ns_len = strlen(__NAMESPACE__);
 	if (strcmp(substr($class, 0, $ns_len + 1), __NAMESPACE__ . '\\') == 0)
@@ -43,7 +43,7 @@ private static function autoload($class):void
  *
  * @return bool
  */
-public static function registerAutoloader():bool
+public static function registerAutoloader(): bool
 {
 	return (self::$registered) ? true : (spl_autoload_register([__CLASS__, 'autoload']) && (self::$registered = true));
 }
@@ -53,7 +53,7 @@ public static function registerAutoloader():bool
  *
  * @return bool
  */
-public static function unregisterAutoloader():bool
+public static function unregisterAutoloader(): bool
 {
 	return (self::$registered) ? (spl_autoload_unregister([__CLASS__, 'autoload']) && !(self::$registered = false)) : false;
 }

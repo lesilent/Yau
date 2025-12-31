@@ -1,1 +1,1 @@
-Hash for user # <?= $user_id ?> is <?= $this->myhash($user_id) ?>
+Hash for user # <?= $user_id ?? '' ?> is <?= isset($this) ? $this->myhash($user_id ?? '') : '' ?>

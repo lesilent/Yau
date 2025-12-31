@@ -111,7 +111,7 @@ public function __construct(array $params = [])
  * @param mixed $dbh
  * @throws InvalidArgumentException if invalid driver
  */
-private function setConnection($dbh):void
+private function setConnection($dbh): void
 {
 	$dbh = Adapter::factory($dbh);
 	if (!preg_match('/\b(\w+)?$/', get_class($dbh), $matches))
@@ -128,7 +128,7 @@ private function setConnection($dbh):void
  *
  * @return object
  */
-private function getConnection():object
+private function getConnection(): object
 {
 	if (empty($this->driver))
 	{
@@ -142,8 +142,10 @@ private function getConnection():object
  * Create cache table
  *
  * @param bool $drop drop table prior to creating
+ * @return bool
+ * @throws DomainException if driver isn't supported
  */
-public function createTable($drop = false):void
+public function createTable($drop = false): bool
 {
 	$dbh = $this->getConnection();
 	switch ($this->driver)
@@ -160,6 +162,7 @@ public function createTable($drop = false):void
 			throw new DomainException('No createTable support for ' . $this->driver);
 	}
 	$dbh->exec($sql);
+	return true;
 }
 
 /**
@@ -281,7 +284,7 @@ public function clear()
  * @param string $key
  * @return bool
  */
-public function has($key)
+public function has($key): bool
 {
 	$this->created = ($this->created || $this->createTable() || true);
 	switch ($this->driver)
@@ -290,7 +293,7 @@ public function has($key)
 			$sql = "SELECT 1 FROM {$this->table} WHERE {$this->id_col} = ? AND ({$this->expire_col} IS NULL OR {$this->expire_col} >= ?) LIMIT 1";
 			break;
 		case 'sql':
-			$sql = "SELECT TOP(1) 1 FROM {$table->table} WHERE {$this->id_col} = ? AND ({$this->expire_col} IS NULL OR {$this->expire_col} >= ?)";
+			$sql = "SELECT TOP(1) 1 FROM {$this->table} WHERE {$this->id_col} = ? AND ({$this->expire_col} IS NULL OR {$this->expire_col} >= ?)";
 			break;
 		default:
 			throw new DomainException('No has support for ' . $this->driver);

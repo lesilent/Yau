@@ -16,16 +16,16 @@ class Mysql implements DriverInterface
 /*=======================================================*/
 
 /**
-* Connect to a database using parameters
-*
-* @param array $params associative array containing the information for
-*                      connecting to the database
-* @return resource a MySQL link identifier resource
-* @throws RuntimeException if unable to connect to database successfully
-* @see mysql_connect()
-* @link http://www.php.net/manual/en/function.mysql-connect.php
-* @link http://www.php.net/manual/en/function.mysql-select-db.php
-*/
+ * Connect to a database using parameters
+ *
+ * @param array $params associative array containing the information for
+ *                      connecting to the database
+ * @return resource a MySQL link identifier resource
+ * @throws RuntimeException if unable to connect to database successfully
+ * @see mysql_connect()
+ * @link http://www.php.net/manual/en/function.mysql-connect.php
+ * @link http://www.php.net/manual/en/function.mysql-select-db.php
+ */
 public static function connect($params)
 {
 	// Process parameters
@@ -52,21 +52,37 @@ public static function connect($params)
 
 	// Connect to database
 	$level = error_reporting(0);
-	$conn = (empty($params['persistent']))
-		? mysql_connect($server, $username, $password, $new_link, $client_flags)
-		: mysql_pconnect($server, $username, $password, $client_flags);
+	if (empty($params['persistent']))
+	{
+		if (!function_exists('mysql_connect'))
+		{
+			throw new RuntimeException('Undefined function mysql_connect');
+		}
+		$conn = \mysql_connect($server, $username, $password, $new_link, $client_flags);
+	}
+	else
+	{
+		if (!function_exists('mysql_pconnect'))
+		{
+			throw new RuntimeException('Undefined function mysql_pconnect');
+		}
+		$conn = \mysql_pconnect($server, $username, $password, $client_flags);
+	}
 	error_reporting($level);
 
 	// Throw exception if there was a connection error
 	if ($conn === false)
 	{
-		throw new RuntimeException(mysql_error(), mysql_errno());
+		list($error, $errno) = (function_exists('mysql_error') && function_exists('mysql_errno'))
+			? [\mysql_error(), \mysql_errno()]
+			: ['mysql connection error', 0];
+		throw new RuntimeException($error, $errno);
 	}
 
 	// Select database
-	if (isset($params['dbname']))
+	if (isset($params['dbname']) && function_exists('mysql_select_db'))
 	{
-		mysql_select_db($params['dbname'], $conn);
+		\mysql_select_db($params['dbname'], $conn);
 	}
 
 	// Return link identifier resource

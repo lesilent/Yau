@@ -105,11 +105,11 @@ protected $data;
 protected $xml;
 
 /**
- * The data
+ * The options
  *
  * @var array
  */
-private $config = [];
+private $options = [];
 
 /**
  * Cache of system host information
@@ -161,12 +161,12 @@ private static $JSON_PATTERN = '/^\s*{.+}\s*$/s';
  *
  * Connection options:
  * <pre>
- * - hostname string  the name of the host as defined in systems area
- * - weight   integer the connection weight of the host; default will be 1
- * - port     integer optional port number to use to connect to host if other
- *                    than default
- * - default  string  define a connection as being the default
- * - disabled string  if set, then connection to system is temporarily disabled
+ * - hostname string the name of the host as defined in systems area
+ * - weight   int    the connection weight of the host; default will be 1
+ * - port     int    optional port number to use to connect to host if other
+ *                   than default
+ * - default  string define a connection as being the default
+ * - disabled string if set, then connection to system is temporarily disabled
  * </pre>
  *
  * @param mixed $cfg     either the path to the config file or a config XML
@@ -195,7 +195,7 @@ public function __construct($cfg, array $options = [])
 	}
 
 	// If cfg is a filename, then get contents
-	$filename = false;
+	$filename = null;
 	if (file_exists($cfg))
 	{
 		$cfg = file_get_contents($filename = $cfg);
@@ -252,8 +252,9 @@ public function __construct($cfg, array $options = [])
 	}
 	else
 	{
-		throw new InvalidArgumentException('Invalid config passed ' . (isset($filename) ? " $filename" : ''));
+		throw new InvalidArgumentException('Invalid config passed ' . ($filename ?? ''));
 	}
+	$this->options = $options;
 }
 
 /**
@@ -438,6 +439,7 @@ public function fetchAll($database, array $options = [])
 
 	// Form a list of paths used to search for a connection
 	$need_connection = false;
+	$callback = fn($row) => !empty($row);
 	if (isset($options['system']))
 	{
 		// Need a connection if a system option was passed
@@ -457,6 +459,7 @@ public function fetchAll($database, array $options = [])
 
 	// Search for connections using the path
 	$conn_info = [];
+	$arr_weights = [];
 	if ($need_connection)
 	{
 		$connections = (isset($this->xml))
@@ -475,7 +478,6 @@ public function fetchAll($database, array $options = [])
 		}
 
 		// Form an array of connection weights to aid in sorting
-		$arr_weights = [];
 		shuffle($connections);
 		foreach ($connections as $i => $connection)
 		{
@@ -1060,4 +1062,3 @@ public static function isValidFile($filename, &$error = null)
 
 /*=======================================================*/
 }
-

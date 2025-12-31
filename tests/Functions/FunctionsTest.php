@@ -137,7 +137,7 @@ public function mathLcmProvider(): array
 
 /**
  * @param array $numbers
- * @param integer $expected
+ * @param int $expected
  * @dataProvider mathLcmProvider
  */
 public function test_math_lcm(array $numbers, int $expected): void
@@ -160,9 +160,8 @@ public function test_numcmp(): void
 public function test_temp_filename(): void
 {
 	$fname = Functions::temp_filename('test');
-	$this->assertString($fname);
+	$this->assertIsString($fname);
 	$this->assertTrue(is_writable($fname));
-	echo $fname;
 }
 
 /*=======================================================*/

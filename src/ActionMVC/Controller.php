@@ -246,7 +246,9 @@ public function getFileName(string $type, string $name = 'default'): string
  *
  * @param string $type the type of object to return
  * @param string $name name of object to return
- * @return object
+ * @return mixed
+ * @throws InvalidArgumentException if invalid object type or name
+ * @throws RuntimeException if unable to load class
  */
 public function get(string $type, string $name = 'default')
 {
@@ -364,12 +366,12 @@ public function set(string $type, ...$args): void
 }
 
 /**
-* Return whether an object already exists or not
-*
-* @param string $type
-* @param string $name
-* @return bool
-*/
+ * Return whether an object already exists or not
+ *
+ * @param string $type
+ * @param string $name
+ * @return bool
+ */
 public function exists(string $type, string $name = 'default'): bool
 {
 	$class_name = $this->getClassName($type, $name);
@@ -377,10 +379,10 @@ public function exists(string $type, string $name = 'default'): bool
 }
 
 /**
-* Set the name of the variable used for actions
-*
-* @param string
-*/
+ * Set the name of the variable used for actions
+ *
+ * @param string $name
+ */
 public function setActionName(string $name): void
 {
 	$this->actionName = $name;
@@ -444,7 +446,7 @@ public function getActionUrl(?string $action = null, array $params = []): string
 
 	// Else return path without router
 	$params = (empty($action) ? [] : [$this->getActionName()=>$action]) + $params;
-	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params));
+	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params, '', null, PHP_QUERY_RFC3986));
 }
 
 /**

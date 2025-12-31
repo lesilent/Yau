@@ -18,8 +18,8 @@ class Dblib extends Pdo
 * Execute a statement and return the number of affected rows
 *
 * @param string $stmt the SQL statement to execute
-* @param array  $params optional array of values to bind to query
-* @return integer the number of rows affected, or FALSE on error
+* @param array $params optional array of values to bind to query
+* @return int the number of rows affected, or FALSE on error
 */
 public function exec($stmt, array $params = [])
 {

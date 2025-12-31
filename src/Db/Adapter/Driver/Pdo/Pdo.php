@@ -18,8 +18,8 @@ class Pdo extends AbstractDriver
  * Execute a statement and return the number of affected rows
  *
  * @param string $stmt the SQL statement to execute
- * @param array  $params optional array of values to bind to query
- * @return integer the number of rows affected, or FALSE on error
+ * @param array $params optional array of values to bind to query
+ * @return int the number of rows affected, or FALSE on error
  */
 public function exec($stmt, array $params = [])
 {
@@ -75,7 +75,7 @@ public function rollBack()
  *
  * @return bool
  */
-public function inTransaction():bool
+public function inTransaction(): bool
 {
 	return (method_exists($this->dbh, 'inTransaction'))
 		? $this->dbh->inTransaction()

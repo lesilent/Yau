@@ -96,17 +96,14 @@ private $options = [
  * </code>
  *
  * @param string $filename the path to the process id file
- * @param array  $options {
- *     @var integer $chmod the permission of the process id file to set to;
- *                            default is 0664
- *     @var integer $max_process_time the maximum time for a process in seconds. If a
- *                            process exceeds this time, then it will be killed.
- *                            The default is one hour.
- *     @var mixed  $max_time_func the callback function to call when a process
- *                            exceeds the maximum time
- *     @var bool   $include_hostname include host name in pid file
- * } optional associative array of options
- * @throws Exception if there's an error with the arguments
+ * @param array $options {
+ *     @type int $chmod the permission of the process id file to set to; default is 0664
+ *     @type int $max_process_time the maximum time for a process in seconds. If a process exceeds this time, then it will be killed. The default is one hour.
+ *     @type mixed $max_time_func the callback function to call when a process exceeds the maximum time
+ *     @type bool $include_hostname include host name in pid file
+ * }
+ * @throws InvalidArgumentException if there's an error with the arguments
+ * @throws RuntimeException if file or directory isn't writable
  */
 public function __construct($filename, array $options = [])
 {
@@ -158,7 +155,7 @@ public function __construct($filename, array $options = [])
  *
  * @return string
  */
-private function getMyKey():string
+private function getMyKey(): string
 {
 	return strval(getmypid()) . ($this->options['include_hostname'] ? '|' . gethostname() : '');
 }
@@ -167,10 +164,10 @@ private function getMyKey():string
  * Check whether file key matches current process and host
  *
  * @param string $value
- * @param array  $matches reference to variable to hold matches
+ * @param array $matches reference to variable to hold matches
  * @return bool
  */
-private function isMyKey($value, &$matches = []):bool
+private function isMyKey($value, &$matches = []): bool
 {
 	return (preg_match('/^(\d{1,20})(?:\|(.+))?$/', $value, $matches)
 		&& $matches[1] == getmypid()
@@ -184,9 +181,8 @@ private function isMyKey($value, &$matches = []):bool
  * a process file that was defined in the constructor.
  *
  * @return bool true if acquisition was successful, otherwise false
- * @throws Exception if process id file cannot be created
  */
-public function acquire():bool
+public function acquire(): bool
 {
 	clearstatcache();
 
@@ -306,7 +302,7 @@ public function acquire():bool
 *
 * @return bool true if process file was successfully released, or false if not
 */
-public function release():bool
+public function release(): bool
 {
 	// Return true if process file does not exist
 	if (!file_exists($this->pidfile))
@@ -349,7 +345,7 @@ public function release():bool
  *
  * @return bool true if update was successful, or false if not
  */
-public function keepAlive():bool
+public function keepAlive(): bool
 {
 	// Variable to store result
 	$result = false;

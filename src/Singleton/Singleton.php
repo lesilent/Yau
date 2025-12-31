@@ -47,7 +47,7 @@ private static $instances = [];
  * @param string $name the name of the class to return an instance of;
  *                      required for PHP versions older than 5.3.0
  * @return object
- * @throws Exception if name is not a valid class
+ * @throws InvalidArgumentException if name is not a valid class
  */
 public static function getInstance(?string $name = null)
 {

@@ -34,7 +34,7 @@ abstract class Sql
  * @param array  $values
  * @return string
  */
-public static function buildInPredicate($column, array $values):string
+public static function buildInPredicate($column, array $values): string
 {
 	return $column . ' IN (?' . str_repeat(', ?', count($values) - 1) . ')';
 }
@@ -59,7 +59,7 @@ public static function buildInPredicate($column, array $values):string
  * @param array  $values
  * @return string
  */
-public static function buildNotInPredicate($column, array $values):string
+public static function buildNotInPredicate($column, array $values): string
 {
 	return $column . ' NOT IN (?' . str_repeat(', ?', count($values) - 1) . ')';
 }
@@ -89,7 +89,7 @@ public static function buildNotInPredicate($column, array $values):string
  *                     WHERE clause
  * @return string
  */
-public static function buildWhereClause($where):string
+public static function buildWhereClause($where): string
 {
 	return ' WHERE ' . (is_array($where)
 		? implode(' = ? AND ', array_keys($where)) . ' = ?'
@@ -115,7 +115,7 @@ public static function buildWhereClause($where):string
  * @param array  $values
  * @return string
  */
-public static function buildWhereInClause($column, array $values):string
+public static function buildWhereInClause($column, array $values): string
 {
 	return ' WHERE ' . self::buildInPredicate($column, $values);
 }
@@ -131,7 +131,7 @@ public static function buildWhereInClause($column, array $values):string
  * @return string  the SELECT statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildSelectStatement($columns, $table, $where):string
+public static function buildSelectStatement($columns, $table, $where): string
 {
 	// Determine which columns to select
 	if (empty($columns))
@@ -176,7 +176,7 @@ public static function buildSelectStatement($columns, $table, $where):string
  * @param  array  $params associative array of parameters
  * @return string the INSERT statement with placeholders
  */
-public static function buildInsertStatement($table, array $params):string
+public static function buildInsertStatement($table, array $params): string
 {
 	return 'INSERT INTO ' . $table
 		. ' (' . implode(', ', array_keys($params)) . ')'
@@ -214,7 +214,7 @@ public static function buildInsertStatement($table, array $params):string
  * @return string the UPDATE statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildUpdateStatement($table, array $params, $where):string
+public static function buildUpdateStatement($table, array $params, $where): string
 {
 	return 'UPDATE ' . $table
 		. ' SET ' . implode(' = ?,', array_keys($params)) . ' = ?'
@@ -247,7 +247,7 @@ public static function buildUpdateStatement($table, array $params, $where):strin
  * @return string the DELETE statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildDeleteStatement($table, $where):string
+public static function buildDeleteStatement($table, $where): string
 {
 	return 'DELETE FROM ' . $table . self::buildWhereClause($where);
 }
@@ -272,7 +272,7 @@ public static function buildDeleteStatement($table, $where):string
  * @return string a SQL statement with values in it
  * @throws Exception if escape function is not callable
  */
-public static function replacePlaceholders($stmt, array $params = [], $escape = 'addslashes'):string
+public static function replacePlaceholders($stmt, array $params = [], $escape = 'addslashes'): string
 {
 	// Variable to store where place placeholder replacement was
 	$offset = 0;

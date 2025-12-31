@@ -7,7 +7,7 @@ use Yau\Db\Connect\Driver\Pear\Pear;
 use RuntimeException;
 
 // Load PEAR DB
-if (!class_exists('\DB', false)	&& ($path = Pear::getPath()))
+if (!class_exists('DB', false)	&& ($path = Pear::getPath()))
 {
 	require Pear::getPath() . DIRECTORY_SEPARATOR . 'DB.php';
 }
@@ -50,6 +50,10 @@ public static function connect($params)
 	$options = [];
 
 	// Connect to database
+	if (!class_exists('DB'))
+	{
+		throw new RuntimeException('No PEAR DB loaded');
+	}
 	$dbh = \DB::connect($dsn, $options);
 
 	// Throw exception if it's an error

@@ -29,7 +29,7 @@ const PATTERN = '/^https?:\/\/[\w\-]+\.\w+/i';
  * @param mixed $value the value to check
  * @return bool true if check passes, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (filter_var($value, FILTER_VALIDATE_URL)
 		&& preg_match(self::PATTERN, $value)

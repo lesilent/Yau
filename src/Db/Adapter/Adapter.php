@@ -33,9 +33,8 @@ abstract class Adapter
  * <li>PEAR_DB_MYSQL
  * </ul>
  *
- * @param  mixed  $dbh either a database object or resource
- * @return string the database driver name, or false if unable to determine
- *                driver
+ * @param mixed $dbh either a database object or resource
+ * @return string|false the database driver name, or false if unable to determine driver
  */
 public static function getDriver($dbh)
 {
@@ -121,13 +120,12 @@ public static function getDriver($dbh)
 }
 
 /**
-* Return an instance of object using the factory design pattern
-*
-* @param  mixed  $dbh a database handler object or resource
-* @return object a Adapter object
-* @throws Exception if invalid driver or unable to find driver to use for
-*                   database handler object or resource
-*/
+ * Return an instance of object using the factory design pattern
+ *
+ * @param mixed $dbh a database handler object or resource
+ * @return object a Adapter object
+ * @throws UnexpectedValueException if invalid driver or unable to find driver to use for database handler object or resource
+ */
 public static function factory($dbh)
 {
 	// Return back object if already a Adapter object
@@ -154,11 +152,11 @@ public static function factory($dbh)
 }
 
 /**
-* Return a list of available drivers
-*
-* @return array
-*/
-public static function getAvailableDrivers()
+ * Return a list of available drivers
+ *
+ * @return array
+ */
+public static function getAvailableDrivers(): array
 {
 	// Create iterator for main driver directories
 	$driver_iterator = new CallbackFilterIterator(new FilesystemIterator(__DIR__ . DIRECTORY_SEPARATOR . 'Driver'), fn($current) => $current->isDir());

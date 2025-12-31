@@ -28,7 +28,7 @@ const PATTERN = '/^(9\d\d)\-?([78]\d)\-?(\d{4})$/';
  * @param string $value the value to check
  * @return bool true if check passes, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (bool) preg_match(self::PATTERN, $value);
 }

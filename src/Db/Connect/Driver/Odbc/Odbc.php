@@ -21,7 +21,7 @@ class Odbc implements DriverInterface
  * @param array $params associative array containing the information
  *                      for connecting to the database
  * @return resource a ODBC link identifier resource
- * @throws Exception if unable to connect to database successfully
+ * @throws RuntimeException if unable to connect to database successfully
  * @see odbc_connect()
  * @see odbc_pconnect()
  * @link http://www.php.net/manual/en/function.odbc-connect.php
@@ -45,7 +45,7 @@ public static function connect($params)
 	// Throw exception if there was a connection error
 	if ($conn === false)
 	{
-		throw new RuntimeException(odbc_error(), odbc_errormsg());
+		throw new RuntimeException(odbc_errormsg(), (int) odbc_error());
 	}
 
 	// Return link identifier resource

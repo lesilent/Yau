@@ -34,18 +34,21 @@ protected $paths = [];
  * Constructor for returning an include path object
  *
  * @param mixed $paths either an array of paths, or the include path string to search for file
- * @param array $use_include_path true to also add the paths from the include path
+ * @param bool $use_include_path true to also add the paths from the include path
  */
-public function __construct($paths = [], $use_include_path = false)
+public function __construct($paths = [], bool $use_include_path = false)
 {
 	// Add paths
-	if (is_string($paths))
+	if (!empty($paths))
 	{
-		$paths = explode(PATH_SEPARATOR, $paths);
-	}
-	foreach ($paths as $path)
-	{
-		$this->addPath($path);
+		if (is_string($paths))
+		{
+			$paths = explode(PATH_SEPARATOR, $paths);
+		}
+		foreach ($paths as $path)
+		{
+			$this->addPath($path);
+		}
 	}
 
 	// Store paths from the current include path
@@ -75,7 +78,7 @@ public function __construct($paths = [], $use_include_path = false)
  *
  * @param string $path the path to add
  */
-public function addPath($path)
+public function addPath(string $path)
 {
 	$this->paths[rtrim($path, DIRECTORY_SEPARATOR)] = true;
 }
@@ -97,7 +100,7 @@ public function addPath($path)
  *
  * @param string $path the path to remove
  */
-public function removePath($path)
+public function removePath(string $path)
 {
 	unset($this->paths[$path]);
 }
@@ -130,7 +133,7 @@ public function removePath($path)
  *
  * @return array the current include paths in the object
  */
-public function getPaths():array
+public function getPaths(): array
 {
 	return array_keys($this->paths);
 }
@@ -141,7 +144,7 @@ public function getPaths():array
  * @param string $filename
  * @return bool
  */
-public function fileExists($filename):bool
+public function fileExists(string $filename): bool
 {
 	return (($filename = $this->findFile($filename)) !== false);
 }
@@ -160,7 +163,7 @@ public function fileExists($filename):bool
  * @param string $filename the file to include
  * @return mixed the return value from the include file, or false if error
  */
-public function includeFile($filename)
+public function includeFile(string $filename)
 {
 	return (($filename = $this->findFile($filename)) !== false)
 		? include($filename)
@@ -179,9 +182,9 @@ public function includeFile($filename)
  * </code>
  *
  * @param string $filename the file to require
- * @return mixed  the return value from the required file, or FALSE if error
+ * @return mixed the return value from the required file, or false if error
  */
-public function requireFile($filename)
+public function requireFile(string $filename)
 {
 	return (($filename = $this->findFile($filename)) !== false)
 		? require($filename)
@@ -199,10 +202,10 @@ public function requireFile($filename)
  * $incpath->includeOnceFile('templates/page.inc');
  * </code>
  *
- * @param string $filename         the file to include once
- * @return mixed  the return value from the include file, or FALSE if error
+ * @param string $filename the file to include once
+ * @return mixed the return value from the include file, or false if error
  */
-public function includeOnceFile($filename)
+public function includeOnceFile(string $filename)
 {
 	return (($filename = $this->findFile($filename)) !== false)
 		? include_once($filename)
@@ -220,10 +223,10 @@ public function includeOnceFile($filename)
  * $incpath->requireOnceFile('templates/page.inc');
  * </code>
  *
- * @param string $filename         the file to require once
- * @return mixed  the return value from the required file, or false if error
+ * @param string $filename the file to require once
+ * @return mixed the return value from the required file, or false if error
  */
-public function requireOnceFile($filename)
+public function requireOnceFile(string $filename)
 {
 	return (($filename = $this->findFile($filename)) !== false)
 		? require_once($filename)
@@ -235,7 +238,7 @@ public function requireOnceFile($filename)
  *
  * @uses IncludePath::getFullPath()
  */
-private function findFile($filename)
+private function findFile(string $filename)
 {
 	return self::getFullPath($filename, $this->getPaths());
 }
@@ -250,15 +253,15 @@ private function findFile($filename)
 * $paths = new IncludePath();
 *
 * // Add paths
-* $paths->add('/home/users/john/include');
-* $paths->add('/home/users/jane/include');
+* $paths->addPath('/home/users/john/include');
+* $paths->addPath('/home/users/jane/include');
 *
 * echo $paths;
 * </code>
 *
-* @ return string
+* @return string
 */
-public function __toString()
+public function __toString(): string
 {
 	return implode(PATH_SEPARATOR, array_keys($this->paths));
 }
@@ -279,7 +282,7 @@ public function __toString()
  * @param string $path the path to add to the current include path
  * @return string the previous include path or false on failure
  */
-public static function add($path)
+public static function add(string $path): string
 {
 	// Add path to current include paths
 	$incpath = get_include_path();
@@ -310,7 +313,7 @@ public static function add($path)
  * @param string $path the path to remove from the current include path
  * @return string the previous include path or false on failure
  */
-public static function remove($path)
+public static function remove(string $path): string
 {
 	// Add path to current include paths
 	$incpath = get_include_path();
@@ -340,11 +343,11 @@ public static function remove($path)
  * </code>
  *
  * @param string $filename the file to the find the path for
- * @param array  $paths    array of paths to search for file; if omitted,
- *                           then the current include path will be searched
+ * @param array $paths array of paths to search for file; if omitted,
+ *                     then the current include path will be searched
  * @return string the absolute path to the file, or false if not found
  */
-public static function getFullPath($filename, $paths = null)
+public static function getFullPath(string $filename, array $paths = [])
 {
 	// If first character is directory separator, then absolute path
 	if ($filename[0] == DIRECTORY_SEPARATOR)

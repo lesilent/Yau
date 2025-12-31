@@ -5,8 +5,8 @@ namespace Yau\Functions;
 /**
  * Filter elements of an array using a callback function against the keys
  *
- * @param array $input    the array to iterate over
- * @param array $callback the callback function to use
+ * @param array $input the array to iterate over
+ * @param mixed $callback the callback function to use
  * @return array
  * @todo remove first ternary operation when we upgrade to PHP8 since callback can be null
  */

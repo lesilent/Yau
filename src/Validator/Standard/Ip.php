@@ -27,7 +27,7 @@ const PATTERN = '/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/';
  * @param mixed $value the value to check
  * @return bool true if check passes, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (preg_match(self::PATTERN, $value, $match)
 		&& strcmp($match[1], '256') < 0

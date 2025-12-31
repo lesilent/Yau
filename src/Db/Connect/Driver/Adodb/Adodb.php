@@ -7,20 +7,20 @@ use InvalidArgumentException;
 use RuntimeException;
 
 /**
-* Class for connecting to a database using ADOdb
-*
-* @author John Yau
-*/
+ * Class for connecting to a database using ADOdb
+ *
+ * @author John Yau
+ */
 class Adodb implements DriverInterface
 {
 /*=======================================================*/
 
 /**
-* Form a ADOdb DSN string based on parameters
-*
-* @param  array  $params associative array of database connection information
-* @return string the DSN string used by ADOdb to connect
-*/
+ * Form a ADOdb DSN string based on parameters
+ *
+ * @param  array  $params associative array of database connection information
+ * @return string the DSN string used by ADOdb to connect
+ */
 protected static function buildDSN($params)
 {
 	// Check driver
@@ -79,10 +79,14 @@ public static function connect($params)
 	$dsn = self::buildDSN($params);
 
 	// Form ADOdb object
+	if (!function_exists('NewADOConnection'))
+	{
+		throw new RuntimeException('Unable to load NewADOConnection');
+	}
 	$dbh = NewADOConnection($dsn);
 	if ($dbh === false)
 	{
-		throw new RuntimeException('Unable to connect to ' . $hostname);
+		throw new RuntimeException('Unable to connect to ' . $params['hostname']);
 	}
 
 	// Return ADOdb object

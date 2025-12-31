@@ -16,7 +16,7 @@ abstract class AbstractAdapter implements CacheInterface
 /**
  * Hash algorithm for keys
  *
- * @var array|bool
+ * @var string
  */
 protected $algo = 'md5';
 
@@ -30,7 +30,9 @@ protected $encoding = 'serialize';
 /**
  * Constructor
  *
- * @param array $params
+ * @param array $params {
+ *     @type string $algo hashing algorithm for keys
+ * }
  * @throws InvalidArgumentException
  */
 public function __construct(array $params = [])
@@ -59,7 +61,7 @@ public function __construct(array $params = [])
  * @param string $key
  * @return string
  */
-protected function hashKey($key):string
+protected function hashKey($key): string
 {
 	return empty($this->algo) ? $key : hash($this->algo, $key);
 }
@@ -70,7 +72,7 @@ protected function hashKey($key):string
  * @param mixed $value
  * @return string
  */
-protected function encodeValue($value):string
+protected function encodeValue($value): string
 {
 	switch ($this->encoding)
 	{
@@ -136,7 +138,7 @@ abstract public function get($key, $default = null);
  * Store a value in the cache
  *
  * @param string $key
- * @param mixed $default
+ * @param mixed $value
  * @param null|int|DateInterval $ttl
  * @return bool
  */
@@ -211,7 +213,7 @@ public function deleteMultiple($keys)
  * @param string $key
  * @return bool
  */
-abstract public function has($key);
+abstract public function has($key): bool;
 
 /*=======================================================*/
 }

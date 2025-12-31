@@ -3,7 +3,6 @@
 namespace Yau\Cache\Adapter;
 
 use Yau\Cache\Adapter\AbstractAdapter;
-use InvalidArgumentException;
 
 /**
  * Cache that uses file system
@@ -15,7 +14,7 @@ class ArrayAdapter extends AbstractAdapter
 /**
  * Array to store cache items
  *
- * @var string
+ * @var array
  */
 private $items = [];
 
@@ -57,7 +56,7 @@ public function get($key, $default = null)
  * Store a value in the cache
  *
  * @param string $key
- * @param mixed $default
+ * @param mixed $value
  * @param null|int|\DateInterval $ttl
  * @return bool
  */
@@ -97,7 +96,7 @@ public function clear()
  * @param string $key
  * @return bool
  */
-public function has($key)
+public function has($key): bool
 {
 	$key = $this->hashKey($key);
 	if (isset($this->items[$key]))

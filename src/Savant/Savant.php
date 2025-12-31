@@ -197,9 +197,9 @@ public function setTemplate(?string $template)
  * Note: This function uses output buffering in order to grab the output.
  *
  * @param string $template the template to include if other than one
- *                          assigned in the constructor
- * @return string the output from the compiled template, or false if no
- *                template is defined
+ *                         assigned in the constructor
+ * @return string|false the output from the compiled template, or false if no
+ *                      template is defined
  */
 private function parse(?string $template = null)
 {
@@ -242,10 +242,10 @@ private function parse(?string $template = null)
  * Note: This function uses output buffering in order to grab the output.
  * </p
  *
- * @param  string $template  the template to include if other than one assigned
- *                           in the constructor
- * @return string the output from the compiled template, or NULL if no
- *                template is defined
+ * @param string $template the template to include if other than one assigned
+ *                         in the constructor
+ * @return string|false the output from the compiled template, or NULL if no
+ *                      template is defined
  */
 public function fetch(?string $template = null)
 {
@@ -287,8 +287,8 @@ public function fetch(?string $template = null)
  * $tpl->display();
  * </code>
  *
- * @param string $template  the template to include if other than one assigned
- *                          in the constructor
+ * @param string $template the template to include if other than one assigned
+ *                         in the constructor
  */
 public function display(?string $template = null)
 {
@@ -298,11 +298,11 @@ public function display(?string $template = null)
 /**
  * Register a callable function
  *
- * @param mixed  $callback callable function
- * @param string $name     option name for function
+ * @param mixed $callback callable function
+ * @param string $name option name for function
  * @throws InvalidArgumentException if function isn't callable or name is invalid
  */
-public function registerFunction($callback, $name = null):void
+public function registerFunction($callback, $name = null): void
 {
 	// Check function
 	if (!is_callable($callback))
@@ -329,7 +329,7 @@ public function registerFunction($callback, $name = null):void
  * Magic method for handling calls
  *
  * @param string $func
- * @param array  $args
+ * @param array $args
  * @return mixed
  * @throws InvalidArgumentException if invalid function
  */
@@ -360,7 +360,7 @@ public function __call($func, $args)
  * @return string the template output
  * @uses Savant::fetch()
  */
-public function __toString():string
+public function __toString(): string
 {
 	return (string) $this->fetch();
 }

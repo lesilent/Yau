@@ -9,127 +9,127 @@ use InvalidArgumentException;
 use RuntimeException;
 
 /**
-* A class used to ensure that only a single process of a script is running
-*
-* This class uses a database table to ensure that only a single instance of a
-* script is running. This is useful for when crons are running on multiple
-* machines for extra redundancy.
-*
-* Example
-* <code>
-* // Load class
-* use Yau\Mutex\Mutex;
-*
-* // Open database connection
-* $dbh = new PDO('mysql:host=localhost;dbname=test', $user, $pass);
-* $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-*
-* // Instantiate object with max process time of one day
-* $options = ['max_process_time'=>86400];
-* $mutex = Mutex::factory('mysql', $dbh, 'myscript', $options);
-*
-* if ($mutex->acquire())
-* {
-*     // Acquired right to process, so begin processing here
-*
-*     // Release right to process
-*     $mutex->release();
-* }
-* </code>
-*
-* The MySQL table used to support this class requires at least 3 columns:
-* <ul>
-* <li>name - the name of the script or process
-* <li>connection_id - the connection id that currently is running the script
-* <li>update_date - the last update date/time for the connection
-* </ul>
-*
-* Example schema
-* <code>
-* CREATE TABLE yau_mutex (
-*   name varchar(255) NOT NULL default '',
-*   connection_id int unsigned NOT NULL,
-*   update_date timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-*   PRIMARY KEY (name),
-*   KEY mutex_connid_idx (connection_id),
-*   KEY mutex_date_idx (update_date)
-* );
-* </code>
-*
-* Code that uses this module should call release() method when they exit in
-* order to delete the row in the mutex table. This will not only keep the
-* table small, but will also speed up acquisition the next time around.
-*
-* Example of using max_time_func option
-* <code>
-* // Define callback function
-* function notify_admin($seconds)
-* {
-*     $message = 'Processing time was exceeded by ' . $seconds . ' seconds';
-*     mail('admin@mydomain.net', 'Process Error', $message);
-* }
-*
-* // Instantiate object
-* use Yau\Mutex\Mutex;
-*
-* // Open database connection
-* $dbh = new PDO('mysql:host=localhost;dbname=test', $user, $pass);
-* $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-*
-* $options = array('name'=>'myscript', 'max_time_func'=>'notify_admin');
-* $mutex = new Mutex::factory('mysql', $dbh, $options);
-* </code>
-*
-* ChangeLog
-* <ul>
-* </ul>
-*
-* @author John Yau
-*/
+ * A class used to ensure that only a single process of a script is running
+ *
+ * This class uses a database table to ensure that only a single instance of a
+ * script is running. This is useful for when crons are running on multiple
+ * machines for extra redundancy.
+ *
+ * Example
+ * <code>
+ * // Load class
+ * use Yau\Mutex\Mutex;
+ *
+ * // Open database connection
+ * $dbh = new PDO('mysql:host=localhost;dbname=test', $user, $pass);
+ * $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ *
+ * // Instantiate object with max process time of one day
+ * $options = ['max_process_time'=>86400];
+ * $mutex = Mutex::factory('mysql', $dbh, 'myscript', $options);
+ *
+ * if ($mutex->acquire())
+ * {
+ *     // Acquired right to process, so begin processing here
+ *
+ *     // Release right to process
+ *     $mutex->release();
+ * }
+ * </code>
+ *
+ * The MySQL table used to support this class requires at least 3 columns:
+ * <ul>
+ * <li>name - the name of the script or process
+ * <li>connection_id - the connection id that currently is running the script
+ * <li>update_date - the last update date/time for the connection
+ * </ul>
+ *
+ * Example schema
+ * <code>
+ * CREATE TABLE yau_mutex (
+ *   name varchar(255) NOT NULL default '',
+ *   connection_id int unsigned NOT NULL,
+ *   update_date timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+ *   PRIMARY KEY (name),
+ *   KEY mutex_connid_idx (connection_id),
+ *   KEY mutex_date_idx (update_date)
+ * );
+ * </code>
+ *
+ * Code that uses this module should call release() method when they exit in
+ * order to delete the row in the mutex table. This will not only keep the
+ * table small, but will also speed up acquisition the next time around.
+ *
+ * Example of using max_time_func option
+ * <code>
+ * // Define callback function
+ * function notify_admin($seconds)
+ * {
+ *     $message = 'Processing time was exceeded by ' . $seconds . ' seconds';
+ *     mail('admin@mydomain.net', 'Process Error', $message);
+ * }
+ *
+ * // Instantiate object
+ * use Yau\Mutex\Mutex;
+ *
+ * // Open database connection
+ * $dbh = new PDO('mysql:host=localhost;dbname=test', $user, $pass);
+ * $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ *
+ * $options = ['name'=>'myscript', 'max_time_func'=>'notify_admin'];
+ * $mutex = new Mutex::factory('mysql', $dbh, $options);
+ * </code>
+ *
+ * ChangeLog
+ * <ul>
+ * </ul>
+ *
+ * @author John Yau
+ */
 class Mysql implements AdapterInterface
 {
 /*=======================================================*/
 
 /**
-* The mutex name
-*
-* @var string
-*/
+ * The mutex name
+ *
+ * @var string
+ */
 private $name;
 
 /**
-* The database connection
-*
-* @var object
-*/
+ * The database connection
+ *
+ * @var object
+ */
 private $dbh;
 
 /**
-* The mutex table
-*
-* @var string
-*/
+ * The mutex table
+ *
+ * @var string
+ */
 private $table;
 
 /**
-* The current connection id
-*
-* @var integer
-*/
+ * The current connection id
+ *
+ * @var int
+ */
 private $connection_id;
 
 /**
-* The current database user
-*
-* @var string
-*/
+ * The current database user
+ *
+ * @var string
+ */
 private $current_user;
 
 /**
-* Queries used to interact with mutex table
-*
-* @var string
-*/
+ * Queries used to interact with mutex table
+ *
+ * @var string
+ */
 private $select_sql;
 private $insert_sql;
 private $update_sql;
@@ -143,45 +143,45 @@ private $delete_sql;
 private $sql_values = [];
 
 /**
-* Associative array of options for process
-*
-* Options:
-* <pre>
-* - max_process_time  integer the maximum time for a process in seconds. The
-*                             default is 3600, or one hour.
-* - max_time_func     mixed   the callback function to call when a process
-*                             exceeds the maximum process time. The number of
-*                             seconds that was exceeded will be passed to the
-*                             function.
-* - skip_table_check  boolean flag for skipping the initial mutex table check.
-*                             This can improve performance slightly if you're
-*                             confident that the table is set up correctly.
-*                             The default is FALSE.
-* - db_name           string  optional name of the database where the mutex
-*                             table is located; if omitted, then it's the
-*                             current database
-* - table_name        string  the name of the mutex table
-* - name_column       string  optional name of the column in the mutex table
-*                             that represents the mutex name; default is "name"
-* - connid_column     string  optional name of the column in the mutex table
-*                             that represents the connection id; default is
-*                             "connection_id"
-* - timestamp_column  string  optional name of the column in the mutex table
-*                             that represents the timestamp; default is
-*                             "update_date"
-* - timestamp_alias   string  optional name of the alias used to store the
-*                             the current unix timestamp returned by MySQL;
-*                             default is "_timestamp"
-* - updatestamp_alias string  optional name of the alias used to store the
-*                             timestamp column value as a unix timestamp;
-*                             default is "_updatestamp"
-* - max_name_length   integer the maximum allowed length for mutex name,
-*                             anything over this length will be truncated;
-*                             default is 255
-* </pre>
-*
-* @var array
-*/
+ * Associative array of options for process
+ *
+ * Options:
+ * <pre>
+ * - max_process_time  int    the maximum time for a process in seconds. The
+ *                            default is 3600, or one hour.
+ * - max_time_func     mixed  the callback function to call when a process
+ *                            exceeds the maximum process time. The number of
+ *                            seconds that was exceeded will be passed to the
+ *                            function.
+ * - skip_table_check  bool   flag for skipping the initial mutex table check.
+ *                            This can improve performance slightly if you're
+ *                            confident that the table is set up correctly.
+ *                            The default is FALSE.
+ * - db_name           string optional name of the database where the mutex
+ *                            table is located; if omitted, then it's the
+ *                            current database
+ * - table_name        string the name of the mutex table
+ * - name_column       string optional name of the column in the mutex table
+ *                            that represents the mutex name; default is "name"
+ * - connid_column     string optional name of the column in the mutex table
+ *                            that represents the connection id; default is
+ *                            "connection_id"
+ * - timestamp_column  string optional name of the column in the mutex table
+ *                            that represents the timestamp; default is
+ *                            "update_date"
+ * - timestamp_alias   string optional name of the alias used to store the
+ *                            the current unix timestamp returned by MySQL;
+ *                            default is "_timestamp"
+ * - updatestamp_alias string optional name of the alias used to store the
+ *                            timestamp column value as a unix timestamp;
+ *                            default is "_updatestamp"
+ * - max_name_length   int    the maximum allowed length for mutex name,
+ *                            anything over this length will be truncated;
+ *                            default is 255
+ * </pre>
+ *
+ * @var array
+ */
 private $options = [
 	'max_process_time'  => 3600,
 	'max_time_func'     => null,
@@ -212,20 +212,21 @@ private static $REQUIRED_OPTIONS = [
 ];
 
 /**
-* Constructor
-* Options:
-* <pre>
-* - max_process_time integer the maximum time for a process in seconds. If a
-*                            process exceeds this time, then it will be killed.
-*                            The default is one hour.
-* - max_time_func    mixed   the callback function to call when a process
-*                            exceeds the maximum time
-* </pre>
-*
-* @param mixed $dbh     a mysql database connection object or resource
-* @param array $options optional associative array of options
-* @throws Exception if there's an error with the arguments
-*/
+ * Constructor
+ * Options:
+ * <pre>
+ * - max_process_time int the maximum time for a process in seconds. If a
+ *                        process exceeds this time, then it will be killed.
+ *                        The default is one hour.
+ * - max_time_func mixed  the callback function to call when a process
+ *                        exceeds the maximum time
+ * </pre>
+ *
+ * @param mixed $dbh a mysql database connection object or resource
+ * @param array $options optional associative array of options
+ * @throws InvalidArgumentException if there's an error with the arguments
+ * @throws RuntimeException if unable to connect
+ */
 public function __construct($dbh, array $options = [])
 {
 	// Store process options
@@ -301,17 +302,17 @@ public function __construct($dbh, array $options = [])
 }
 
 /**
-* Check mutex table exists and has the required columns
-*
-* @throws Exception if a requirement doesn't exist
-*/
+ * Check mutex table exists and has the required columns
+ *
+ * @throws InvalidArgumentException if a requirement doesn't exist
+ */
 private function checkMutexTable()
 {
 	// Check whether mutex table exists
 	$sql = 'SHOW TABLES'
-	     . (empty($this->options['db_name']) ? '' : ' FROM ' . $this->options['db_name'])
-	     . ' LIKE ?';
-	$table = $this->dbh->getOne($sql, array($this->options['table_name']));
+		. (empty($this->options['db_name']) ? '' : ' FROM ' . $this->options['db_name'])
+		. ' LIKE ?';
+	$table = $this->dbh->getOne($sql, [$this->options['table_name']]);
 	if (empty($table))
 	{
 		throw new InvalidArgumentException('Unable to locate mutex table');
@@ -322,8 +323,7 @@ private function checkMutexTable()
 		. $this->options['table_name'];
 
 	// Fetch column names and types in table
-	$columns = array();
-	$have_keys = FALSE;
+	$columns = [];
 	$sth = $this->dbh->query('SHOW COLUMNS FROM ' . $this->table);
 	while ($row = $sth->fetchAssocRow())
 	{
@@ -332,11 +332,11 @@ private function checkMutexTable()
 	}
 
 	// Check required columns exist
-	$required_columns = array(
+	$required_columns = [
 		'name'      => 'name',
 		'connid'    => 'connection id',
 		'timestamp' => 'timestamp'
-	);
+	];
 	foreach ($required_columns as $prefix => $name)
 	{
 		if (empty($columns[$this->options[$prefix . '_column']]))
@@ -352,7 +352,7 @@ private function checkMutexTable()
 private function prepareQueries()
 {
 	// Prepare main queries
-	$columns = array($this->options['name_column'], $this->options['connid_column'], $this->options['timestamp_column']);
+	$columns = [$this->options['name_column'], $this->options['connid_column'], $this->options['timestamp_column']];
 	$this->insert_sql = 'INSERT IGNORE INTO ' . $this->table
 		. ' (' . implode(', ', $columns) . ')'
 		. ' VALUES (' . str_repeat('?, ', count($columns) - 1) . 'NOW())';
@@ -364,8 +364,8 @@ private function prepareQueries()
 		. ' LIMIT 1';
 
 	$this->delete_sql = 'DELETE FROM ' . $this->table
-	                  . ' WHERE ' . $this->options['name_column'] . ' = ?'
-	                  . ' AND ' . $this->options['connid_column'] . ' = ?';
+		. ' WHERE ' . $this->options['name_column'] . ' = ?'
+		. ' AND ' . $this->options['connid_column'] . ' = ?';
 
 	$this->update_sql = 'UPDATE ' . $this->table
 		. ' SET ' . $this->options['connid_column'] . ' = ?'
@@ -374,25 +374,25 @@ private function prepareQueries()
 		. ' AND ' . $this->options['connid_column'] . ' = ?';
 
 	// Prepare values
-	$this->sql_values = array($this->name, $this->connection_id);
+	$this->sql_values = [$this->name, $this->connection_id];
 }
 
 /**
-* Return the connection id for the MySQL connection
-*
-* @return integer
-*/
+ * Return the connection id for the MySQL connection
+ *
+ * @return int
+ */
 public function getConnectionId()
 {
 	return $this->connection_id;
 }
 
 /**
-* Return whether a connection id currently exists in the MySQL process list
-*
-* @param  integer $connection_id the MySQL connection id
-* @return boolean TRUE if connection exists, or FALSE if not
-*/
+ * Return whether a connection id currently exists in the MySQL process list
+ *
+ * @param int $connection_id the MySQL connection id
+ * @return bool true if connection exists, or false if not
+ */
 protected function connectionExists($connection_id)
 {
 	$sth = $this->dbh->query('SHOW PROCESSLIST');
@@ -401,24 +401,23 @@ protected function connectionExists($connection_id)
 		// Return TRUE if connection id was found
 		if ($row['Id'] == $connection_id)
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	// Return FALSE if connection id not found
-	return FALSE;
+	// Return false if connection id not found
+	return false;
 }
 
 /**
-* Acquire the right to begin processing
-*
-* This acquires the right to process by writing the current process id to
-* a process file that was defined in the constructor.
-*
-* @return boolean true if acquisition was successful, otherwise false
-* @throws Exception
-*/
-public function acquire():bool
+ * Acquire the right to begin processing
+ *
+ * This acquires the right to process by writing the current process id to
+ * a process file that was defined in the constructor.
+ *
+ * @return bool true if acquisition was successful, otherwise false
+ */
+public function acquire(): bool
 {
 	// Attempt to make acquisition
 	if ($this->dbh->exec($this->insert_sql, $this->sql_values))
@@ -440,11 +439,11 @@ public function acquire():bool
 	$connid = $row[$this->options['connid_column']];
 	if ($connid == $this->connection_id)
 	{
-		return TRUE;
+		return true;
 	}
 
 	// Prepare update values
-	$update_values = array($this->connection_id, $this->name, $connid);
+	$update_values = [$this->connection_id, $this->name, $connid];
 
 	// If other connection doesn't exist, then go ahead and update/insert record to current id
 	if (!$this->connectionExists($connid))
@@ -452,11 +451,11 @@ public function acquire():bool
 		if ($this->dbh->exec($this->update_sql, $update_values) > 0
 			|| $this->dbh->exec($this->insert_sql, $this->sql_values) > 0)
 		{
-			return TRUE;
+			return true;
 		}
 		trigger_error('Possibly missing privileges to UPDATE '
 			. $this->table . ' by ' . $this->current_user);
-		return FALSE;
+		return false;
 	}
 
 	// Check whether other connection exceeded maximum allowed time
@@ -467,8 +466,8 @@ public function acquire():bool
 			- $this->options['max_process_time'];
 	if ($exceeded_time <= 0)
 	{
-		// Return FALSE if other connection hasn't exceeded its limit
-		return FALSE;
+		// Return false if other connection hasn't exceeded its limit
+		return false;
 	}
 
 	// Kill other connection if it exceeded maximum allowed time
@@ -497,14 +496,14 @@ public function acquire():bool
 }
 
 /**
-* Truncate process file to indicate that processing is done
-*
-* @return bool true if process file was successfully released, or false if not
-*/
-public function release():bool
+ * Truncate process file to indicate that processing is done
+ *
+ * @return bool true if process file was successfully released, or false if not
+ */
+public function release(): bool
 {
 	// Prepare values
-	$values = array($this->name, $this->connection_id);
+	$values = [$this->name, $this->connection_id];
 
 	// Delete record from mutex table
 	if ($this->dbh->exec($this->delete_sql, $this->sql_values) > 0)
@@ -514,16 +513,16 @@ public function release():bool
 
 	// If no rows were deleted, then check whether record is still there
 	// or has a different connection id
-	return (($row = $this->dbh->getRow($this->select_sql, array($this->name))) === false
+	return (($row = $this->dbh->getRow($this->select_sql, [$this->name])) === false
 		|| $row[$this->options['connid_column']] != $this->connection_id);
 }
 
 /**
-* Update timestamp in record to indicate script is still running properly
-*
-* @return bool true if update was sucessful, or false if not
-*/
-public function keepAlive():bool
+ * Update timestamp in record to indicate script is still running properly
+ *
+ * @return bool true if update was sucessful, or false if not
+ */
+public function keepAlive(): bool
 {
 	$values = [$this->connection_id, $this->name, $this->connection_id];
 	return ($this->dbh->exec($this->update_sql, $values) > 0);

@@ -16,14 +16,14 @@ interface AdapterInterface
  *
  * @return bool true if acquisition was successful, otherwise false
  */
-public function acquire():bool;
+public function acquire(): bool;
 
 /**
  * Truncate process file to indicate that processing is done
  *
  * @return bool true if process was successfully released, or false if not
  */
-public function release():bool;
+public function release(): bool;
 
 /**
  * Update mutex with keep alive signal to indicate that script is still running
@@ -34,7 +34,7 @@ public function release():bool;
  *
  * @return bool
  */
-public function keepAlive():bool;
+public function keepAlive(): bool;
 
 /*=======================================================*/
 }

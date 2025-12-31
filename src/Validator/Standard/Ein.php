@@ -28,7 +28,7 @@ const PATTERN = '/^(\d{2})\-?(\d{7})$/';
  * @return bool true if check passes, or false if not
  * @link http://en.wikipedia.org/wiki/Employer_Identification_Number#EIN_format
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (preg_match(self::PATTERN, $value, $matches) && (
 		(strcmp($matches[1], '01') >= 0 && strcmp($matches[1], '06') <= 0)

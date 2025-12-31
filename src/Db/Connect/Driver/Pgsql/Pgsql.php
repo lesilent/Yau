@@ -20,7 +20,6 @@ class Pgsql implements DriverInterface
  *
  * @param array $params associative array containing the information for
  *                      connecting to the database
- * @param bool true to open a persistent connection; default is false
  * @return resource a PostgreSQL link identifier resource
  * @throws RuntimeException if unable to connect to database successfully
  * @see pg_connect()

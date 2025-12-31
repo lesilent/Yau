@@ -78,49 +78,48 @@ public function execute(array $params = [])
 public function fetchAssocRow()
 {
 	// Return false if no results
-	if (is_scalar($this->res) && $this->res == \DB_OK)
+	if (is_scalar($this->res) && $this->res == constant('DB_OK'))
 	{
 		return false;
 	}
 
 	// Else fetch row using fetch mode
-	return $this->res->fetchRow(\DB_FETCHMODE_ASSOC);
+	return $this->res->fetchRow(constant('DB_FETCHMODE_ASSOC'));
 }
 
 /**
 * Fetch a single row from result set as a numeric array
 *
-* @return mixed a row from the result set, or FALSE if there are no more
+* @return mixed a row from the result set, or false if there are no more
 */
 public function fetchNumRow()
 {
-	// Return FALSE if no results
-	if (is_scalar($this->res) && $this->res == \DB_OK)
+	// Return false if no results
+	if (is_scalar($this->res) && $this->res == constant('DB_OK'))
 	{
 		return false;
 	}
 
 	// Else fetch row using fetch mode
-	return $this->res->fetchRow(\DB_FETCHMODE_ORDERED);
+	return $this->res->fetchRow(constant('DB_FETCHMODE_ORDERED'));
 }
 
 /**
  * Fetch all rows from result set
  *
- * @param integer $fetchmode the mode specifying type of results to return
- * @return array an associative array from the result set, or FALSE if no more
+ * @return array an associative array from the result set, or false if no more
  */
 public function fetchAll()
 {
 	// Return false if no results
-	if (is_scalar($this->res) && $this->res == \DB_OK)
+	if (is_scalar($this->res) && $this->res == constant('DB_OK'))
 	{
 		return false;
 	}
 
 	// Return the results
 	$results = [];
-	while ($row = $this->res->fetchRow(\DB_FETCHMODE_ASSOC))
+	while ($row = $this->res->fetchRow(constant('DB_FETCHMODE_ASSOC')))
 	{
 		$results[] = $row;
 	}
@@ -149,13 +148,13 @@ public function freeResult()
 /**
  * Return the number of rows in result
  *
- * @return integer the number of rows in result, or FALSE on failure
+ * @return int the number of rows in result, or false on failure
  * @throws Exception if backend does not support this
  * @uses DB_result::numRows()
  */
 public function numRows()
 {
-	// Return FALSE if no results
+	// Return false if no results
 	if (empty($this->res))
 	{
 		return false;

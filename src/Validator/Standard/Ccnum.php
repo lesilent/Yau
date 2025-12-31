@@ -34,7 +34,7 @@ private static $CARD_PATTERN = [
  * @param string $value the value to check
  * @return bool true if check passes, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	// Do some basic checking
 	$value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
@@ -53,7 +53,7 @@ public function isValid($value):bool
 	for ($i = $card_length - 1; $i >= 0; $i--)
 	{
 		// Extract the next digit and multiply by 1 or 2 on alternative digits
-		$calc = $value[$i] * $j;
+		$calc = intval($value[$i]) * $j;
 
 		// For two digit results, add the individual numbers themselves
 		// (which is the equivalent of subtracting by 9)

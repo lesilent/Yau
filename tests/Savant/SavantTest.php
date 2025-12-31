@@ -14,7 +14,7 @@ class SavantTest extends TestCase
 
 /**
  */
-public function testFetchFalse():void
+public function testFetchFalse(): void
 {
 	$tpl = new Savant();
 	$html = $tpl->fetch();
@@ -23,7 +23,7 @@ public function testFetchFalse():void
 
 /**
  */
-public function testFetchString():void
+public function testFetchString(): void
 {
 	$filename = __DIR__ . DIRECTORY_SEPARATOR . 'template1.php';
 	$contents = file_get_contents($filename);
@@ -46,7 +46,7 @@ public function testFetchString():void
 	$this->assertIsString($html);
 	$this->assertSame($expected, $html);
 
-	$tpl->name = $values['name'] = 'John';
+	$tpl->name = $values['name'] = 'John';  // @phpstan-ignore property.notFound
 	$expected = preg_replace_callback('/<\?=\s*\$(\w+)[^>]+?>/', fn($matches) => $values[$matches[1]] ?? '', $contents);
 	$html2 = $tpl->fetch($filename);
 	$this->assertSame($expected, $html2);
@@ -55,7 +55,7 @@ public function testFetchString():void
 
 /**
  */
-public function testRegisterFunction()
+public function testRegisterFunction(): void
 {
 	$filename = __DIR__ . DIRECTORY_SEPARATOR . 'template2.php';
 	$contents = file_get_contents($filename);
@@ -63,14 +63,14 @@ public function testRegisterFunction()
 	$key = random_bytes(32);
 	$values = ['user_id'=>mt_rand(1000, 9999)];
 	$funcs = ['myhash'=>fn($data) => hash_hmac('sha256', strval($data), $key)];
-	$expected = preg_replace_callback('/<\?=\s*\$(\w+)(?:\->(\w+)\(\s*\$(\w+)\s*\))?[^>]+?>/', function ($matches) use($values, $funcs) {
+	$expected = preg_replace_callback('/<\?=\s*(?:isset\(\$\w+\)\s*\?\s*)?\$(\w+)(?:\->(\w+)\(\$(\w+)(?:\s*\?\?\s*\'(.*?)\')?\s*\)|(?:\s*\?\?\s*\'(.*?)\'\s*))?[^>]+?>/', function ($matches) use($values, $funcs) {
 		if (strcmp($matches[1], 'this') == 0)
 		{
-			return call_user_func($funcs[$matches[2]], $values[$matches[3]]);
+			return call_user_func($funcs[$matches[2]], $values[$matches[3]] ?? $matches[4] ?? '');
 		}
 		elseif (empty($matches[2]))
 		{
-			return $values[$matches[1]] ?? '';
+			return $values[$matches[1]] ?? $matches[5] ?? '';
 		}
 	}, $contents);
 

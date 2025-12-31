@@ -137,20 +137,19 @@ public function prepare($stmt)
 /**
  * Execute a SQL statement and return a result statement object
  *
- * @param  string $query  the SQL query to execute
- * @param  array  $params an array of parameters to bind to the statement
- * @return object a Yau\Db\Statement object, or FALSE on failure
+ * @param string $query the SQL query to execute
+ * @param array $params an array of parameters to bind to the statement
+ * @return object a Yau\Db\Statement object, or false on failure
  * @throws Exception if unable to prepare statement
- * @uses   Yau\Db\AbstractDriver::prepare()
+ * @uses Yau\Db\AbstractDriver::prepare()
  */
 public function query($query, array $params = [])
 {
-	$sth = $this->prepare($query);
-	if (empty($sth))
+	if ($sth = $this->prepare($query))
 	{
-		throw new Exception('Unable to prepare statement: ' . $query);
+		return ($sth->execute($params)) ? $sth : false;
 	}
-	return ($sth->execute($params)) ? $sth : false;
+	throw new Exception('Unable to prepare statement: ' . $query);
 }
 
 //-------------------------------------
@@ -159,9 +158,7 @@ public function query($query, array $params = [])
 /**
  * Execute a SQL statement and return the number of rows affected
  *
- * @param string $stmt
- * @param array  $params
- * @return integer the number of affected rows, or false if error
+ * @return int the number of affected rows, or false if error
  */
 abstract public function exec($stmt, array $params = []);
 
@@ -187,9 +184,9 @@ abstract public function lastInsertId();
  * </code>
  *
  * @param string $query  the SQL query to execute
- * @param array  $params array of values to bind to placeholders
- * @return mixed  the value of the first column from the first row in the
- *                result, or false if there's no data
+ * @param array $params array of values to bind to placeholders
+ * @return mixed the value of the first column from the first row in the
+ *               result, or false if there's no data
  */
 public function getOne($query, array $params = [])
 {
@@ -208,10 +205,10 @@ public function getOne($query, array $params = [])
  * $row = $dbh->fetchRow($query, $params);
  * </code>
  *
- * @param string $query  the SQL query to execute
- * @param array  $params array of values to bind to placeholders
- * @return mixed  the first row of the result with the type depending on the
- *                fetch mode, or false if there's no data or error
+ * @param string $query the SQL query to execute
+ * @param array $params array of values to bind to placeholders
+ * @return mixed the first row of the result with the type depending on the
+ *               fetch mode, or false if there's no data or error
  */
 public function getAssocRow($query, array $params = [])
 {
@@ -230,10 +227,10 @@ public function getAssocRow($query, array $params = [])
  * $row = $dbh->fetchRow($query, $params);
  * </code>
  *
- * @param string $query  the SQL query to execute
- * @param array  $params array of values to bind to placeholders
- * @return mixed  the first row of the result with the type depending on the
- *                fetch mode, or FALSE if there's no data or error
+ * @param string $query the SQL query to execute
+ * @param array $params array of values to bind to placeholders
+ * @return mixed the first row of the result with the type depending on the
+ *               fetch mode, or FALSE if there's no data or error
  */
 public function getNumRow($query, array $params = [])
 {
@@ -245,10 +242,10 @@ public function getNumRow($query, array $params = [])
 /**
  * Alias for getAssocRow method
  *
- * @param string $query  the SQL query to execute
- * @param array  $params array of values to bind to placeholders
- * @return mixed  the first row of the result with the type depending on the
- *                fetch mode, or FALSE if there's no data or error
+ * @param string $query the SQL query to execute
+ * @param array $params array of values to bind to placeholders
+ * @return mixed the first row of the result with the type depending on the
+ *               fetch mode, or FALSE if there's no data or error
  * @uses AbstractDriver::getAssocRow()
  */
 public function getRow($query, array $params = [])
@@ -267,9 +264,8 @@ public function getRow($query, array $params = [])
  * $people = $dbh->fetchAll($query, $params);
  * </code>
  *
- * @param string  $query     the SQL query to execute
- * @param array   $params    optional array of parameters to bind to query
- * @param integer $fetchmode the fetch
+ * @param string $query the SQL query to execute
+ * @param array $params optional array of parameters to bind to query
  * @return array array of results, with the type depending on the fetch mode
  */
 public function getAll($query, array $params = [])
@@ -285,9 +281,9 @@ public function getAll($query, array $params = [])
 /**
  * Wrapper method that allows for easy inserts into a table
  *
- * @param string $table  the name of the table
- * @param array  $params associative array of parameters
- * @return integer number of rows inserted, or false if error
+ * @param string $table the name of the table
+ * @param array $params associative array of parameters
+ * @return int number of rows inserted, or false if error
  * @uses Sql::buildInsertStatement()
  */
 public function insertInto($table, array $params)
@@ -299,10 +295,10 @@ public function insertInto($table, array $params)
 /**
  * Wrapper method that allows for easy updates of rows
  *
- * @param string $table  the name of the table
- * @param array  $params associative array of parameters
- * @param array  $where  associative array of where parameters
- * @return integer integer the number of affected rows, or FALSE if error
+ * @param string $table the name of the table
+ * @param array $params associative array of parameters
+ * @param array $where associative array of where parameters
+ * @return int the number of affected rows, or false if error
  * @uses Yau\Db\Sql::buildUpdateStatement()
  */
 public function updateTable($table, array $params, array $where)
@@ -315,8 +311,8 @@ public function updateTable($table, array $params, array $where)
  * Wrapper method that allows for easy deletion of rows
  *
  * @param string $table the name of the table
- * @param array  $where associative array of where parameters
- * @return integer integer the number of affected rows, or FALSE if error
+ * @param array $where associative array of where parameters
+ * @return int the number of affected rows, or false if error
  * @uses Yau\Db\Sql::buildDeleteStatement()
  */
 public function deleteFrom($table, array $where)
@@ -354,7 +350,7 @@ abstract public function rollBack();
  *
  * @return bool true if a transaction is currently active, or false if not
  */
-public function inTransaction():bool
+public function inTransaction(): bool
 {
 	return $this->transaction;
 }
@@ -375,7 +371,7 @@ abstract public function disconnect();
  * Magic method to route all methods to object
  *
  * @param string $func the object method to call
- * @param array  $args array of arguments for method
+ * @param array $args array of arguments for method
  * @return mixed
  */
 public function __call($func, array $args = [])

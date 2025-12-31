@@ -19,7 +19,7 @@ class Mysql extends Db
 /**
  * Return the id of the last row inserted
  *
- * @return integer the id of the last row inserted, or false
+ * @return int the id of the last row inserted, or false
  */
 public function lastInsertId()
 {
@@ -38,8 +38,8 @@ public function lastInsertId()
  * Wrapper method that allows for easy INSERT IGNORE INTO a table
  *
  * @param string $table the name of the table
- * @param array  $params associative array of parameters
- * @return integer the number of rows affected, or FALSE on error
+ * @param array $params associative array of parameters
+ * @return int the number of rows affected, or FALSE on error
  */
 public function insertIgnoreInto($table, array $params)
 {
@@ -52,8 +52,8 @@ public function insertIgnoreInto($table, array $params)
  * Wrapper method that allows for easy REPLACE INTO a table
  *
  * @param string $table the name of the table
- * @param array  $params associative array of parameters
- * @return integer the number of rows affected, or FALSE on error
+ * @param array $params associative array of parameters
+ * @return int the number of rows affected, or FALSE on error
  */
 public function replaceInto($table, array $params)
 {

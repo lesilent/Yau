@@ -20,7 +20,7 @@ class AdapterTest extends TestCase
 /**
  * @return iterable
  */
-public function adapterProvider():iterable
+public function adapterProvider(): iterable
 {
 	foreach (['crc32b', 'md5', 'sha1', false] as $algo)
 	{
@@ -42,7 +42,7 @@ public function adapterProvider():iterable
  * @param string $key
  * @return iterable
  */
-private function clearGenerator($adapter, $key):iterable
+private function clearGenerator($adapter, $key): iterable
 {
 	yield fn() => $adapter->delete($key);
 	yield fn() => $adapter->clear();
@@ -54,14 +54,14 @@ private function clearGenerator($adapter, $key):iterable
  * @param array $params
  * @dataProvider adapterProvider
  */
-public function testAdapter($driver, $params):void
+public function testAdapter($driver, $params): void
 {
 	$class_name = '\\Yau\\Cache\\Adapter\\' . ucfirst($driver) . 'Adapter';
 	$adapter = new $class_name($params);
 	$this->assertInstanceOf(AbstractAdapter::class, $adapter);
 
 	// Create key and values to test with
-	$key = uniqid('test', !empty($algo));
+	$key = uniqid('test', true);
 	$scalar_value = random_bytes(mt_rand(32, 1024));
 	$test_values = [random_bytes(mt_rand(32, 1024))];
 	if (!empty($params['encoding']))
@@ -112,7 +112,7 @@ public function testAdapter($driver, $params):void
 /**
  * Test chain adapter
  */
-public function testChainAdapter():void
+public function testChainAdapter(): void
 {
 	// Initiate adapters
 	$arr = new ArrayAdapter();
@@ -174,7 +174,7 @@ public function testChainAdapter():void
 /**
  * @return iterable
  */
-public function connectProvider():iterable
+public function connectProvider(): iterable
 {
 	$i = 1;
 	do
@@ -205,7 +205,7 @@ public function connectProvider():iterable
  * @param array $params
  * @dataProvider connectProvider
  */
-public function testDbAdapter($params):void
+public function testDbAdapter($params): void
 {
 	$dbh = Connect::factory('PDO', $params);
 	$this->assertNotFalse($dbh);
@@ -224,7 +224,7 @@ public function testDbAdapter($params):void
 /**
  * Test filesystem adapter
  */
-public function testFilesystemAdapter():void
+public function testFilesystemAdapter(): void
 {
 	$path = tempnam(sys_get_temp_dir(), 'cache');
 	unlink($path);
@@ -246,7 +246,7 @@ public function testFilesystemAdapter():void
 		$value = random_bytes(mt_rand(32, 1024));
 		$this->assertFalse($adapter->has($key));
 		$this->assertTrue($adapter->set($key, $value));
-		$this->assertTrue($adapter->has($key, $value));
+		$this->assertTrue($adapter->has($key));
 	}
 	$adapter->clear();
 	$filecount = 0;
@@ -270,7 +270,7 @@ public function testFilesystemAdapter():void
 		$value = random_bytes(mt_rand(32, 1024));
 		$this->assertFalse($adapter->has($key));
 		$this->assertTrue($adapter->set($key, $value));
-		$this->assertTrue($adapter->has($key, $value));
+		$this->assertTrue($adapter->has($key));
 	}
 	$directory = new \RecursiveDirectoryIterator($path, \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS);
 	$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::LEAVES_ONLY);

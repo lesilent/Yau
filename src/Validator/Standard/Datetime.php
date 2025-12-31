@@ -29,7 +29,7 @@ const PATTERN = '/^(\d{4})\-(0\d|1[0-2])\-([0-2]\d|3[01])\s([01]\d|2[0-3]):([0-5
  * @return bool true if check passes, or false if not
  * @uses checkdate()
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (preg_match(self::PATTERN, $value, $matches)
 		&& checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]));

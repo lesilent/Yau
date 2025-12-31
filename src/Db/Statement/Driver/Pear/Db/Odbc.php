@@ -2,7 +2,7 @@
 
 namespace Yau\Db\Statement\Driver\Pear\Db;
 
-use Yau\Db\Statement\Driver\Pear\Db\Db;
+use Yau\Db\Statement\Driver\Pear\Db;
 
 /**
  * Statement object for use with a PEAR DB object with an ODBC connection

@@ -56,7 +56,7 @@ private static $DB_FIELDS = ['system', 'host', 'name', 'driver', 'dbname', 'user
 
 /**
  */
-public static function setUpBeforeClass():void
+public static function setUpBeforeClass(): void
 {
 	self::$filename = __DIR__ . DIRECTORY_SEPARATOR . self::$XML_FILE;
 	self::$config = new Config(self::$filename);
@@ -65,7 +65,7 @@ public static function setUpBeforeClass():void
 /**
  * @return array
  */
-public function providerConstructorException():array
+public function providerConstructorException(): array
 {
 	return [
 		[null],
@@ -78,7 +78,7 @@ public function providerConstructorException():array
 /**
  * @dataProvider providerConstructorException
  */
-public function testConstructorException($cfg, array $options = []):void
+public function testConstructorException($cfg, array $options = []): void
 {
 	$this->expectException(InvalidArgumentException::class);
 	$config = new Config($cfg, $options);
@@ -87,7 +87,7 @@ public function testConstructorException($cfg, array $options = []):void
 /**
  * @return array
  */
-public function providerConfigFile():array
+public function providerConfigFile(): array
 {
 	return [
 		[__DIR__ . DIRECTORY_SEPARATOR . self::$XML_FILE],
@@ -100,7 +100,7 @@ public function providerConfigFile():array
  *
  * @return string
  */
-private function getRandomString():string
+private function getRandomString(): string
 {
 	return str_replace("\0", '', random_bytes(8));
 }
@@ -109,7 +109,7 @@ private function getRandomString():string
  * @param string $filename
  * @dataProvider providerConfigFile
  */
-public function testIsValidFile($filename):void
+public function testIsValidFile($filename): void
 {
 	$error = null;
 	$this->assertTrue(Config::isValidFile($filename, $error), $error ?? 'Invalid file ' . $filename);
@@ -124,7 +124,7 @@ public function testIsValidFile($filename):void
 
 /**
  */
-public function testIsValidJson():void
+public function testIsValidJson(): void
 {
 	$json = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . self::$JSON_FILE);
 	$error = null;
@@ -143,7 +143,7 @@ public function testIsValidJson():void
 
 /**
  */
-public function testIsValidXml():void
+public function testIsValidXml(): void
 {
 	$xml = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . self::$XML_FILE);
 	$error = null;
@@ -163,7 +163,7 @@ public function testIsValidXml():void
 /**
  * @return iterable
  */
-public function providerConfig():iterable
+public function providerConfig(): iterable
 {
 	foreach ($this->providerConfigFile() as $row)
 	{
@@ -172,10 +172,10 @@ public function providerConfig():iterable
 }
 
 /**
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @dataProvider providerConfig
  */
-public function testFetchAll($config):void
+public function testFetchAll($config): void
 {
 	$result = $config->fetchAll(self::$TEST_DB);
 	$this->assertIsArray($result);
@@ -184,7 +184,7 @@ public function testFetchAll($config):void
 /**
  * @return iterable
  */
-public function providerFetchAllWithOptions():iterable
+public function providerFetchAllWithOptions(): iterable
 {
 	foreach ($this->providerConfigFile() as $row)
 	{
@@ -199,13 +199,13 @@ public function providerFetchAllWithOptions():iterable
 }
 
 /**
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @param string $database
  * @param array  $options
  * @param array  $expected
  * @dataProvider providerFetchAllWithOptions
  */
-public function testFetchAllWithOptions($config, $database, $options, $expected):void
+public function testFetchAllWithOptions($config, $database, $options, $expected): void
 {
 	$result = $config->fetchAll($database, $options);
 	$this->assertIsArray($result);
@@ -219,10 +219,10 @@ public function testFetchAllWithOptions($config, $database, $options, $expected)
 }
 
 /**
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @dataProvider providerConfig
  */
-public function testFetchOne($config):void
+public function testFetchOne($config): void
 {
 	$result = $config->fetchOne(self::$TEST_DB);
 	$this->assertIsArray($result);
@@ -235,7 +235,7 @@ public function testFetchOne($config):void
 /**
  * @return iterable
  */
-public function providerFetchOneWithOptions():iterable
+public function providerFetchOneWithOptions(): iterable
 {
 	foreach ($this->providerConfigFile() as $row)
 	{
@@ -254,13 +254,13 @@ public function providerFetchOneWithOptions():iterable
 }
 
 /**
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @param string $database
  * @param array  $options
  * @param mixed  $expected
  * @dataProvider providerFetchOneWithOptions
  */
-public function testFetchOneWithOptions($config, $database, $options, $expected):void
+public function testFetchOneWithOptions($config, $database, $options, $expected): void
 {
 	$result = $config->fetchOne($database, $options);
 	if (empty($expected))
@@ -281,10 +281,10 @@ public function testFetchOneWithOptions($config, $database, $options, $expected)
 /**
  * Due to weights some systems should appear more frequently than others
  *
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @dataProvider providerConfig
  */
-public function testFetchOneWithWeights($config):void
+public function testFetchOneWithWeights($config): void
 {
 	$counts = array_fill_keys(['replica2', 'replica3', 'replica4'], 0);
 	for ($i = 0; $i < 1000; $i++)
@@ -297,10 +297,10 @@ public function testFetchOneWithWeights($config):void
 }
 
 /**
- * @param Yau\MDBAC\Config $config
+ * @param \Yau\MDBAC\Config $config
  * @dataProvider providerConfig
  */
-public function testQuery($config):void
+public function testQuery($config): void
 {
 	$result = $config->query(self::$TEST_DB);
 	$this->assertInstanceOf(Result::class, $result);

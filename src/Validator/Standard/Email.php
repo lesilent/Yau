@@ -37,7 +37,7 @@ private static $TLDS = [];
  * @return string
  * @link http://data.iana.org/TLD/tlds-alpha-by-domain.txt
  */
-private function getTldDataFile():string
+private function getTldDataFile(): string
 {
 	return dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'tlds-alpha-by-domain.txt';
 }
@@ -45,10 +45,10 @@ private function getTldDataFile():string
 /**
 * Return an associative array of array TLDs
 *
-* @param string $assoc
+* @param bool $assoc
 * @return array
 */
-public function getTlds(bool $assoc = false):array
+public function getTlds(bool $assoc = false): array
 {
 	if (empty(self::$TLDS))
 	{
@@ -71,7 +71,7 @@ public function getTlds(bool $assoc = false):array
  * @param mixed $value the value to check
  * @return bool true if check passes, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (filter_var($value, FILTER_VALIDATE_EMAIL)
 		&& preg_match(self::PATTERN, $value, $matches)

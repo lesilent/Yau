@@ -69,7 +69,7 @@ protected $res;
 /**
  * Constructor
  *
- * @param mixed  $dbh  the database object or resource
+ * @param mixed $dbh the database object or resource
  * @param string $stmt the SQL statement to prepare
  */
 public function __construct($dbh, $stmt)
@@ -92,16 +92,14 @@ public function __destruct()
 /**
  * Prepare an SQL statement
  *
- * @param  string $stmt the SQL statement to prepare
- * @throws Exception if unable to prepare statement
+ * @param string $stmt the SQL statement to prepare
  */
 abstract protected function prepare($stmt);
 
 /**
  * Execute the current prepared statement
  *
- * @param  array $params array of values to bind to prepared statement
- * @throws Exception if error executing statement
+ * @param array $params array of values to bind to prepared statement
  */
 abstract public function execute(array $params = []);
 
@@ -245,7 +243,7 @@ public function numRows()
  * @return integer the number of rows in result set, or FALSE on failure
  * @uses  AbstractDriver::numRows()
  */
-public function count():int
+public function count(): int
 {
 	return $this->numRows();
 }

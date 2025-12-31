@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Yau\Mutex\Mutex;
 use Yau\Mutex\Adapter\File;
 use InvalidArgumentException;
+use Exception;
 
 /**
  * Tests for Yau\Mutex\Mutex
@@ -17,7 +18,7 @@ class MutexTest extends TestCase
 /**
  * Number of microseconds to sleep
  *
- * @var integer
+ * @var int
  */
 private static $SLEEP_TIME = 10000;
 

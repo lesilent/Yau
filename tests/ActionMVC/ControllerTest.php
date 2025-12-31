@@ -18,7 +18,7 @@ class ControllerTest extends TestCase
 
 /**
  */
-public function testController():void
+public function testController(): void
 {
 	$id = uniqid();
 	$controller = new class extends Controller {
@@ -46,7 +46,7 @@ public function testController():void
 
 	$controller->setBasePath(__DIR__);
 	$controller->doAction('default');
-	$this->assertSame('default', $view->title);
+	$this->assertSame('default', $view->title);  // @phpstan-ignore property.notFound
 	$controller->doAction('login');
 	$this->assertSame('login', $view->title);
 

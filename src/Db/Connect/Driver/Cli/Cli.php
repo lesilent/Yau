@@ -20,7 +20,7 @@ class Cli implements DriverInterface
  * @param array $params associative array containing the information for
  *                      connecting to the database
  * @return string the command line for connecting to the database
- * @throws Exception if unable to connect to database successfully
+ * @throws InvalidArgumentException if no drive exists for connection
  */
 public static function connect($params)
 {

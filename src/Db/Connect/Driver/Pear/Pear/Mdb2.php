@@ -7,7 +7,7 @@ use Yau\Db\Connect\Driver\Pear\Pear;
 use RuntimeException;
 
 // Load MDB2
-if (!class_exists('\MDB2', false) && ($path = Pear::getPath()))
+if (!class_exists('MDB2', false) && ($path = Pear::getPath()))
 {
  	require Pear::getPath() . DIRECTORY_SEPARATOR . 'MDB2.php';
 }
@@ -71,11 +71,15 @@ public static function connect($params)
 	}
 
 	// Connect to database
+	if (!class_exists('MDB2'))
+	{
+		throw new RuntimeException('No PEAR MDB2 loaded');
+	}
 	$dbh = \MDB2::connect($dsn, $options);
 
 	// Throw exception if it's an error
 	$ERROR_CLASS = 'PEAR_Error';
-	if ($dbh instanceof $ERROR_CLASS || \PEAR::isError($dbh))
+	if ($dbh instanceof $ERROR_CLASS || (class_exists('PEAR') && \PEAR::isError($dbh)))
 	{
 		throw new RuntimeException($dbh->getMessage(), $dbh->getCode());
 	}

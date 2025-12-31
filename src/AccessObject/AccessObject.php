@@ -59,7 +59,7 @@ protected $undefValue = true;
  *
  * @param mixed $params either an associative array of parameters or an object
  */
-public function __construct(?array $params = [])
+public function __construct(mixed $params = null)
 {
 	if (!empty($params))
 	{
@@ -70,11 +70,11 @@ public function __construct(?array $params = [])
 /**
  * Set the value for a key
  *
- * @param string $key   the name of the registry key
- * @param mixed  $value the value of the parameter
+ * @param string $key the name of the registry key
+ * @param mixed $value the value of the parameter
  * @return object the current object
  */
-public function set($key, $value)
+public function set($key, mixed $value): object
 {
 	$this->registry[$key] = $value;
 	return $this;
@@ -96,11 +96,10 @@ public function get($key)
 /**
  * Assign one or more values to registry
  *
- * @param mixed $params either an associative of values, or an AccessObject
- *                      object
+ * @param mixed $params either an associative of values, or an AccessObject object
  * @return object the current object
  */
-public function assign($params)
+public function assign($params): object
 {
 	// Convert objects to an array
 	if (is_object($params))
@@ -132,14 +131,14 @@ public function assign($params)
 /**
  * Unset or clear one or all values in registry
  *
- * @param string $name the name of template variable to unset
+ * @param string $key the name of template variable to unset
  * @return object the current object
  */
-public function clear($key = null)
+public function clear($key = null): object
 {
 	if (is_null($key))
 	{
-		$this->registry = array();
+		$this->registry = [];
 	}
 	elseif (is_array($key))
 	{
@@ -181,7 +180,7 @@ public function &__get($param)
  * @param string $param the name of the parameter
  * @param mixed  $value the value for the parameter
  */
-public function __set($param, $value)
+public function __set($param, $value): void
 {
 	$this->registry[$param] = $value;
 }
@@ -192,7 +191,7 @@ public function __set($param, $value)
  * @param string $param the name of the parameter
  * @return bool true if parameter is set, or false if not
  */
-public function __isset($param)
+public function __isset($param): bool
 {
 	return isset($this->registry[$param]);
 }
@@ -202,7 +201,7 @@ public function __isset($param)
  *
  * @param string $param the name of the parameter to unset
  */
-public function __unset($param)
+public function __unset($param): void
 {
 	unset($this->registry[$param]);
 }
@@ -213,9 +212,9 @@ public function __unset($param)
 /**
  * Return a count of registry values
  *
- * @return integer the number of registry values
+ * @return int the number of registry values
  */
-public function count():int
+public function count(): int
 {
 	return count($this->registry);
 }
@@ -226,11 +225,11 @@ public function count():int
 /**
  * Returns whether an registry key exists
  *
- * @param string $offet name of registry offset
+ * @param string $offset name of registry offset
  * @return bool true if offset exists, or false otherwise
  * @link http://www.php.net/manual/en/class.arrayaccess.php
  */
-public function offsetExists($offset):bool
+public function offsetExists($offset): bool
 {
 	return isset($this->registry[$offset]);
 }
@@ -253,11 +252,11 @@ public function offsetGet($offset)
 /**
  * Set an registry value
  *
- * @param string $offest name of offset
- * @param mixed  $value  the value associated with offset
+ * @param string $offset name of offset
+ * @param mixed $value the value associated with offset
  * @link http://www.php.net/manual/en/class.arrayaccess.php
  */
-public function offsetSet($offset, $value):void
+public function offsetSet($offset, $value): void
 {
 	$this->registry[$offset] = $value;
 }
@@ -268,7 +267,7 @@ public function offsetSet($offset, $value):void
  * @param string $offset the name of offset
  * @link http://www.php.net/manual/en/class.arrayaccess.php
  */
-public function offsetUnset($offset):void
+public function offsetUnset($offset): void
 {
 	unset($this->registry[$offset]);
 }
@@ -306,12 +305,10 @@ public function key()
 /**
  * Move forward to next element in the registry array
  *
- * @return mixed the registry value in the next position that's pointed by the
- *               internal pointer, or false if there are no more elements
  * @see next()
  * @link http://www.php.net/manual/en/class.iterator.php
  */
-public function next():void
+public function next(): void
 {
 	next($this->registry);
 }
@@ -319,12 +316,10 @@ public function next():void
 /**
  * Rewind the iterator to the first element in the registry
  *
- * @return mixed the value of the first registry element, or false if the
- *               registry is empty
  * @see reset()
  * @link http://www.php.net/manual/en/class.iterator.php
  */
-public function rewind():void
+public function rewind(): void
 {
 	reset($this->registry);
 }
@@ -335,7 +330,7 @@ public function rewind():void
  * @return bool true if there is a current element, or false if there isn't
  * @link http://www.php.net/manual/en/class.iterator.php
  */
-public function valid():bool
+public function valid(): bool
 {
 	return (current($this->registry) !== false);
 }
@@ -348,7 +343,7 @@ public function valid():bool
  *
  * @return array
  */
-public function __serialize():array
+public function __serialize(): array
 {
 	return $this->registry;
 }
@@ -356,7 +351,7 @@ public function __serialize():array
 /**
  * Take associative array of values and store into internal registry
  */
-public function __unserialize(array $data):void
+public function __unserialize(array $data): void
 {
 	$this->registry = $data;
 }
@@ -366,7 +361,7 @@ public function __unserialize(array $data):void
  *
  * @return string
  */
-public function serialize():?string
+public function serialize(): ?string
 {
 	return serialize($this->registry);
 }
@@ -376,7 +371,7 @@ public function serialize():?string
  *
  * @param string $serialized
  */
-public function unserialize($serialized):void
+public function unserialize($serialized): void
 {
 	$this->registry = unserialize($serialized);
 }
@@ -387,9 +382,9 @@ public function unserialize($serialized):void
 /**
  * Sort the registry of values by value
  *
- * @return true
+ * @return bool
  */
-public function asort()
+public function asort(): bool
 {
 	return asort($this->registry);
 }
@@ -397,10 +392,10 @@ public function asort()
 /**
  * Exchange registry array of values for another one
  *
- * @param array $object
+ * @param mixed $params
  * @return array the old array
  */
-public function exchangeArray($params):array
+public function exchangeArray(mixed $params): array
 {
 	$registry = $this->registry;
 	$this->clear();
@@ -413,7 +408,7 @@ public function exchangeArray($params):array
  *
  * @return array
  */
-public function getArrayCopy():array
+public function getArrayCopy(): array
 {
 	return $this->registry;
 }
@@ -421,9 +416,9 @@ public function getArrayCopy():array
 /**
  * Sort the registry of values by key
  *
- * @return true
+ * @return bool
  */
-public function ksort()
+public function ksort(): bool
 {
 	return ksort($this->registry);
 }
@@ -431,9 +426,9 @@ public function ksort()
 /**
  * Sort the registry of values using a case insensitive "natural order" algorithm
  *
- * @return true
+ * @return bool
  */
-public function natcasesort()
+public function natcasesort(): bool
 {
 	return natcasesort($this->registry);
 }
@@ -441,9 +436,9 @@ public function natcasesort()
 /**
  * Sort the registry of values using a "natural order" algorithm
  *
- * @return true
+ * @return bool
  */
-public function natsort()
+public function natsort(): bool
 {
 	return natsort($this->registry);
 }
@@ -455,7 +450,7 @@ public function natsort()
  *
  * @return array
  */
-public function toArray():array
+public function toArray(): array
 {
 	return $this->registry;
 }
@@ -477,10 +472,10 @@ public function toArray():array
  * echo $obj['test'];
  * </code>
  *
- * @param  string $value the value to be returned when key is undefined
- * @throws Exception if value is not considered empty
+ * @param string $value the value to be returned when key is undefined
+ * @throws InvalidArgumentException if value is not considered empty
  */
-public function setUndefinedValue($value):void
+public function setUndefinedValue($value): void
 {
 	if (!empty($value))
 	{

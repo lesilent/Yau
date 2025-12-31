@@ -18,13 +18,13 @@ class Sqlsrv extends Pdo
  * Execute a statement and return the number of affected rows
  *
  * @param string $stmt the SQL statement to execute
- * @param array  $params optional array of values to bind to query
- * @return integer the number of rows affected, or FALSE on error
+ * @param array $params optional array of values to bind to query
+ * @return int the number of rows affected, or false on error
  */
 public function exec($stmt, array $params = [])
 {
-	$SQLSRV_ATTR_DIRECT_QUERY = constant('PDO::SQLSRV_ATTR_DIRECT_QUERY');
-	if (isset($SQLSRV_ATTR_DIRECT_QUERY))
+	if (defined('PDO::SQLSRV_ATTR_DIRECT_QUERY')
+		&& ($SQLSRV_ATTR_DIRECT_QUERY = constant('PDO::SQLSRV_ATTR_DIRECT_QUERY')))
 	{
 		// If not direct query, then we need to enable to properly get rowcount
 		// https://blogs.iis.net/bswan/how-to-change-database-settings-with-the-pdo-sqlsrv-driver
@@ -45,7 +45,7 @@ public function exec($stmt, array $params = [])
 	finally
 	{
 		// Revert back to previous direct query setting
-		if (isset($SQLSRV_ATTR_DIRECT_QUERY) && empty($direct_query))
+		if (!empty($SQLSRV_ATTR_DIRECT_QUERY) && empty($direct_query))
 		{
 			$this->dbh->setAttribute($SQLSRV_ATTR_DIRECT_QUERY, false);
 		}

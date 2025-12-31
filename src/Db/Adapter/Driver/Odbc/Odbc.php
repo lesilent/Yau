@@ -3,7 +3,7 @@
 namespace Yau\Db\Adapter\Driver\Odbc;
 
 use Yau\Db\Adapter\Driver\AbstractDriver;
-use ErrorException;
+use Exception;
 
 /**
  * Database adapter driver for use with ODBC connection resources
@@ -19,7 +19,7 @@ class Odbc extends AbstractDriver
  * Execute a statement and return the number of affected rows
  *
  * @param string $stmt the SQL statement to execute
- * @param array  $params optional array of values to bind to query
+ * @param array $params optional array of values to bind to query
  * @return mixed the value from the first column of the first row of the result
  */
 public function exec($stmt, array $params = [])
@@ -38,7 +38,7 @@ public function exec($stmt, array $params = [])
  */
 public function lastInsertId()
 {
-	throw new ErrorException(__METHOD__ . ' is not supported');
+	throw new Exception(__METHOD__ . ' is not supported');
 }
 
 //-------------------------------------
@@ -78,7 +78,7 @@ public function rollBack()
 /**
  * Disconnect the current connection
  *
- * @return boolean always returns TRUE
+ * @return bool always returns true
  */
 public function disconnect()
 {

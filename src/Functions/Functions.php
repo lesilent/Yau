@@ -21,9 +21,14 @@ use InvalidArgumentException;
  * // $input is now ['age'=>18, 'hair'=>'black'];
  * </code>
  *
- * @param array $arr  the associative array
- * @param array $keys the array of keys to extract from array
- * @return array a slice of the array
+ * @method static array array_filter_key(array $input, $callback = null)
+ * @method static array array_rowsort(array $arr, ...$sort_by)
+ * @method static array array_slice_key(array $arr, array $keys)
+ * @method static bool array_same_values(array $array, array ...$arrays)
+ * @method static bool cidr_match(string $ip, string $mask)
+ * @method static int|false math_lcm(...$numbers)
+ * @method static int numcmp($num1, $num2)
+ * @method static string|false temp_filename(string $prefix = 'yau', ?string $directory = null)
  */
 class Functions
 {
@@ -53,7 +58,7 @@ public static function loadFunction(string $func)
  * Call a static function
  *
  * @param string $func
- * @param array  $args
+ * @param array $args
  * @return mixed
  */
 public static function __callStatic(string $func, array $args)

@@ -27,7 +27,7 @@ const PATTERN = '/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/';
 * @param string $value the value to check
 * @return bool true if check passes, or false if not
 */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	return (bool) preg_match(self::PATTERN, $value, $match);
 }

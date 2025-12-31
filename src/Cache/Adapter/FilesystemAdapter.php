@@ -4,9 +4,6 @@ namespace Yau\Cache\Adapter;
 
 use Yau\Cache\Adapter\AbstractAdapter;
 use InvalidArgumentException;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use FilesystemIterator;
 
 /**
  * Cache that uses file system
@@ -25,14 +22,14 @@ private $path;
 /**
  * Directory depth
  *
- * @var integer
+ * @var int
  */
 private $depth = 0;
 
 /**
  * Directory permissions
  *
- * @var string
+ * @var int
  */
 private $perm = 0777;
 
@@ -79,7 +76,7 @@ public function __construct(array $params = [])
  * @param string $key
  * @return string
  */
-protected function hashKey($key):string
+protected function hashKey($key): string
 {
 	return empty($this->algo)
 		? preg_replace_callback('/\W/', fn($matches) => base_convert(ord($matches[0]), 10, 36), $key)
@@ -130,6 +127,7 @@ protected function decodeValue(string $value)
 public function get($key, $default = null)
 {
 	$is_hit = false;
+	$value = $default;
 	if (($path = $this->getKeyPath($key))
 		&& file_exists($path)
 		&& ($handle = fopen($path, 'r')))
@@ -215,8 +213,8 @@ public function delete($key)
 public function clear()
 {
 	$result = true;
-	$directory = new RecursiveDirectoryIterator($this->path, FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS);
-	$iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::CHILD_FIRST);
+	$directory = new \RecursiveDirectoryIterator($this->path, \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS);
+	$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::CHILD_FIRST);
 	$hash_length = empty($this->algo) ? '1,' : strval(strlen($this->hashKey('')));
 	foreach ($iterator as $finfo)
 	{
@@ -236,7 +234,7 @@ public function clear()
  * @param string $key
  * @return bool
  */
-public function has($key)
+public function has($key): bool
 {
 	$result = false;
 	if (($path = $this->getKeyPath($key))

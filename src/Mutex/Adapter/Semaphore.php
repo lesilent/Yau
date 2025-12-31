@@ -34,9 +34,8 @@ public function __construct($semaphore)
  * Acquire the right to begin processing
  *
  * @return bool true if acquisition was successful, otherwise false
- * @throws Exception
  */
-public function acquire():bool
+public function acquire(): bool
 {
 	return sem_acquire($this->semaphore, true);
 }
@@ -46,7 +45,7 @@ public function acquire():bool
  *
  * @return bool true if process file was successfully released, or false if not
  */
-public function release():bool
+public function release(): bool
 {
 	return sem_release($this->semaphore);
 }
@@ -56,7 +55,7 @@ public function release():bool
  *
  * @return bool this always returns true since this isn't implemented
  */
-public function keepAlive():bool
+public function keepAlive(): bool
 {
 	return true;
 }

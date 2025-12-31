@@ -51,9 +51,9 @@ public static function buildBindString(array $params):string
 /**
  * Execute a statement and return the number of affected rows
  *
- * @param string  $stmt   the SQL statement to execute
- * @param array   $params optional array of values to bind to placeholders
- * @return integer the number of affected rows, or false if error
+ * @param string $stmt the SQL statement to execute
+ * @param array $params optional array of values to bind to placeholders
+ * @return int the number of affected rows, or false if error
  */
 public function exec($stmt, array $params = [])
 {
@@ -147,8 +147,8 @@ public function disconnect()
  * Wrapper method that allows for easy INSERT IGNORE INTO a table
  *
  * @param string $table the name of the table
- * @param array  $params associative array of parameters
- * @return integer the number of rows affected, or false on error
+ * @param array $params associative array of parameters
+ * @return int the number of rows affected, or false on error
  */
 public function insertIgnoreInto($table, array $params)
 {
@@ -161,8 +161,8 @@ public function insertIgnoreInto($table, array $params)
  * Wrapper method that allows for easy REPLACE INTO a table
  *
  * @param string $table the name of the table
- * @param array  $params associative array of parameters
- * @return integer the number of rows affected, or FALSE on error
+ * @param array $params associative array of parameters
+ * @return int the number of rows affected, or false on error
  */
 public function replaceInto($table, array $params)
 {

@@ -23,22 +23,10 @@ class Mysqli extends AbstractDriver
 protected $stmt;
 
 /**
-* Map of fetch modes to fetch methods
-*
-* @var array
-*/
-protected static $FETCH_METHODS = [
-	Util_DB::FETCH_ASSOC  => 'fetch_assoc',
-	Util_DB::FETCH_BOTH   => 'fetch_array',
-	Util_DB::FETCH_NUM    => 'fetch_row',
-	Util_DB::FETCH_OBJECT => 'fetch_object'
-];
-
-/**
  * Prepare statement and store it
  *
  * @param string $stmt the SQL statement to prepare
- * @throws Exception if error preparing statement
+ * @throws RuntimeException if error preparing statement
  */
 protected function prepare($stmt)
 {
@@ -52,10 +40,10 @@ protected function prepare($stmt)
 /**
  * Execute prepared statement with some values
  *
- * @param  array $params array of values to bind to statement
- * @return bool  true if successful, or false on failure
+ * @param array $params array of values to bind to statement
+ * @return bool true if successful, or false on failure
  * @throws RuntimeException if error executing statement
- * @uses   Util_DB_Adapter_MYSQLI::buildBindString()
+ * @uses Adapter::buildBindString()
  */
 public function execute(array $params = [])
 {
@@ -128,7 +116,7 @@ public function freeResult()
 /**
  * Return the number of rows in the result set
  *
- * @return integer the number of rows in the result set, or FALSE on failure
+ * @return int the number of rows in the result set, or FALSE on failure
  */
 public function numRows()
 {
