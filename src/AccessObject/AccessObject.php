@@ -59,7 +59,7 @@ protected $undefValue = true;
  *
  * @param mixed $params either an associative array of parameters or an object
  */
-public function __construct(mixed $params = null)
+public function __construct($params = [])
 {
 	if (!empty($params))
 	{
@@ -74,7 +74,7 @@ public function __construct(mixed $params = null)
  * @param mixed $value the value of the parameter
  * @return object the current object
  */
-public function set($key, mixed $value): object
+public function set($key, $value): object
 {
 	$this->registry[$key] = $value;
 	return $this;

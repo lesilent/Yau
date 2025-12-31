@@ -446,7 +446,7 @@ public function getActionUrl(?string $action = null, array $params = []): string
 
 	// Else return path without router
 	$params = (empty($action) ? [] : [$this->getActionName()=>$action]) + $params;
-	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params, '', null, PHP_QUERY_RFC3986));
+	return $_SERVER['SCRIPT_NAME'] . (empty($params) ? '' : '?' . http_build_query($params, '', ini_get('arg_separator.output'), PHP_QUERY_RFC3986));
 }
 
 /**
