@@ -117,9 +117,9 @@ class Savant extends AccessObject
 /**
  * The current template
  *
- * @var string
+ * @var string|null
  */
-private $template;
+private $template = null;
 
 /**
  * Associative array of registered functions
@@ -165,8 +165,8 @@ public function __construct(?string $template = null)
  * echo $savant->getTemplate();
  * </code>
  *
- * @return string the default file that's been assigned to the current
- *                template, or false if none is currently assigned
+ * @return string|false the default file that's been assigned to the current
+ *                      template, or false if none is currently assigned
  */
 public function getTemplate()
 {
@@ -185,7 +185,7 @@ public function getTemplate()
  * $tpl->setTemplate('index2.tpl.php');
  * </code>
  *
- * @param string $template the path file to assign to the current template
+ * @param string|null $template the path file to assign to the current template
  */
 public function setTemplate(?string $template)
 {
@@ -302,7 +302,7 @@ public function display(?string $template = null)
  * @param string $name option name for function
  * @throws InvalidArgumentException if function isn't callable or name is invalid
  */
-public function registerFunction($callback, $name = null): void
+public function registerFunction($callback, ?string $name = null): void
 {
 	// Check function
 	if (!is_callable($callback))
@@ -313,7 +313,7 @@ public function registerFunction($callback, $name = null): void
 	// Get name of function
 	if (empty($name))
 	{
-		$name = (is_array($name)) ? end($callback) : $callback;
+		$name = (is_array($callback)) ? end($callback) : $callback;
 		$name = array_pop(explode('::', $name));
 	}
 	if (!preg_match('/^[a-z]\w*$/i', $name))

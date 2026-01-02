@@ -20,14 +20,14 @@ class RequestTest extends TestCase
 private static $variables;
 
 /**
- * @var object
+ * @var object|null
  */
 private static $request;
 
 /**
  * @return array
  */
-public static function superProvider():array
+public static function superProvider(): array
 {
 	return [
 		['COOKIE'],
@@ -43,7 +43,7 @@ public static function superProvider():array
 
 /**
  */
-public static function setUpBeforeClass():void
+public static function setUpBeforeClass(): void
 {
 	self::$variables = [];
 	foreach (self::superProvider() as $data)
@@ -59,7 +59,7 @@ public static function setUpBeforeClass():void
 
 /**
  */
-public static function tearDownAfterClass():void
+public static function tearDownAfterClass(): void
 {
 	foreach (self::$variables as $super => $data)
 	{
@@ -74,7 +74,7 @@ public static function tearDownAfterClass():void
  * @param string $super
  * @dataProvider superProvider
  */
-public function testGetter($super):void
+public function testGetter($super): void
 {
 	$request = self::$request;
 	$method = 'get' . $super;

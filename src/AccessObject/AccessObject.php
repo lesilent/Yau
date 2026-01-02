@@ -131,7 +131,7 @@ public function assign($params): object
 /**
  * Unset or clear one or all values in registry
  *
- * @param string $key the name of template variable to unset
+ * @param mixed $key the name of template variable to unset
  * @return object the current object
  */
 public function clear($key = null): object
@@ -486,4 +486,3 @@ public function setUndefinedValue($value): void
 
 /*=======================================================*/
 }
-

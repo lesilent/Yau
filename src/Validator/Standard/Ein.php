@@ -2,7 +2,6 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
@@ -10,7 +9,7 @@ use Yau\Validator\ValidatorInterface;
  *
  * @author John Yau
  */
-class Ein extends Singleton implements ValidatorInterface
+class Ein implements ValidatorInterface
 {
 /*=======================================================*/
 
@@ -24,7 +23,7 @@ const PATTERN = '/^(\d{2})\-?(\d{7})$/';
 /**
  * Check that a value is a valid employer identification number format
  *
- * @param string  $value the value to check
+ * @param string $value the value to check
  * @return bool true if check passes, or false if not
  * @link http://en.wikipedia.org/wiki/Employer_Identification_Number#EIN_format
  */

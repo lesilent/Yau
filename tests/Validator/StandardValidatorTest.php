@@ -26,7 +26,7 @@ class StandardValidatorTest extends TestCase
 
 /**
  */
-public function testsGetAvailableValidators():void
+public function testsGetAvailableValidators(): void
 {
 	$validators = StandardValidator::getAvailableValidators();
 	$this->assertIsArray($validators);
@@ -37,7 +37,7 @@ public function testsGetAvailableValidators():void
  * @return array
  * @link https://stripe.com/docs/testing
  */
-public function ccnumProvider():array
+public function ccnumProvider(): array
 {
 	return [
 		[true, '371449635398431'],
@@ -61,9 +61,9 @@ public function ccnumProvider():array
  * @param string $ccnum
  * @dataProvider ccnumProvider
  */
-public function testCcnum($expected, $ccnum):void
+public function testCcnum(bool $expected, string $ccnum):void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidCcnum($ccnum));
 
 	$validator = new Ccnum();
@@ -94,9 +94,9 @@ public function dateProvider():array
  * @param string $date
  * @dataProvider dateProvider
  */
-public function testDate($expected, $date):void
+public function testDate(bool $expected, string $date):void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidDate($date));
 
 	$validator = new Date();
@@ -108,7 +108,7 @@ public function testDate($expected, $date):void
  * @param string $date
  * @dataProvider dateProvider
  */
-public function testDatetime($expected, $date):void
+public function testDatetime(bool $expected, string $date):void
 {
 	$times = ['valid'=>[], 'invalid'=>[]];
 	foreach ($this->timeProvider() as $row)
@@ -116,7 +116,7 @@ public function testDatetime($expected, $date):void
 		$times[$row[0] ? 'valid' : 'invalid'][] = $row[1];
 	}
 
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	foreach ($this->timeProvider() as $row)
 	{
 		$this->assertSame($expected && $row[0], $validator->isValidDatetime($date . ' ' . $row[1]));
@@ -132,7 +132,7 @@ public function testDatetime($expected, $date):void
 /**
  * @return array
  */
-public function einProvider():array
+public function einProvider(): array
 {
 	return [
 		[true, '12-3456789'],
@@ -146,9 +146,9 @@ public function einProvider():array
  * @param string $ein
  * @dataProvider einProvider
  */
-public function testEin($expected, $ein):void
+public function testEin(bool $expected, string $ein): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidEin($ein));
 
 	$validator = new Ein();
@@ -158,7 +158,7 @@ public function testEin($expected, $ein):void
 /**
  * @return array
  */
-public function emailProvider():array
+public function emailProvider(): array
 {
 	return [
 		[true, 'hello@domain.net'],
@@ -171,11 +171,13 @@ public function emailProvider():array
 }
 
 /**
+ * @param bool $expected
+ * @param string $email
  * @dataProvider emailProvider
  */
-public function testEmail($expected, $email):void
+public function testEmail(bool $expected, string $email): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidEmail($email));
 
 	$validator = new Email();
@@ -184,7 +186,7 @@ public function testEmail($expected, $email):void
 
 /**
  */
-public function testEmailValidator():void
+public function testEmailValidator(): void
 {
 	$validator = new Email();
 
@@ -197,7 +199,7 @@ public function testEmailValidator():void
 /**
  * @return array
  */
-public function ibanProvider():array
+public function ibanProvider(): array
 {
 	return [
 		[true, 'GR16 0110 1250 0000 0001 2300 695'],
@@ -213,9 +215,9 @@ public function ibanProvider():array
  * @param string $iban
  * @dataProvider ibanProvider
  */
-public function testIban($expected, $iban):void
+public function testIban(bool $expected, string $iban): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidIban($iban));
 
 	$validator = new Iban();
@@ -225,7 +227,7 @@ public function testIban($expected, $iban):void
 /**
  * @return array
  */
-public function ipProvider():array
+public function ipProvider(): array
 {
 	return [
 		[true, '1.1.1.1'],
@@ -240,9 +242,9 @@ public function ipProvider():array
  * @param string $ip
  * @dataProvider ipProvider
  */
-public function testIp($expected, $ip):void
+public function testIp(bool $expected, string $ip): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidIp($ip));
 
 	$validator = new Ip();
@@ -252,7 +254,7 @@ public function testIp($expected, $ip):void
 /**
  * @return array
  */
-public function itinProvider():array
+public function itinProvider(): array
 {
 	return [
 		[true, '900-71-1234'],
@@ -267,9 +269,9 @@ public function itinProvider():array
  * @param string $itin
  * @dataProvider itinProvider
  */
-public function testItin($expected, $itin):void
+public function testItin(bool $expected, string $itin): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidItin($itin));
 
 	$validator = new Itin();
@@ -279,7 +281,7 @@ public function testItin($expected, $itin):void
 /**
  * @return array
  */
-public function ssnProvider():array
+public function ssnProvider(): array
 {
 	return [
 		[true, '078-05-1120'],
@@ -298,9 +300,9 @@ public function ssnProvider():array
  * @param string $ssn
  * @dataProvider ssnProvider
  */
-public function testSsn($expected, $ssn):void
+public function testSsn(bool $expected, string $ssn): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidSsn($ssn));
 
 	$validator = new Ssn();
@@ -310,7 +312,7 @@ public function testSsn($expected, $ssn):void
 /**
  * @return array
  */
-public function timeProvider():array
+public function timeProvider(): array
 {
 	return [
 		[true, '00:00:00'],
@@ -326,9 +328,9 @@ public function timeProvider():array
  * @param string $time
  * @dataProvider timeProvider
  */
-public function testTime($expected, $time):void
+public function testTime(bool $expected, string $time): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidTime($time));
 
 	$validator = new Time();
@@ -338,7 +340,7 @@ public function testTime($expected, $time):void
 /**
  * @return array
  */
-public function urlProvider():array
+public function urlProvider(): array
 {
 	return [
 		[true, 'http://example.com'],
@@ -353,9 +355,9 @@ public function urlProvider():array
  * @param string $url
  * @dataProvider urlProvider
  */
-public function testUrl($expected, $url):void
+public function testUrl(bool $expected, string $url): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidUrl($url));
 
 	$validator = new Url();
@@ -365,7 +367,7 @@ public function testUrl($expected, $url):void
 /**
  * @return array
  */
-public function zipProvider():array
+public function zipProvider(): array
 {
 	return [
 		[true, '85713'],
@@ -382,9 +384,9 @@ public function zipProvider():array
  * @param string $zip
  * @dataProvider zipProvider
  */
-public function testZip($expected, $zip):void
+public function testZip(bool $expected, string $zip): void
 {
-	$validator = StandardValidator::getInstance();
+	$validator = new StandardValidator();
 	$this->assertSame($expected, $validator->isValidZip($zip));
 
 	$validator = new Zip();

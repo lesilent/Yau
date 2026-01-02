@@ -78,10 +78,8 @@ protected function encodeValue($value): string
 	{
 		case 'json':
 			return json_encode($value);
-			break;
 		case 'serialize':
 			return serialize($value);
-			break;
 		default:
 			return is_string($value) ? $value : serialize($value);
 	}
@@ -99,10 +97,8 @@ protected function decodeValue(string $value)
 	{
 		case 'json':
 			return json_decode($value, true);
-			break;
 		case 'serialize':
 			return unserialize($value);
-			break;
 		default:
 			return $value;
 	}

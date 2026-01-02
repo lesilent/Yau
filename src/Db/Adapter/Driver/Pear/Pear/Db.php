@@ -62,6 +62,7 @@ public function exec($stmt, array $params = [])
 public function beginTransaction()
 {
 	$res = $this->dbh->autoCommit(false);
+	// @phpstan-ignore-next-line
 	return !self::isError($res) && ($this->transaction = true);
 }
 
@@ -74,6 +75,7 @@ public function beginTransaction()
 public function commit()
 {
 	$res = $this->dbh->commit();
+	// @phpstan-ignore-next-line
 	return !self::isError($res) && (($this->transaction = false) || true);
 }
 
@@ -86,6 +88,7 @@ public function commit()
 public function rollback()
 {
 	$res = $this->dbh->rollback();
+	// @phpstan-ignore-next-line
 	return !self::isError($res) && (($this->transaction = false) || true);
 }
 

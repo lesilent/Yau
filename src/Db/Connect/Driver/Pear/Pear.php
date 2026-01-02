@@ -24,8 +24,7 @@ private static $path;
 /**
  * Return the path to PEAR libraries
  *
- * @return string the path to the PEAR libraries, or FALSE if unable to
- *                locate them
+ * @return string|false the path to the PEAR libraries, or false if unable tolocate them
  */
 public static function getPath()
 {
@@ -44,14 +43,15 @@ public static function getPath()
 }
 
 /**
+ * Connect to database
  *
- * @param  array $params
+ * @param array $params
  * @return mixed
  */
 public static function connect($params)
 {
 	$class_name = __CLASS__ . '\\' . ucwords($params['driver']);
-	return call_user_func(array($class_name, __FUNCTION__), $params);
+	return call_user_func([$class_name, __FUNCTION__], $params);
 }
 
 /*=======================================================*/

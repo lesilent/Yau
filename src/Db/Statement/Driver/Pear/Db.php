@@ -22,7 +22,7 @@ class Db extends AbstractDriver
  * @return bool
  * @uses Yau\Db\Adapter\Driver\Pear\Pear\Db::isError()
  */
-protected static function isError($value)
+protected static function isError($value): bool
 {
 	return Adapter::isError($value);
 }
@@ -31,7 +31,7 @@ protected static function isError($value)
  * Prepare an SQL statement
  *
  * @param string $stmt the SQL statement to prepare
- * @return bool  true on success, or false on failure
+ * @return bool true on success, or false on failure
  * @throws Exception if error preparing statement
  */
 protected function prepare($stmt)
@@ -40,7 +40,7 @@ protected function prepare($stmt)
 	if (self::isError($sth))
 	{
 		throw new Exception($this->res->getMessage(), $this->res->getCode());
-		return false;
+//		return false;
 	}
 	$this->sth = $sth;
 	return true;
@@ -65,7 +65,7 @@ public function execute(array $params = [])
 	if (self::isError($this->res))
 	{
 		throw new Exception($this->res->getMessage(), $this->res->getCode());
-		return false;
+//		return false;
 	}
 	return true;
 }
@@ -73,7 +73,7 @@ public function execute(array $params = [])
 /**
  * Fetch a single row from result set as an associative array
  *
- * @return mixed a row from the result set, or false if there are no more
+ * @return array|false a row from the result set, or false if there are no more
  */
 public function fetchAssocRow()
 {
@@ -90,7 +90,7 @@ public function fetchAssocRow()
 /**
 * Fetch a single row from result set as a numeric array
 *
-* @return mixed a row from the result set, or false if there are no more
+* @return array|false a row from the result set, or false if there are no more
 */
 public function fetchNumRow()
 {
@@ -107,7 +107,7 @@ public function fetchNumRow()
 /**
  * Fetch all rows from result set
  *
- * @return array an associative array from the result set, or false if no more
+ * @return array|false an associative array from the result set, or false if no more
  */
 public function fetchAll()
 {
@@ -148,7 +148,7 @@ public function freeResult()
 /**
  * Return the number of rows in result
  *
- * @return int the number of rows in result, or false on failure
+ * @return int|false the number of rows in result, or false on failure
  * @throws Exception if backend does not support this
  * @uses DB_result::numRows()
  */

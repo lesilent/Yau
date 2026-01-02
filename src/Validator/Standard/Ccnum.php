@@ -2,7 +2,6 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
@@ -10,7 +9,7 @@ use Yau\Validator\ValidatorInterface;
  *
  * @author John Yau
  */
-class Ccnum extends Singleton implements ValidatorInterface
+class Ccnum implements ValidatorInterface
 {
 /*=======================================================*/
 

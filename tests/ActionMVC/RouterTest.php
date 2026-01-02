@@ -81,7 +81,7 @@ public static function pathProvider(): array
 
 /**
  * @param string $path
- * @param mixed  $params
+ * @param mixed $params
  * @dataProvider pathProvider
  */
 public function testMatch($path, $params): void
@@ -97,7 +97,7 @@ public function testMatch($path, $params): void
 		if (strpos($path, '?') === false)
 		{
 			$this->assertSame($params, $router->match($path . '?'));
-			$this->assertSame(is_array($params) ? ($params + ['hello'=>'world']) : $params, $router->match($path . '?hello=world'));
+			$this->assertSame($params + ['hello'=>'world'], $router->match($path . '?hello=world'));
 		}
 	}
 	if (preg_match('/\w/', $path))

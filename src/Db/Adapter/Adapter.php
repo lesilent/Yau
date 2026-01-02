@@ -93,7 +93,6 @@ public static function getDriver($dbh)
 			* @link http://www.php.net/manual/en/ref.mysql.php
 			*/
 			return strtolower($matches[1]);
-			break;
 		case 'odbc link':
 		case 'odbc link persistent':
 			/**
@@ -102,7 +101,6 @@ public static function getDriver($dbh)
 			* @link http://www.php.net/manual/en/ref.uodbc.php
 			*/
 			return strtolower($matches[1]);
-			break;
 		case 'pgsql link':
 		case 'pgsql link persistent':
 			/**
@@ -111,7 +109,6 @@ public static function getDriver($dbh)
 			* @link http://www.php.net/manual/en/ref.pgsql.php
 			*/
 			return strtolower($matches[1]);
-			break;
 		}
 	}
 

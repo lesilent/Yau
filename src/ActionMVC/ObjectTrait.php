@@ -14,14 +14,14 @@ trait ObjectTrait
 /**
  * Controller
  *
- * @var object
+ * @var object|null
  */
 private $controller = null;
 
 /**
  * Return the controller
  *
- * @return object
+ * @return object|null
  */
 public function getController()
 {
@@ -48,9 +48,8 @@ public function setController($controller): void
  */
 public function get($type, $name = 'default')
 {
-	return (isset($this->controller))
-		? $this->controller->get($type, $name)
-		: null;
+	return (empty($this->controller))
+		? null : $this->controller->get($type, $name);
 }
 
 /*=======================================================*/

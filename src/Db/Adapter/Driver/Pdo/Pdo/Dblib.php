@@ -36,6 +36,7 @@ public function exec($stmt, array $params = [])
  */
 public function beginTransaction()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = true);
 }
 
@@ -46,6 +47,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = false) || true);
 }
 
@@ -56,6 +58,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = false) || true);
 }
 

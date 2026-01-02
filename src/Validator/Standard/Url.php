@@ -2,7 +2,6 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
@@ -12,7 +11,7 @@ use Yau\Validator\ValidatorInterface;
  *
  * @author John Yau
  */
-class Url extends Singleton implements ValidatorInterface
+class Url implements ValidatorInterface
 {
 /*=======================================================*/
 

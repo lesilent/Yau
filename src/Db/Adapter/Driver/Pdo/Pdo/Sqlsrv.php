@@ -24,7 +24,7 @@ class Sqlsrv extends Pdo
 public function exec($stmt, array $params = [])
 {
 	if (defined('PDO::SQLSRV_ATTR_DIRECT_QUERY')
-		&& ($SQLSRV_ATTR_DIRECT_QUERY = constant('PDO::SQLSRV_ATTR_DIRECT_QUERY')))
+		&& ($SQLSRV_ATTR_DIRECT_QUERY = constant('PDO::SQLSRV_ATTR_DIRECT_QUERY')))  // @phpstan-ignore-line
 	{
 		// If not direct query, then we need to enable to properly get rowcount
 		// https://blogs.iis.net/bswan/how-to-change-database-settings-with-the-pdo-sqlsrv-driver
@@ -60,6 +60,7 @@ public function exec($stmt, array $params = [])
  */
 public function beginTransaction()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('BEGIN TRANSACTION') && ($this->transaction = true);
 }
 
@@ -70,6 +71,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('COMMIT TRANSACTION') && (($this->transaction = false) || true);
 }
 
@@ -80,6 +82,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->exec('ROLLBACK TRANSACTION') && (($this->transaction = false) || true);
 }
 

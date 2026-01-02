@@ -14,10 +14,10 @@ class Mysql extends Pdo
 /*=======================================================*/
 
 /**
-* Return the number of rows in result
-*
-* @return integer the number of rows in result, or FALSE on failure
-*/
+ * Return the number of rows in result
+ *
+ * @return int|false the number of rows in result, or FALSE on failure
+ */
 public function numRows()
 {
 	if (empty($this->sth))

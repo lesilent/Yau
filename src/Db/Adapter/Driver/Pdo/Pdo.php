@@ -47,6 +47,7 @@ public function lastInsertId()
  */
 public function beginTransaction()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->beginTransaction() && ($this->transaction = true);
 }
 
@@ -57,6 +58,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->commit() && (($this->transaction = false) || true);
 }
 
@@ -67,6 +69,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->rollBack() && (($this->transaction = false) || true);
 }
 

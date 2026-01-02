@@ -53,7 +53,7 @@ public static function buildBindString(array $params):string
  *
  * @param string $stmt the SQL statement to execute
  * @param array $params optional array of values to bind to placeholders
- * @return int the number of affected rows, or false if error
+ * @return int|false the number of affected rows, or false if error
  */
 public function exec($stmt, array $params = [])
 {
@@ -81,13 +81,13 @@ public function exec($stmt, array $params = [])
 /**
  * Return the id of the last inserted row
  *
- * @return string the id of the last inserted row
+ * @return int|string the id of the last inserted row
  */
 public function lastInsertId()
 {
 	return $this->dbh->insert_id;
-	$result = $this->dbh->query('SELECT LAST_INSERT_ID()');
-	return ($row = $result->fetch_row()) ? reset($row) : false;
+//	$result = $this->dbh->query('SELECT LAST_INSERT_ID()');
+//	return ($row = $result->fetch_row()) ? reset($row) : false;
 }
 
 //-------------------------------------
@@ -101,6 +101,7 @@ public function lastInsertId()
  */
 public function beginTransaction()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->autocommit(false) && ($this->transaction = true);
 }
 
@@ -112,6 +113,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->commit() && (($this->transaction = false) || true);
 }
 
@@ -123,6 +125,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return $this->dbh->rollback() && (($this->transaction = false) || true);
 }
 

@@ -14,7 +14,7 @@ class ViewTest extends TestCase
 /*=======================================================*/
 
 /**
- * @var object
+ * @var object|null
  */
 private static $view;
 
@@ -27,7 +27,7 @@ private static $CONTENT = 'Hello World';
 
 /**
  */
-public static function setUpBeforeClass():void
+public static function setUpBeforeClass(): void
 {
 	self::$view = View::getInstance();
 	self::$view->setBasePath(__DIR__ . DIRECTORY_SEPARATOR . 'templates');
@@ -36,7 +36,7 @@ public static function setUpBeforeClass():void
 
 /**
  */
-public static function tearDownAfterClass():void
+public static function tearDownAfterClass(): void
 {
 	self::$view = null;
 }
@@ -44,7 +44,7 @@ public static function tearDownAfterClass():void
 /**
  * @return array
  */
-public static function templateProvider():array
+public static function templateProvider(): array
 {
 	return [
 		['header', '<html><body>'],
@@ -58,7 +58,7 @@ public static function templateProvider():array
  * @param string $html
  * @dataProvider templateProvider
  */
-public function testView($template, $html):void
+public function testView(string $template, string $html): void
 {
 	$view = self::$view;
 

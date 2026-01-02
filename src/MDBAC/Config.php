@@ -100,7 +100,7 @@ protected $data;
 /**
  * The current SimpleXML object
  *
- * @var object
+ * @var object|null
  */
 protected $xml;
 
@@ -108,6 +108,7 @@ protected $xml;
  * The options
  *
  * @var array
+ * @phpstan-ignore-next-line
  */
 private $options = [];
 
@@ -169,7 +170,7 @@ private static $JSON_PATTERN = '/^\s*{.+}\s*$/s';
  * - disabled string if set, then connection to system is temporarily disabled
  * </pre>
  *
- * @param mixed $cfg     either the path to the config file or a config XML
+ * @param mixed $cfg either the path to the config file or a config XML
  * @param array $options optional associative array of options
  * @throws InvalidArgumentException if unable to parse XML
  */
@@ -306,10 +307,10 @@ private function sortWeights(&$arr)
  * - system   string the name of the system to use if other than default
  * </pre>
  *
- * @param  string $database the name of the database information to load
- * @param  array  $options  optional associative array of options
- * @return array  an array of associative arrays of connection info if it was
- *                loaded successfully
+ * @param string $database the name of the database information to load
+ * @param array $options optional associative array of options
+ * @return array an array of associative arrays of connection info if it was
+ *               loaded successfully
  */
 public function fetchAll($database, array $options = [])
 {
@@ -317,6 +318,7 @@ public function fetchAll($database, array $options = [])
 	 * Get database info
 	 */
 	$db_info = [];
+	$path = '*';
 	if (isset($this->xml))
 	{
 		// Search for the database
@@ -556,9 +558,9 @@ public function fetchAll($database, array $options = [])
  * </pre>
  *
  * @param string $database the name of the database information to load
- * @param array  $options  optional associative array of options
- * @return array  an associative arrays of connection info if it was
- *                loaded successfully, or NULL if none
+ * @param array $options optional associative array of options
+ * @return array an associative arrays of connection info if it was
+ *               loaded successfully, or NULL if none
  * @uses Yau\MDBAC\Config::fetchAll()
  */
 public function fetchOne($database, array $options = [])
@@ -571,7 +573,7 @@ public function fetchOne($database, array $options = [])
  * Fetch all connection information for a database and return a result set object
  *
  * @param string $database the name of the database information to load
- * @param array  $options  optional associative array of options
+ * @param array $options optional associative array of options
  * @return object a Yau\MDBAC\Result result set object
  * @uses Yau\MDBAC\Config::query()
  */
@@ -600,7 +602,7 @@ public function query($database, array $options = [])
  * Trigger errors for the following:
  * - Bad values for some tags
  *
- * @param mixed  $json  the raw JSON string
+ * @param mixed $json the raw JSON string
  * @param string $error optional variable to store the error string
  * @return bool true if the xml passes inspection, or false if it does not
  */
@@ -787,7 +789,7 @@ public static function isValidJson($json, &$error = null)
  * Trigger errors for the following:
  * - Bad values for some tags
  *
- * @param mixed  $xml   either the raw XML string or a SimpleXML object
+ * @param mixed $xml either the raw XML string or a SimpleXML object
  * @param string $error optional variable to store the error string
  * @return bool true if the xml passes inspection, or false if it does not
  * @see SimpleXML
@@ -1014,7 +1016,7 @@ public static function isValidXml($xml, &$error = null)
  * </code>
  *
  * @param string $filename the path to the config file
- * @param string $error    optional variable to store the error string
+ * @param string $error optional variable to store the error string
  * @return bool true if the file passes inspection, or false if it does not
  */
 public static function isValidFile($filename, &$error = null)

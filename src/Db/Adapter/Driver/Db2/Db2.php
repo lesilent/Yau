@@ -31,7 +31,7 @@ public function exec($stmt, array $params = [])
 /**
  * Return the last insert id
  *
- * @return int
+ * @return string|false
  */
 public function lastInsertId()
 {
@@ -52,6 +52,7 @@ public function lastInsertId()
  */
 public function beginTransaction()
 {
+	// @phpstan-ignore-next-line
 	return db2_autocommit($this->dbh, DB2_AUTOCOMMIT_OFF) && ($this->transaction = true);
 }
 
@@ -63,6 +64,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return db2_commit($this->dbh) && (($this->transaction = false) || true);
 }
 
@@ -74,6 +76,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return db2_rollback($this->dbh) && (($this->transaction = false) || true);
 }
 

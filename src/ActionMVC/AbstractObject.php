@@ -14,7 +14,7 @@ abstract class AbstractObject
 /**
  * Controller
  *
- * @var object
+ * @var object|null
  */
 private $controller = null;
 
@@ -44,7 +44,7 @@ public function cleanup(): void
 /**
  * Return the controller
  *
- * @return object
+ * @return object|null
  */
 public function getController()
 {
@@ -67,13 +67,12 @@ public function setController($controller)
  * @param string $type
  * @param string $name
  * @return mixed
- * @uses   Controller::get()
+ * @uses Controller::get()
  */
 public function get($type, $name = 'default')
 {
-	return (isset($this->controller))
-		? $this->controller->get($type, $name)
-		: null;
+	return (empty($this->controller))
+		? null : $this->controller->get($type, $name);
 }
 
 /**

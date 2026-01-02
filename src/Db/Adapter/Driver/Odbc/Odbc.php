@@ -33,7 +33,6 @@ public function exec($stmt, array $params = [])
 /**
  * Return the id of the last inserted row
  *
- * @return string the id of the last inserted row
  * @throws Exception always
  */
 public function lastInsertId()
@@ -50,6 +49,7 @@ public function lastInsertId()
  */
 public function beginTransaction()
 {
+ 	// @phpstan-ignore-next-line
 	return odbc_autocommit($this->dbh, false) && ($this->transaction = true);
 }
 
@@ -60,6 +60,7 @@ public function beginTransaction()
  */
 public function commit()
 {
+	// @phpstan-ignore-next-line
 	return odbc_commit($this->dbh) && (($this->transaction = false) || true);
 }
 
@@ -70,6 +71,7 @@ public function commit()
  */
 public function rollBack()
 {
+	// @phpstan-ignore-next-line
 	return odbc_rollback($this->dbh) && (($this->transaction = false) || true);
 }
 

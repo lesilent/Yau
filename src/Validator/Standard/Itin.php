@@ -2,7 +2,6 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
@@ -11,7 +10,7 @@ use Yau\Validator\ValidatorInterface;
 * @author John Yau
 * @link http://www.irs.gov/Individuals/General-ITIN-Information
 */
-class Itin extends Singleton implements ValidatorInterface
+class Itin implements ValidatorInterface
 {
 /*=======================================================*/
 

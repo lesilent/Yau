@@ -2,16 +2,14 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
  * Class to check that a value is a valid International Bank Account Number (IBAN)
  *
  * @author John Yau
- * @link https://github.com/lesilent/Yau
  */
-class Iban extends Singleton implements ValidatorInterface
+class Iban implements ValidatorInterface
 {
 /*=======================================================*/
 

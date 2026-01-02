@@ -36,31 +36,11 @@ private static $XML_FILE = 'db.conf.xml';
 private static $JSON_FILE = 'db.conf.json';
 
 /**
- * Path to the database config file
- *
- * @var string
- */
-private static $filename;
-
-/**
- * @var object
- */
-private static $config;
-
-/**
  * Fields in database info array
  *
  * @var array
  */
 private static $DB_FIELDS = ['system', 'host', 'name', 'driver', 'dbname', 'username', 'password'];
-
-/**
- */
-public static function setUpBeforeClass(): void
-{
-	self::$filename = __DIR__ . DIRECTORY_SEPARATOR . self::$XML_FILE;
-	self::$config = new Config(self::$filename);
-}
 
 /**
  * @return array

@@ -74,9 +74,9 @@ protected $info;
 /**
  * The connection configuration object
  *
- * @var object
+ * @var object|null
  */
-protected $config;
+protected $config = null;
 
 /**
  * Cache of connections

@@ -18,6 +18,18 @@ use FilesystemIterator;
  * </code>
  *
  * @author John Yau
+ * @method bool isValidCcnum($value)
+ * @method bool isValidDate($value)
+ * @method bool isValidDatetime($value)
+ * @method bool isValidEin($value)
+ * @method bool isValidEmail($value)
+ * @method bool isValidIban($value)
+ * @method bool isValidIp($value)
+ * @method bool isValidItin($value)
+ * @method bool isValidSsn($value)
+ * @method bool isValidTime($value)
+ * @method bool isValidUrl($value)
+ * @method bool isValidZip($value)
  */
 class StandardValidator extends Singleton
 {
@@ -34,7 +46,7 @@ private $validators = [];
  * Magic method for routing validator calls to respective classes
  *
  * @param string $func
- * @param array  $args
+ * @param array $args
  * @return bool
  * @throws InvalidArgumentException if method is invalid
  */
@@ -66,7 +78,7 @@ public function __call($func, $args)
 		}
 
 		// Instantiate object
-		$this->validators[$vname] = $class_name::getInstance();
+		$this->validators[$vname] = new $class_name();
 	}
 
 	// Call validator
@@ -74,11 +86,11 @@ public function __call($func, $args)
 }
 
 /**
- * Return an array of available validators
+ * Return an array of available standard validators
  *
  * @return array
  */
-public static function getAvailableValidators():array
+public static function getAvailableValidators(): array
 {
 	// Iteratate over directory to find files
 	$validators = [];

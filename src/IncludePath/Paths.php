@@ -343,11 +343,11 @@ public static function remove(string $path): string
  * </code>
  *
  * @param string $filename the file to the find the path for
- * @param array $paths array of paths to search for file; if omitted,
+ * @param array|null $paths array of paths to search for file; if omitted,
  *                     then the current include path will be searched
- * @return string the absolute path to the file, or false if not found
+ * @return string|false the absolute path to the file, or false if not found
  */
-public static function getFullPath(string $filename, array $paths = [])
+public static function getFullPath(string $filename, ?array $paths = null)
 {
 	// If first character is directory separator, then absolute path
 	if ($filename[0] == DIRECTORY_SEPARATOR)

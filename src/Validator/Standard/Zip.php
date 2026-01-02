@@ -2,16 +2,14 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
  * Class to check that a value is a valid US zip code format
  *
  * @author John Yau
- * @link https://github.com/lesilent/Yau
  */
-class Zip extends Singleton implements ValidatorInterface
+class Zip implements ValidatorInterface
 {
 /*=======================================================*/
 

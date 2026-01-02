@@ -19,7 +19,7 @@ use ObjectTrait, SingletonTrait;
 /**
  * Base path to templates
  *
- * @var string
+ * @var string|null
  */
 private $path;
 
@@ -46,7 +46,7 @@ public function getBasePath(): string
  *
  * @param string $path
  */
-public function setBasePath($path): void
+public function setBasePath(string $path): void
 {
 	$this->path = realpath($path);
 }
@@ -54,12 +54,14 @@ public function setBasePath($path): void
 /**
  * Render and return template as a string
  *
- * @param string $template
+ * @param string|null $template
  * @return string
  */
 public function render(?string $template = null): string
 {
-	$filename = $this->getBasePath() . DIRECTORY_SEPARATOR . $template . '.php';
+	$template ??= $this->getTemplate();
+	$filename = (empty($template))
+		? null : $this->getBasePath() . DIRECTORY_SEPARATOR . $template . '.php';
 	return $this->fetch($filename);
 }
 

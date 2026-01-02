@@ -19,7 +19,7 @@ class Mysql extends Db
 /**
  * Return the id of the last row inserted
  *
- * @return int the id of the last row inserted, or false
+ * @return string|false the id of the last row inserted, or false
  */
 public function lastInsertId()
 {

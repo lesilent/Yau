@@ -2,16 +2,14 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
  * Class to check that a value is a valid date in "YYYY-MM-DD" format
  *
  * @author John Yau
- * @link https://github.com/lesilent/Yau
  */
-class Date extends Singleton implements ValidatorInterface
+class Date implements ValidatorInterface
 {
 /*=======================================================*/
 
@@ -25,7 +23,7 @@ const PATTERN = '/^(\d{4})\-(0\d|1[0-2])\-([0-2]\d|3[01])$/';
 /**
  * Check that a value is a valid date in YYYY-MM-DD format
  *
- * @param string  $value the value to check
+ * @param string $value the value to check
  * @return bool true if check passes, or false if not
  * @uses checkdate()
  */

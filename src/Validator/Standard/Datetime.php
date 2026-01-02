@@ -2,16 +2,14 @@
 
 namespace Yau\Validator\Standard;
 
-use Yau\Singleton\Singleton;
 use Yau\Validator\ValidatorInterface;
 
 /**
  * Class to check that value is valid date time in "YYYY-MM-DD HH:MM:SS" format
  *
  * @author John Yau
- * @link https://github.com/lesilent/Yau
  */
-class Datetime extends Singleton implements ValidatorInterface
+class Datetime implements ValidatorInterface
 {
 /*=======================================================*/
 

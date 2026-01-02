@@ -31,10 +31,10 @@ abstract class Sql
  * </code>
  *
  * @param string $column the name of the column
- * @param array  $values
+ * @param array $values
  * @return string
  */
-public static function buildInPredicate($column, array $values): string
+public static function buildInPredicate(string $column, array $values): string
 {
 	return $column . ' IN (?' . str_repeat(', ?', count($values) - 1) . ')';
 }
@@ -56,10 +56,10 @@ public static function buildInPredicate($column, array $values): string
  * </code>
  *
  * @param string $column the name of the column
- * @param array  $values
+ * @param array $values
  * @return string
  */
-public static function buildNotInPredicate($column, array $values): string
+public static function buildNotInPredicate(string $column, array $values): string
 {
 	return $column . ' NOT IN (?' . str_repeat(', ?', count($values) - 1) . ')';
 }
@@ -85,8 +85,7 @@ public static function buildNotInPredicate($column, array $values): string
  * WHERE fname = ? AND lname = ?
  * </code>
  *
- * @param mixed $where either a string or associative array of values for the
- *                     WHERE clause
+ * @param mixed $where either a string or associative array of values for the WHERE clause
  * @return string
  */
 public static function buildWhereClause($where): string
@@ -112,10 +111,10 @@ public static function buildWhereClause($where): string
  * </code>
  *
  * @param string $column the name of the column
- * @param array  $values
+ * @param array $values
  * @return string
  */
-public static function buildWhereInClause($column, array $values): string
+public static function buildWhereInClause(string $column, array $values): string
 {
 	return ' WHERE ' . self::buildInPredicate($column, $values);
 }
@@ -123,15 +122,14 @@ public static function buildWhereInClause($column, array $values): string
 /**
  * Build a simple SELECT statement with placeholders
  *
- * @param string $columns optional associative array of columns to select; if
- *                        omitted, then all columns will be returned
- * @param string $table   the table to select from
- * @param mixed  $where   either a string or array representing the WHERE
- *                        clause of rows to select
- * @return string  the SELECT statement with placeholders
+ * @param array|string $columns optional associative array of columns to select; if
+ *                              omitted, then all columns will be returned
+ * @param string $table the table to select from
+ * @param mixed $where either a string or array representing the WHERE clause of rows to select
+ * @return string the SELECT statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildSelectStatement($columns, $table, $where): string
+public static function buildSelectStatement($columns, string $table, $where): string
 {
 	// Determine which columns to select
 	if (empty($columns))
@@ -172,11 +170,11 @@ public static function buildSelectStatement($columns, $table, $where): string
  * INSERT INTO person (fname, lname, age) VALUES(?, ?, ?)
  * </code>
  *
- * @param  string $table  the name of the table to insert into
- * @param  array  $params associative array of parameters
+ * @param string $table the name of the table to insert into
+ * @param array $params associative array of parameters
  * @return string the INSERT statement with placeholders
  */
-public static function buildInsertStatement($table, array $params): string
+public static function buildInsertStatement(string $table, array $params): string
 {
 	return 'INSERT INTO ' . $table
 		. ' (' . implode(', ', array_keys($params)) . ')'
@@ -207,14 +205,13 @@ public static function buildInsertStatement($table, array $params): string
  * UPDATE person SET fname = ?, lname = ?, age = ? WHERE person_id = ?
  * </code>
  *
- * @param string $table  the name of the table to update
- * @param array  $params associative array of parameters
- * @param mixed  $where  either a string or associative array of values for the
- *                        WHERE clause
+ * @param string $table the name of the table to update
+ * @param array $params associative array of parameters
+ * @param mixed $where either a string or associative array of values for the WHERE clause
  * @return string the UPDATE statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildUpdateStatement($table, array $params, $where): string
+public static function buildUpdateStatement(string $table, array $params, $where): string
 {
 	return 'UPDATE ' . $table
 		. ' SET ' . implode(' = ?,', array_keys($params)) . ' = ?'
@@ -242,12 +239,11 @@ public static function buildUpdateStatement($table, array $params, $where): stri
  * </code>
  *
  * @param string $table the table to delete from
- * @param mixed  $where either a string or associative array of values for the
- *                      WHERE clause
+ * @param mixed $where either a string or associative array of values for the WHERE clause
  * @return string the DELETE statement with placeholders
  * @uses Sql::buildWhereClause()
  */
-public static function buildDeleteStatement($table, $where): string
+public static function buildDeleteStatement(string $table, $where): string
 {
 	return 'DELETE FROM ' . $table . self::buildWhereClause($where);
 }
@@ -264,15 +260,14 @@ public static function buildDeleteStatement($table, $where): string
  * mysql_query($query);
  * </code>
  *
- * @param string $stmt   the SQL statement with placeholders
- * @param array  $params array of input parameters to replace placeholders
- *                       with
- * @param mixed  $escape the callback function used to escape strings;
+ * @param string $stmt the SQL statement with placeholders
+ * @param array $params array of input parameters to replace placeholders with
+ * @param mixed $escape the callback function used to escape strings;
  *                       default is addslashes
  * @return string a SQL statement with values in it
  * @throws Exception if escape function is not callable
  */
-public static function replacePlaceholders($stmt, array $params = [], $escape = 'addslashes'): string
+public static function replacePlaceholders(string $stmt, array $params = [], $escape = 'addslashes'): string
 {
 	// Variable to store where place placeholder replacement was
 	$offset = 0;

@@ -194,7 +194,7 @@ public function dropTable()
  */
 public function get($key, $default = null)
 {
-	$this->created = ($this->created || $this->createTable() || true);
+	$this->created = ($this->created || $this->createTable() || true);  // @phpstan-ignore-line
 	switch ($this->driver)
 	{
 		case 'mysql':
@@ -226,7 +226,7 @@ public function get($key, $default = null)
  */
 public function set($key, $value, $ttl = null)
 {
-	$this->created = ($this->created || $this->createTable() || true);
+	$this->created = ($this->created || $this->createTable() || true);  // @phpstan-ignore-line
 	switch ($this->driver)
 	{
 		case 'mysql':
@@ -286,7 +286,7 @@ public function clear()
  */
 public function has($key): bool
 {
-	$this->created = ($this->created || $this->createTable() || true);
+	$this->created = ($this->created || $this->createTable() || true);  // @phpstan-ignore-line
 	switch ($this->driver)
 	{
 		case 'mysql':

@@ -45,6 +45,7 @@ private static function autoload($class): void
  */
 public static function registerAutoloader(): bool
 {
+	// @phpstan-ignore-next-line
 	return (self::$registered) ? true : (spl_autoload_register([__CLASS__, 'autoload']) && (self::$registered = true));
 }
 
@@ -55,6 +56,7 @@ public static function registerAutoloader(): bool
  */
 public static function unregisterAutoloader(): bool
 {
+	// @phpstan-ignore-next-line
 	return (self::$registered) ? (spl_autoload_unregister([__CLASS__, 'autoload']) && !(self::$registered = false)) : false;
 }
 

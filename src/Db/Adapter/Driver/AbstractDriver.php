@@ -139,17 +139,13 @@ public function prepare($stmt)
  *
  * @param string $query the SQL query to execute
  * @param array $params an array of parameters to bind to the statement
- * @return object a Yau\Db\Statement object, or false on failure
- * @throws Exception if unable to prepare statement
+ * @return object|false a Yau\Db\Statement object, or false on failure
  * @uses Yau\Db\AbstractDriver::prepare()
  */
 public function query($query, array $params = [])
 {
-	if ($sth = $this->prepare($query))
-	{
-		return ($sth->execute($params)) ? $sth : false;
-	}
-	throw new Exception('Unable to prepare statement: ' . $query);
+	$sth = $this->prepare($query);
+	return ($sth->execute($params)) ? $sth : false;
 }
 
 //-------------------------------------
@@ -158,14 +154,14 @@ public function query($query, array $params = [])
 /**
  * Execute a SQL statement and return the number of rows affected
  *
- * @return int the number of affected rows, or false if error
+ * @return int|false the number of affected rows, or false if error
  */
 abstract public function exec($stmt, array $params = []);
 
 /**
  * Return the id of the last inserted row
  *
- * @return string the id of the last inserted row
+ * @return string|false the id of the last inserted row
  */
 abstract public function lastInsertId();
 
@@ -183,7 +179,7 @@ abstract public function lastInsertId();
  * echo $age;
  * </code>
  *
- * @param string $query  the SQL query to execute
+ * @param string $query the SQL query to execute
  * @param array $params array of values to bind to placeholders
  * @return mixed the value of the first column from the first row in the
  *               result, or false if there's no data

@@ -393,7 +393,7 @@ public function getConnectionId()
  * @param int $connection_id the MySQL connection id
  * @return bool true if connection exists, or false if not
  */
-protected function connectionExists($connection_id)
+protected function connectionExists($connection_id): bool
 {
 	$sth = $this->dbh->query('SHOW PROCESSLIST');
 	while ($row = $sth->fetchAssocRow())
@@ -472,7 +472,7 @@ public function acquire(): bool
 
 	// Kill other connection if it exceeded maximum allowed time
 	$this->dbh->exec('KILL ' . $connid);
-	if ($this->connectionExists($connid))
+	if ($this->connectionExists($connid)) // @phpstan-ignore-line
 	{
 		// Unable to kill other connection
 		trigger_error('Unable to kill connection id ' . $connid);
@@ -480,6 +480,7 @@ public function acquire(): bool
 	}
 
 	// Insert or update record to current connection
+	// @phpstan-ignore-next-line
 	if ($this->dbh->exec($this->update_sql, $update_values) > 0
 		|| $this->dbh->exec($this->insert_sql, $this->sql_values) > 0)
 	{

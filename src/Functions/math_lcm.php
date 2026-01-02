@@ -35,14 +35,11 @@ function math_lcm(...$numbers)
 	$all_numbers = [];
 	foreach ($numbers as $value)
 	{
-		if (is_array($value))
+		if (!is_array($value))
 		{
-			$all_numbers = [...$all_numbers, ...$value];
+			$value = [$value];
 		}
-		else
-		{
-			$all_numbers[] = $value;
-		}
+		$all_numbers = [...$all_numbers, ...$value];
 	}
 	if (min($all_numbers) < 1)
 	{

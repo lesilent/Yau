@@ -41,12 +41,14 @@ if (spl_autoload_functions() === false)
 		// Otherwise throw exception
 		throw new Exception('Yau::unregisterAutoloader failed');
 	}
+	// @phpstan-ignore-next-line.
 	catch (Error $e)
 	{
 		// Code should reach here
 	}
 
 	// Return if unable to load TestCase from PHPUnit
+	// @phpstan-ignore-next-line
 	if (!class_exists('PHPUnit\Framework\TestCase'))
 	{
 		return;
