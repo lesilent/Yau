@@ -26,7 +26,6 @@ const PATTERN = '/^\w[\w\.\-\+]*@(?:[a-z0-9][a-z0-9\-]*\.)+((?:xn\-\-)?[a-z0-9]{
  * Array of TLDs
  *
  * @var array
- * @link http://data.iana.org/TLD/tlds-alpha-by-domain.txt
  */
 private static $TLDS = [];
 

@@ -12,6 +12,7 @@ use Yau\Validator\Standard\Email;
 use Yau\Validator\Standard\Iban;
 use Yau\Validator\Standard\Ip;
 use Yau\Validator\Standard\Itin;
+use Yau\Validator\Standard\Phone;
 use Yau\Validator\Standard\Ssn;
 use Yau\Validator\Standard\Time;
 use Yau\Validator\Standard\Url;
@@ -276,6 +277,74 @@ public function testItin(bool $expected, string $itin): void
 
 	$validator = new Itin();
 	$this->assertSame($expected, $validator->isValid($itin));
+}
+
+/**
+ * Test phone database
+ */
+public function testPhoneDatabase(): void
+{
+	$validator = new Phone();
+
+	$info = $validator->getDatabaseInfo();
+	$this->assertIsArray($info);
+	foreach ($info as $code => $row)
+	{
+		$this->assertMatchesRegularExpression('/^\d{3}$/', strval($code));
+		$this->assertIsArray($row);
+		foreach (['assignable', 'in_service', 'npa_id'] as $key)
+		{
+			$this->assertArrayHasKey($key, $row);
+		}
+	}
+}
+
+/**
+ * @return array
+ */
+public function phoneProvider(): array
+{
+	$data = [
+		[false, '950-253-0000'],
+		[false, '900-253-0000'],
+		[false, '896-253-0000'],
+		[false, '866-253-0000'],
+		[false, '800-253-0000'],
+		[false, '700-253-0000'],
+		[true, '(650)253-0000'],
+		[true, '650-253-0000'],
+		[false, '622-253-0000'],
+		[false, '555-253-0000'],
+		[true, '520-253-0000'],
+		[false, '520-555-0111'],
+		[false, '100-253-0000'],
+	];
+	$validator = new Phone();
+	foreach ($validator->getDatabaseInfo() as $code => $row)
+	{
+		if (strcasecmp($row['assignable'], 'No') == 0
+			|| strcasecmp($row['in_service'], 'N') == 0)
+		{
+
+			$data[] = [false, $code . '-253-0000'];
+		}
+	}
+	return $data;
+}
+
+/**
+ * @param bool $expected
+ * @param string $phone
+ * @dataProvider phoneProvider
+ */
+public function testPhone(bool $expected, string $phone): void
+{
+	$validator = new StandardValidator();
+	$this->assertSame($expected, $validator->isValidPhone($phone));
+
+	$validator = new Phone();
+	$this->assertSame($expected, $validator->isValid($phone));
+	$this->assertSame($expected, $validator->isValid('1-' . $phone));
 }
 
 /**
