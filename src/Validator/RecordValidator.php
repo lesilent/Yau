@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Yau\Validator;
 
+use Yau\Validator\ValidatorException;
 use Yau\Validator\ValidatorInterface;
 
 /**
@@ -18,8 +19,7 @@ use Yau\Validator\ValidatorInterface;
  *     {
  *         if (strlen($firstname) > 32)
  *         {
- *             $this->addMessage('Firstname is too long');
- *             return false;
+ *             return $this->invalid('Firstname is too long');
  *         }
  *         return true;
  *     }
@@ -28,10 +28,11 @@ use Yau\Validator\ValidatorInterface;
  *     {
  *         if ($age < 18)
  *         {
- *             return $this->falseMessage('Too young to vote');
+ *             return $this->invalid('Too young to vote');
  *         }
  *         return true;
  *     }
+ *
  * }
  *
  * // Create a person record
@@ -61,21 +62,11 @@ abstract class RecordValidator implements ValidatorInterface
 /*=======================================================*/
 
 /**
- * The current record being validated
- *
- * Note: this is protected instead of private in case the validator needs to
- * modify the values during the validation process
- *
- * @var mixed
- */
-protected $record;
-
-/**
- * The current field being validated;
+ * Current field being validated
  *
  * @var string
  */
-private $field;
+private $field = '';
 
 /**
  * Associative array to store validation error messages
@@ -93,30 +84,9 @@ protected $messages = [];
  * @return string the method used to validate field
  * @uses RecordValidator::fieldMethodCase()
  */
-protected function getFieldMethod($field)
+protected function getFieldMethod(string $field): string
 {
 	return 'isValid' . str_replace(' ', '', ucwords(preg_replace('/[^a-z\d]+/i', ' ', $field)));
-}
-
-/**
- * Return the current record being validated
- *
- * @return mixed the current record
- */
-protected function getRecord()
-{
-	return (isset($this->record)) ? $this->record : null;
-}
-
-/**
- * Return the value for a field from the current record
- *
- * @param string $field
- * @return mixed
-*/
-protected function getRecordValue($field)
-{
-	return (isset($this->record[$field])) ? $this->record[$field] : null;
 }
 
 /**
@@ -145,106 +115,61 @@ protected function getRecordValue($field)
  * @return array an associative array with field names to their corresponding
  *               validation error message
  */
-public function getMessages()
+public function getMessages(): array
 {
 	return $this->messages;
-}
-
-/**
- * Set the field that's currently being validated
- *
- * @param string $field
- */
-protected function setField($field)
-{
-	$this->field = $field;
 }
 
 /**
  * Add an error message for the current field being validated
  *
  * @param string $message the error message for the field
- * @param string $field   optional field for the error message if other than
- *                        the current one
+ * @param string $field optional field for the error message if other than
+ *                      the current one
+ * @return bool
  */
-protected function addMessage($message, $field = NULL)
+protected function invalid(string $message, ?string $field = null): bool
 {
-	if (isset($field))
+	if (!isset($field))
 	{
-		$this->messages[$field] = $message;
+		$field = $this->field;
 	}
-	elseif (!empty($this->field))
-	{
-		$this->messages[$this->field] = $message;
-	}
-	else
-	{
-		$this->messages[] = $message;
-	}
-}
-
-/**
- * Add an error message and return false
- *
- * Example
- * <code>
- * $message = 'Username is too long';
- *
- * // The following are equivalent
- *
- * $this->addMessage('Username is too long');
- * return false;
- *
- * return $this->falseMessage('Username is too long');
- * </code>
- *
- * @param string $message the error message for the field
- * @return bool false is always returned
- * @deprecated
- */
-protected function falseMessage($message)
-{
-	$this->addMessage($message);
+	$this->messages[$field] = $message;
 	return false;
 }
 
 /**
  * Validate the value in the field of the current record
  *
- * Example
- * <code>
- * </code>
- *
- * @param mixed $value an iterator-able array or object to validate
+ * @param mixed $value an iterable array or object to validate
  * @return bool true if value is valid, or false if not
  */
-public function isValid($value):bool
+public function isValid($value): bool
 {
 	// Clear out error messages
 	$this->messages = [];
 
-	// Store record
-	$this->record = $value;
-
 	// Validate record
 	$result = true;
-	foreach ($this->record as $field => $value)
+	foreach ($value as $field => $val)
 	{
 		if (($method = $this->getFieldMethod($field)) && method_exists($this, $method))
 		{
-			$this->setField($field);
 			try
 			{
-				$result = (bool) $this->$method($value) && $result;
+				$this->field = $field;
+				if ($this->$method($val))
+				{
+					continue;
+				}
+				throw new ValidatorException('Invalid ' . $field);
 			}
-			catch (\Exception $e)
+			catch (ValidatorException $e)
 			{
-				$this->addMessage($e->getMessage());
+				$result = $this->invalid($e->getMessage(), $field) && $result;
 			}
-			$this->setField(NULL);
 		}
 	}
-	$this->record = null;
 
 	// Return result
 	return $result;

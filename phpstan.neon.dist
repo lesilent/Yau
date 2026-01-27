@@ -1,5 +1,15 @@
+includes:
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+
 parameters:
 	level: 4
+	ignoreErrors:
+		-
+			identifiers:
+				- function.alreadyNarrowedType
+				- method.alreadyNarrowedType
+			path: tests
 	paths:
 		- src
 		- tests

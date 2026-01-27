@@ -144,7 +144,7 @@ public function testChainAdapter(): void
 		}
 		else
 		{
-			$this->assertNull($cached_value);
+			$this->assertNull($cached_value);  // @phpstan-ignore method.impossibleType
 			$this->assertFalse($chain->has($key));
 		}
 	}

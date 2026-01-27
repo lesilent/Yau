@@ -58,7 +58,7 @@ public function testUndefinedValue(): void
 {
 	$obj = new AccessObject();
 	$obj->setUndefinedValue(false);
-	$this->assertSame(false, $obj->undefkey);  // @phpstan-ignore property.notFound
+	$this->assertFalse($obj->undefkey);  // @phpstan-ignore property.notFound
 }
 
 /**

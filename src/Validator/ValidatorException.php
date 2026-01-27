@@ -3,21 +3,13 @@
 namespace Yau\Validator;
 
 /**
- * Interface for validators
+ * Validator exception
  *
  * @author John Yau
  */
-interface ValidatorInterface
+class ValidatorException extends \Exception
 {
 /*=======================================================*/
-
-/**
- * The main validation method
- *
- * @param mixed $value
- * @return bool
- */
-public function isValid($value): bool;
 
 /*=======================================================*/
 }

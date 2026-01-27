@@ -87,7 +87,7 @@ public function badConnectProvider(): array
 /**
  * @param string $driver
  * @param array $params
- * @dataProvider badConnectProvider()
+ * @dataProvider badConnectProvider
  */
 public function testBadConnect($driver, $params): void
 {
@@ -124,7 +124,7 @@ public function connectProvider(): iterable
 
 /**
  * @param array $params
- * @dataProvider connectProvider()
+ * @dataProvider connectProvider
  */
 public function testConnect($params): void
 {

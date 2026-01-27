@@ -26,6 +26,7 @@ use FilesystemIterator;
  * @method bool isValidIban($value)
  * @method bool isValidIp($value)
  * @method bool isValidItin($value)
+ * @method bool isValidPhone($value)
  * @method bool isValidSsn($value)
  * @method bool isValidTime($value)
  * @method bool isValidUrl($value)

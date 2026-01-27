@@ -482,7 +482,7 @@ public function getActionTag(?string $action = null, array $params = []): string
 public function doAction(string $action): void
 {
 	// Check action
-	if (!empty($action) && is_scalar($action) && preg_match('/^\w+$/', $action))
+	if (!empty($action) && preg_match('/^\w+$/', $action))
 	{
 		// Execute action
 		$action = $this->get('action', $action);

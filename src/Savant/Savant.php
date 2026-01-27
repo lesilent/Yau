@@ -314,7 +314,10 @@ public function registerFunction($callback, ?string $name = null): void
 	if (empty($name))
 	{
 		$name = (is_array($callback)) ? end($callback) : $callback;
-		$name = array_pop(explode('::', $name));
+		if (($pos = strpos($name, '::')) !== false)
+		{
+			$name = substr($name, 0, $pos);
+		}
 	}
 	if (!preg_match('/^[a-z]\w*$/i', $name))
 	{

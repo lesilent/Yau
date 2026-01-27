@@ -98,14 +98,16 @@ namespace Yau\Functions;
  */
 function array_rowsort(array $arr, ...$sort_by)
 {
+	// Handle usage if arguments are passed as an array
+	if (!empty($sort_by)
+		&& ($arg = reset($sort_by))
+		&& is_array($arg))   // @phpstan-ignore function.alreadyNarrowedType
+	{
+		$sort_by = $arg;
+	}
+
 	// Array of arguments for array_multisort
 	$args = [];
-
-	// Handle usage if arguments are passed as an array
-	if (!empty($sort_by) && is_array($sort_by[0]))
-	{
-		$sort_by = reset($sort_by);
-	}
 
 	// Process sort by parameter
 	foreach ($sort_by as $by)

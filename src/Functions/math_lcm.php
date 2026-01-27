@@ -35,7 +35,7 @@ function math_lcm(...$numbers)
 	$all_numbers = [];
 	foreach ($numbers as $value)
 	{
-		if (!is_array($value))
+		if (!is_array($value))  // @phpstan-ignore function.alreadyNarrowedType
 		{
 			$value = [$value];
 		}

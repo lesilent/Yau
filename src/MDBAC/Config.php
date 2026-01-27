@@ -818,7 +818,8 @@ public static function isValidXml($xml, &$error = null)
 			libxml_use_internal_errors($use_errors);
 			if (empty($xml))
 			{
-				throw new Exception(($error = libxml_get_last_error()) ? $error->message : 'Unable to parse XML');
+				$message = ($last_error = libxml_get_last_error()) ? $last_error->message : 'Unable to parse XML';
+				throw new Exception($message);
 			}
 		}
 		elseif (is_object($xml))

@@ -79,7 +79,7 @@ public function __construct(array $params = [])
 protected function hashKey($key): string
 {
 	return empty($this->algo)
-		? preg_replace_callback('/\W/', fn($matches) => base_convert(ord($matches[0]), 10, 36), $key)
+		? preg_replace_callback('/\W/', fn($matches) => base_convert(strval(ord($matches[0])), 10, 36), $key)
 		: parent::hashKey($key);
 }
 

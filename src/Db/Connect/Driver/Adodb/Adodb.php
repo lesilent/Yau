@@ -71,8 +71,8 @@ public static function connect($params)
 	// Load ADOdb class
 	if (!function_exists('NewADOConnection'))
 	{
-		include 'adodb/adodb-exceptions.inc.php';
-		include 'adodb/adodb.inc.php';
+		include 'adodb/adodb-exceptions.inc.php';  // @phpstan-ignore include.fileNotFound
+		include 'adodb/adodb.inc.php';             // @phpstan-ignore include.fileNotFound
 	}
 
 	// Form DSN string

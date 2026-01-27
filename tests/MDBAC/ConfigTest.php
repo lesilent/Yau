@@ -194,7 +194,7 @@ public function testFetchAllWithOptions($config, $database, $options, $expected)
 	{
 		$systems[] = $row['system'];
 	}
-	$this->assertSame(count($expected), count($systems));
+	$this->assertCount(count($expected), $systems);
 	$this->assertEmpty(array_diff($expected, $systems));
 }
 

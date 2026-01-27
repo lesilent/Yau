@@ -395,7 +395,7 @@ public function asort(): bool
  * @param mixed $params
  * @return array the old array
  */
-public function exchangeArray(mixed $params): array
+public function exchangeArray($params): array
 {
 	$registry = $this->registry;
 	$this->clear();
@@ -472,7 +472,7 @@ public function toArray(): array
  * echo $obj['test'];
  * </code>
  *
- * @param string $value the value to be returned when key is undefined
+ * @param mixed $value the value to be returned when key is undefined
  * @throws InvalidArgumentException if value is not considered empty
  */
 public function setUndefinedValue($value): void

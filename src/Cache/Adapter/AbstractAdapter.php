@@ -70,9 +70,9 @@ protected function hashKey($key): string
  * Return encoded value
  *
  * @param mixed $value
- * @return string
+ * @return string|false
  */
-protected function encodeValue($value): string
+protected function encodeValue($value)
 {
 	switch ($this->encoding)
 	{
