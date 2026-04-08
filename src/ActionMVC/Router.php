@@ -25,7 +25,7 @@ private static $SLUG_PATTERN = '/\{(\w+)\}/';
  *
  * @var array
  */
-private $routes = [];
+protected $routes = [];
 
 /**
  * Flag for returning path with trailing slash
@@ -177,7 +177,7 @@ public function getPath(string $action, array $params = [])
 		if (strcmp($route['action'], $action) == 0
 			&& count(array_diff_key($route['slugs'], $params)) == 0)
 		{
-			$path = preg_replace_callback(self::$SLUG_PATTERN, fn(array $matches) => $params[$matches[1]] ?? '', $route['route']);
+			$path = preg_replace_callback(self::$SLUG_PATTERN, fn(array $matches) => rawurlencode((string)($params[$matches[1]] ?? '')), $route['route']);
 			if ($this->useTrailingSlash() && !$route['endstr'] && strcmp(substr($path, -1), '/') != 0)
 			{
 				$path .= '/';
