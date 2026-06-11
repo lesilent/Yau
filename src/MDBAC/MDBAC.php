@@ -246,7 +246,7 @@ public function connect(string $driver, string $database, array $options = [])
 	}
 
 	// Throw exception if unable to connect; if there was one, then make
-	throw new RuntimeException($error_message, intval($error_code ?? 0));
+	throw new RuntimeException($error_message, intval($error_code ?? 0), $e ?? null);
 }
 
 /**
